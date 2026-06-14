@@ -6,12 +6,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import java.util.Date;
+
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
+
+import com.ufpa.SAGUI.models.User;
+
 
 @Service
 public class JwtService {
@@ -19,7 +22,7 @@ public class JwtService {
     private String jwtSecret;
     
     @Value("${jwt.expiration}")
-    private String jwtExpiration;
+    private Long jwtExpiration;
 
     // transforma jwt secret em chave criptográfica
     private SecretKey getSignInKey(){
@@ -32,13 +35,14 @@ public class JwtService {
         return Jwts.builder()
             .subject(user.getUsername())
             .claim("role", user.getRole().name())
-            .issuedAt(new Date(System.currentTimeMillis() + jwtExpiration))
+            .issuedAt(new Date(System.currentTimeMillis()))
+            .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
             .signWith(getSignInKey())
             .compact();
     }
 
-    // extrai tokens
-    public String extractToken(String token){
+    // extrai email
+    public String extractEmail(String token){
         return Jwts.parser()
             .verifyWith(getSignInKey())
             .build()
@@ -49,16 +53,16 @@ public class JwtService {
 
     // validação de token
     public boolean isTokenValid(String token, UserDetails userDetails){
-        string email = extractToken(token);
+        String email = extractEmail(token);
 
-        return emails.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token){
-        return extractToken(token).before(new Date());
+        return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(string token){
+    private Date extractExpiration(String token){
         return Jwts.parser()
             .verifyWith(getSignInKey())
             .build()
