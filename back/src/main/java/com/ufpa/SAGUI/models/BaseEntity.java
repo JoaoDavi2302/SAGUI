@@ -36,5 +36,4 @@ public abstract class BaseEntity {
 
     private EntityStatus status;
 
-
 }
