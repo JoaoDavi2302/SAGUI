@@ -53,10 +53,11 @@ public class User extends BaseEntity implements UserDetails {
     private UserRole role;
 
     @NotNull
-    private LocalDate birthDate;
-
-    private String address;
+    @Column(nullable = false)
     private String passwordHash;
+
+    private LocalDate birthDate;
+    private String address;
     private String resetToken;
     private LocalDateTime resetTokenExpiry;
 
