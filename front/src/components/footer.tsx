@@ -1,32 +1,61 @@
+"use client";
+
 import Link from "next/link";
+import "./styles.css"
+
+import { Box, Container, Grid, Typography, Stack } from "@mui/material";
 
 export default function Footer() {
   return (
-  <footer className="footer sm:footer-horizontal bg-base-200 text-base-content p-10">
-  <aside>
-    <a href="/" color="#000">
-      SAGUI
-      <br />
-      Sistema Aberto de Gestão Universitaria Institucional
-    </a>
-  </aside>
-  <nav>
-    <h6 className="footer-title">Serviços</h6>
-    <a className="link link-hover" href="/sobre">Sobre</a>
-  </nav>
-  {/* <nav>
-    <h6 className="footer-title">Company</h6>
-    <a className="link link-hover">About us</a>
-    <a className="link link-hover">Contact</a>
-    <a className="link link-hover">Jobs</a>
-    <a className="link link-hover">Press kit</a>
-  </nav>
-  <nav>
-    <h6 className="footer-title">Legal</h6>
-    <a className="link link-hover">Terms of use</a>
-    <a className="link link-hover">Privacy policy</a>
-    <a className="link link-hover">Cookie policy</a>
-  </nav> */}
-</footer>
+    <Box
+      component="footer"
+      className="box-footer"
+    >
+      <Container maxWidth="lg">
+        <Grid container spacing={4}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+              }}
+              gutterBottom
+            >
+              SAGUI
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary">
+              Sistema Aberto de Gestão Universitária Institucional
+            </Typography>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontWeight: 600,
+              }}
+              gutterBottom
+            >
+              Serviços
+            </Typography>
+
+            <Stack spacing={1}>
+              <Link
+                href="/sobre"
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  Sobre
+                </Typography>
+              </Link>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 }

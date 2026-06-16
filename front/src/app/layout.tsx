@@ -1,6 +1,7 @@
 // configuração geral
 import type { Metadata } from "next";
 import "./globals.css";
+import ThemeRegistry from "@/theme-provider";
 
 export const metadata: Metadata = {
   title: "Sagui",
@@ -15,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" data-theme="light">
       <body className="min-h-screen flex flex-col">
-        {children}
+        <ThemeRegistry>{children}</ThemeRegistry>
       </body>
     </html>
   );

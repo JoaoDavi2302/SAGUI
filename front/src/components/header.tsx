@@ -1,78 +1,113 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 
-export default function Header() {
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  Container,
+  IconButton,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+
+import MenuIcon from "@mui/icons-material/Menu";
+
+type NavItem = {
+  label: string;
+  href: string;
+};
+
+type HeaderProps = {
+  title: string;
+  logo?: React.ReactNode;
+  avatarSrc?: string;
+  pages: NavItem[];
+  settings?: NavItem[];
+};
+
+export default function Header({
+  title,
+  logo,
+  avatarSrc,
+  pages,
+  settings = [],
+}: HeaderProps) {
+  const [anchorNav, setAnchorNav] = React.useState<HTMLElement | null>(null);
+
+  const [anchorUser, setAnchorUser] = React.useState<HTMLElement | null>(null);
+
   return (
-    <header className="sticky top-0 z-50 bg-base-100 shadow-md">
-      <div className="navbar max-w-7xl mx-auto px-4">
-        <div className="flex-1">
-          <Link
-            href="/"
-            className="text-2xl font-bold text-primary"
+    <AppBar position="static">
+      <Container maxWidth="xl">
+        <Toolbar>
+          {logo}
+
+          <Typography sx={{ ml: 2 }}>{title}</Typography>
+
+          <Box sx={{ flexGrow: 1 }} />
+
+          {/* MENU */}
+          <Box sx={{ display: { xs: "none", md: "flex" } }}>
+            {pages.map((page) => (
+              <Button
+                key={page.href}
+                component={Link}
+                href={page.href}
+                color="inherit"
+              >
+                {page.label}
+              </Button>
+            ))}
+          </Box>
+
+          {/* MOBILE */}
+          <IconButton
+            color="inherit"
+            onClick={(e) => setAnchorNav(e.currentTarget)}
+            sx={{ display: { md: "none" } }}
           >
-            Sagui
-          </Link>
-        </div>
+            <MenuIcon />
+          </IconButton>
 
-        <div className="hidden md:flex flex-1 justify-center">
-          <label className="input input-bordered flex items-center gap-2 w-full max-w-md ">
-            <input
-              type="text"
-              className="grow placeholder:text-[#2f302f]"
-              placeholder="Pesquisar..."
-            />
-          </label>
-        </div>
-
-        <div className="flex gap-4">
-          <Link
-            href="/sobre"
-            className="btn btn-ghost text-[#2f302f]"
+          <Menu
+            anchorEl={anchorNav}
+            open={Boolean(anchorNav)}
+            onClose={() => setAnchorNav(null)}
           >
-            Sobre
-          </Link>
+            {pages.map((page) => (
+              <MenuItem key={page.href} component={Link} href={page.href}>
+                {page.label}
+              </MenuItem>
+            ))}
+          </Menu>
 
-          <Link
-            href="/dashboard"
-            className="btn btn-primary"
+          {/* USER */}
+          <Tooltip title="Conta">
+            <IconButton onClick={(e) => setAnchorUser(e.currentTarget)}>
+              <Avatar src={avatarSrc} />
+            </IconButton>
+          </Tooltip>
+
+          <Menu
+            anchorEl={anchorUser}
+            open={Boolean(anchorUser)}
+            onClose={() => setAnchorUser(null)}
           >
-            Dashboard
-          </Link>
-
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="avatar cursor-pointer"
-            >
-              <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                <img
-                  src="https://i.pravatar.cc/150?img=12"
-                  alt="Avatar"
-                />
-              </div>
-            </div>
-
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-xl bg-base-100 rounded-box w-52 text-[#2f302f]"
-            >
-              <li>
-                <a>Perfil</a>
-              </li>
-
-              <li>
-                <a>Configurações</a>
-              </li>
-
-              <li>
-                <a>Sair</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </header>
+            {settings.map((item) => (
+              <MenuItem key={item.href} component={Link} href={item.href}>
+                {item.label}
+              </MenuItem>
+            ))}
+          </Menu>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }

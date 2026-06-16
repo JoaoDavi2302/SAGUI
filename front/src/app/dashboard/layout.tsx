@@ -1,19 +1,9 @@
 // configuração de rotas de dashboard
 // irão ser protegidas
 // irá ter um novo header e menu lateral
-import Footer from "@/components/footer";
+import DrawerLayout from "@/components/drawer";
+
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Sagui | Dashboard",
@@ -26,11 +16,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-      <div className="min-h-screen flex flex-col">
-        <div className="flex-1">
-          {children}
-        </div>
-        <Footer />
-      </div>
+    <DrawerLayout
+      title="Sagui Admin"
+      avatarSrc="/avatar.png"
+      // links do menu lateral
+      items={[
+        {
+          label: "Dashboard",
+          href: "/dashboard",
+        },
+      ]}
+      // menu perfil
+      settings={[
+        {
+          label: "Site",
+          href: "/",
+        },
+        {
+          label: "Perfil",
+          href: "/perfil",
+        },
+        {
+          label: "Sair",
+          href: "/logout",
+        },
+      ]}
+    >
+      {children}
+    </DrawerLayout>
   );
 }
