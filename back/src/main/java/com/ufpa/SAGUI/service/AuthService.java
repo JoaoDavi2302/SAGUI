@@ -84,4 +84,10 @@ public class AuthService {
                 () -> new RuntimeException("Refresh token não encontrado no banco")
             );
     }
+
+    @Transactional
+    public void logout(RefreshTokenRequest request){
+        refreshTokenRepository.findByToken(request.refreshToken())
+        .ifPresent(token -> refreshTokenRepository.delete(token));
+    }
 }
