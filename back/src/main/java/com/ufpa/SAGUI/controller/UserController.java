@@ -1,7 +1,11 @@
 package com.ufpa.SAGUI.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,9 +30,17 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    public ResponseEntity<UserProfileResponse> updateMyProfile(
-        @RequestBody @Valid UpdateProfileRequest request
-    ) {
+    public ResponseEntity<UserProfileResponse> updateMyProfile(@RequestBody @Valid UpdateProfileRequest request) {
         return ResponseEntity.ok(userService.updateMyProfile(request));
+    }
+
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<UserProfileResponse> activateUser(@PathVariable UUID id) {
+        return ResponseEntity.ok(userService.activateUser(id));
+    }
+
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<UserProfileResponse> deactivateUser(@PathVariable UUID id) {
+        return ResponseEntity.ok(userService.deactivateUser(id));
     }
 }
