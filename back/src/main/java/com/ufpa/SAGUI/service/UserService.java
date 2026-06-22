@@ -1,5 +1,7 @@
 package com.ufpa.SAGUI.service;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,7 +17,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.ufpa.SAGUI.dto.user.UpdateProfileRequest;
 import com.ufpa.SAGUI.dto.user.UserProfileResponse;
+import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.models.User;
+import com.ufpa.SAGUI.repository.RefreshTokenRepository;
 import com.ufpa.SAGUI.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -75,6 +80,32 @@ public class UserService implements UserDetailsService {
 
         User savedUser = userRepository.save(user);
         return UserProfileResponse.from(savedUser);
+    }
+
+    @Transactional
+    public UserProfileResponse activateUser(UUID userId) {
+        User user = findUserById(userId);
+        user.setStatus(EntityStatus.Active);
+        return UserProfileResponse.from(userRepository.save(user));
+    }
+
+    @Transactional
+    public UserProfileResponse deactivateUser(UUID userId) {
+        User current = findAuthenticatedUser();
+        User user = findUserById(userId);
+
+        if (user.getId().equals(current.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Não é possível inativar a própria conta");
+        }
+
+        user.setStatus(EntityStatus.Inactive);
+        refreshTokenRepository.deleteByUser(user);
+        return UserProfileResponse.from(userRepository.save(user));
+    }
+
+    private User findUserById(UUID userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
     }
 
     private User findAuthenticatedUser() {

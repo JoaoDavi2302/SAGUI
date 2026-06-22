@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
+import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.enums.UserRole;
 
 import jakarta.persistence.Entity;
@@ -90,6 +91,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        EntityStatus currentStatus = getStatus();
+        return currentStatus == null || currentStatus == EntityStatus.Active;
     }
 }
