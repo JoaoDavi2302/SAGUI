@@ -1,14 +1,20 @@
 package com.ufpa.SAGUI.controller;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ufpa.SAGUI.dto.user.UpdateProfileRequest;
+import com.ufpa.SAGUI.dto.user.UserPageResponse;
 import com.ufpa.SAGUI.dto.user.UserProfileResponse;
+import com.ufpa.SAGUI.enums.EntityStatus;
+import com.ufpa.SAGUI.enums.UserRole;
 import com.ufpa.SAGUI.service.UserService;
 
 import jakarta.validation.Valid;
@@ -19,6 +25,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+
+    @GetMapping
+    public ResponseEntity<UserPageResponse> listUsers(
+        @RequestParam(required = false) UserRole role,
+        @RequestParam(required = false) EntityStatus status,
+        @RequestParam(required = false) String search,
+        @PageableDefault(size = 20, sort = "name") Pageable pageable
+    ) {
+        return ResponseEntity.ok(userService.listUsers(role, status, search, pageable));
+    }
 
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getMyProfile() {
