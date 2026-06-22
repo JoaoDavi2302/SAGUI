@@ -1,7 +1,7 @@
 package com.ufpa.SAGUI.service;
 
-import java.util.UUID;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,11 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.ufpa.SAGUI.dto.user.UpdateProfileRequest;
+import com.ufpa.SAGUI.dto.user.UserPageResponse;
 import com.ufpa.SAGUI.dto.user.UserProfileResponse;
 import com.ufpa.SAGUI.enums.EntityStatus;
+import com.ufpa.SAGUI.enums.UserRole;
 import com.ufpa.SAGUI.models.User;
 import com.ufpa.SAGUI.repository.RefreshTokenRepository;
 import com.ufpa.SAGUI.repository.UserRepository;
+import com.ufpa.SAGUI.repository.UserSpecifications;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +38,15 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+    }
+
+    @Transactional(readOnly = true)
+    public UserPageResponse listUsers(UserRole role, EntityStatus status, String search, Pageable pageable) {
+        Page<User> page = userRepository.findAll(
+            UserSpecifications.withFilters(role, status, search),
+            pageable
+        );
+        return UserPageResponse.from(page);
     }
 
     @Transactional(readOnly = true)
