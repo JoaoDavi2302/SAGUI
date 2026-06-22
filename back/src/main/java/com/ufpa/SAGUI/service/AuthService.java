@@ -10,6 +10,7 @@ import com.ufpa.SAGUI.dto.auth.LoginRequest;
 import com.ufpa.SAGUI.dto.auth.LoginResponse;
 import com.ufpa.SAGUI.dto.auth.RefreshTokenRequest;
 import com.ufpa.SAGUI.dto.auth.RefreshTokenResponse;
+import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.enums.UserRole;
 import com.ufpa.SAGUI.models.RefreshToken;
 import com.ufpa.SAGUI.models.User;
@@ -40,6 +41,10 @@ public class AuthService {
             throw new BadCredentialsException("Credenciais inválidas");
         }
 
+        if (!user.isEnabled()) {
+            throw new BadCredentialsException("Conta inativa");
+        }
+
         String accessToken = jwtService.generateToken(user);
 
         RefreshToken refreshToken = refreshTokenService.criaRefreshToken(user.getEmail());
@@ -61,8 +66,9 @@ public class AuthService {
             )
             .role(UserRole.Aluno)
             .build();
+        user.setStatus(EntityStatus.Active);
 
-        User savedUser = userRepository.save(user);;
+        User savedUser = userRepository.save(user);
 
         String token = jwtService.generateToken(savedUser);
         RefreshToken refreshToken = refreshTokenService.criaRefreshToken(savedUser.getEmail());
@@ -76,6 +82,9 @@ public class AuthService {
             .map(refreshTokenService::verificaExpiracao)
             .map(RefreshToken::getUser)
             .map(user -> {
+                if (!user.isEnabled()) {
+                    throw new BadCredentialsException("Conta inativa");
+                }
                 String newAccessToken = jwtService.generateToken(user);
                 RefreshToken newRefreshToken = refreshTokenService.criaRefreshToken(user.getEmail());
 
