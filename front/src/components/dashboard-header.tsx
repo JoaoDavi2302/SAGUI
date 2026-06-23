@@ -6,6 +6,8 @@ import Link from "next/link";
 import {
   AppBar,
   Avatar,
+  Box,
+  Divider,
   IconButton,
   Menu,
   MenuItem,
@@ -16,9 +18,11 @@ import {
 
 import MenuIcon from "@mui/icons-material/Menu";
 import { useRouter } from "next/navigation";
+import SearchIcon from "@mui/icons-material/Search";
 
 import type { HeaderItem } from "./layout/types";
 import { useUser } from "@/services/AuthContext";
+import { Search, SearchIconWrapper, StyledInputBase } from "./components";
 
 type Props = {
   title: string;
@@ -34,7 +38,7 @@ export default function DashboardHeader({
   onMenuClick,
 }: Props) {
   const router = useRouter();
-  const { logout } = useUser();
+  const { logout, user } = useUser();
   const [anchorUser, setAnchorUser] = React.useState<HTMLElement | null>(null);
 
   return (
@@ -50,6 +54,16 @@ export default function DashboardHeader({
           {title}
         </Typography>
 
+        <Search>
+          <SearchIconWrapper>
+            <SearchIcon />
+          </SearchIconWrapper>
+          <StyledInputBase
+            placeholder="Search…"
+            inputProps={{ "aria-label": "search" }}
+          />
+        </Search>
+
         <Tooltip title="Conta">
           <IconButton onClick={(e) => setAnchorUser(e.currentTarget)}>
             <Avatar src={avatarSrc} />
@@ -61,6 +75,16 @@ export default function DashboardHeader({
           open={Boolean(anchorUser)}
           onClose={() => setAnchorUser(null)}
         >
+          <Box sx={{ px: 2, py: 1.5 }}>
+            <Typography variant="subtitle2" sx={{fontWeight:600}}>
+              {user?.name ?? "Usuário"}
+            </Typography>
+
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+              {user?.role ?? "Sem perfil"}
+            </Typography>
+          </Box>
+          <Divider />
           {settings.map((item) => {
             if ("action" in item && item.action === "logout") {
               return (
@@ -72,7 +96,9 @@ export default function DashboardHeader({
                     router.push("/login");
                   }}
                 >
-                  {item.label}
+                  <Typography sx={{fontFamily:"sans-serif"}}>
+                    {item.label}
+                  </Typography>
                 </MenuItem>
               );
             }

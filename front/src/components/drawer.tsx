@@ -14,6 +14,7 @@ import {
   ListItemButton,
   ListItemText,
   Toolbar,
+  Typography,
 } from "@mui/material";
 
 import DashboardHeader from "./dashboard-header";
@@ -84,6 +85,9 @@ export default function DrawerLayout({
           }}
         >
           <Toolbar />
+            <Typography variant="h6" sx={{ ml: 2}}>
+                    SAGUI
+            </Typography>
           <Divider />
 
           <List sx={{ px: 1 }}>

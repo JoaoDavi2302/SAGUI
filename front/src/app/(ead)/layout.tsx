@@ -4,32 +4,13 @@ import DrawerLayout from "@/components/drawer";
 import { HeaderItem } from "@/components/layout/types";
 import { useUser } from "@/services/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 
 export default function EadLayout({ children }: { children: React.ReactNode }) {
-  const { effectiveRole } = useUser();
-
-  const { user, loading } = useUser();
-
+  const { user, loading, effectiveRole } = useUser();
   const router = useRouter();
 
-  useEffect(() => {
-    console.log("LAYOUT", {
-      user,
-      loading,
-    });
-
-    if (!loading && !user) {
-      router.replace("/login");
-    }
-  }, [user, loading]);
-
-  if (loading) return null;
-
-  if (!user) return null;
-
-  const settings: HeaderItem[] = React.useMemo(
+  const settings: HeaderItem[] = useMemo(
     () => [
       {
         label: "Perfil",
@@ -43,22 +24,31 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
         action: "logout",
       },
     ],
-    [effectiveRole],
+    [effectiveRole]
   );
 
+  useEffect(() => {
+    console.log("LAYOUT", { user, loading });
+
+    if (!loading && !user) {
+      router.replace("/login");
+    }
+  }, [user, loading, router]);
+
+  if (loading) return null;
+  if (!user) return null;
+
   return (
-    <>
-      <DrawerLayout
-        title="Sagui"
-        avatarSrc="/avatar.png"
-        items={[
-          { label: "Início", href: "/" },
-          { label: "Disciplinas", href: "/disciplinas" },
-        ]}
-        settings={settings}
-      >
-        {children}
-      </DrawerLayout>
-    </>
+    <DrawerLayout
+      title=""
+      avatarSrc="/avatar.png"
+      items={[
+        { label: "Início", href: "/" },
+        { label: "Disciplinas", href: "/disciplinas" },
+      ]}
+      settings={settings}
+    >
+      {children}
+    </DrawerLayout>
   );
 }

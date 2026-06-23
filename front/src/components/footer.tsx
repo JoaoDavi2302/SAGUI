@@ -40,6 +40,7 @@ export default function Footer() {
               Serviços
             </Typography>
 
+            {/* para alterar */}
             <Stack spacing={1}>
               <Link
                 href="/sobre"
