@@ -1,32 +1,45 @@
-// configuração de rotas de dashboard
-// irão ser protegidas
-// irá ter um novo header e menu lateral
+"use client";
+
 import DrawerLayout from "@/components/drawer";
+import { useUser } from "@/services/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import React from "react";
 
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Sagui | Dashboard",
-  description: "Gestão Sagui",
-};
-
-export default function RootLayout({
+export default function DashboardLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const { user, loading } = useUser();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    console.log("LAYOUT", {
+      user,
+      loading,
+    });
+
+    if (!loading && !user) {
+      router.replace("/login");
+    }
+  }, [user, loading]);
+
+  if (loading) return null;
+
+  if (!user) return null;
+
   return (
     <DrawerLayout
       title="Sagui Admin"
       avatarSrc="/avatar.png"
-      // links do menu lateral
       items={[
         {
           label: "Dashboard",
           href: "/dashboard",
         },
       ]}
-      // menu perfil
       settings={[
         {
           label: "Site",
@@ -38,7 +51,7 @@ export default function RootLayout({
         },
         {
           label: "Sair",
-          href: "/logout",
+          action: "logout",
         },
       ]}
     >

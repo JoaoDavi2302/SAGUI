@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   AppBar,
   Avatar,
-  Box,
   IconButton,
   Menu,
   MenuItem,
@@ -16,20 +15,16 @@ import {
 } from "@mui/material";
 
 import MenuIcon from "@mui/icons-material/Menu";
+import { useRouter } from "next/navigation";
 
-type Item = {
-  label: string;
-  href: string;
-};
+import type { HeaderItem } from "./layout/types";
+import { useUser } from "@/services/AuthContext";
 
 type Props = {
   title: string;
-
   avatarSrc?: string;
-
-  settings?: Item[];
-
-  onMenuClick: () => void;
+  settings?: HeaderItem[];
+  onMenuClick?: () => void;
 };
 
 export default function DashboardHeader({
@@ -38,22 +33,20 @@ export default function DashboardHeader({
   settings = [],
   onMenuClick,
 }: Props) {
+  const router = useRouter();
+  const { logout } = useUser();
   const [anchorUser, setAnchorUser] = React.useState<HTMLElement | null>(null);
 
   return (
     <AppBar position="fixed">
       <Toolbar>
-        <IconButton color="inherit" onClick={onMenuClick} edge="start">
-          <MenuIcon />
-        </IconButton>
+        {onMenuClick && (
+          <IconButton color="inherit" onClick={onMenuClick} edge="start">
+            <MenuIcon />
+          </IconButton>
+        )}
 
-        <Typography
-          variant="h6"
-          sx={{
-            ml: 2,
-            flexGrow: 1,
-          }}
-        >
+        <Typography variant="h6" sx={{ ml: 2, flexGrow: 1 }}>
           {title}
         </Typography>
 
@@ -68,11 +61,37 @@ export default function DashboardHeader({
           open={Boolean(anchorUser)}
           onClose={() => setAnchorUser(null)}
         >
-          {settings.map((item) => (
-            <MenuItem key={item.href} component={Link} href={item.href}>
-              {item.label}
-            </MenuItem>
-          ))}
+          {settings.map((item) => {
+            if ("action" in item && item.action === "logout") {
+              return (
+                <MenuItem
+                  key={item.label}
+                  onClick={() => {
+                    setAnchorUser(null);
+                    logout();
+                    router.push("/login");
+                  }}
+                >
+                  {item.label}
+                </MenuItem>
+              );
+            }
+
+            if ("href" in item) {
+              return (
+                <MenuItem
+                  key={item.label}
+                  component={Link}
+                  href={item.href}
+                  onClick={() => setAnchorUser(null)}
+                >
+                  {item.label}
+                </MenuItem>
+              );
+            }
+
+            return null;
+          })}
         </Menu>
       </Toolbar>
     </AppBar>

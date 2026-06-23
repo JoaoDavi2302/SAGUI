@@ -1,11 +1,14 @@
-// configuração geral
 import type { Metadata } from "next";
 import "./globals.css";
+
 import ThemeRegistry from "@/theme-provider";
+
+import { AuthProvider } from "@/services/AuthContext";
+import { DataProvider } from "@/services/dataContext";
 
 export const metadata: Metadata = {
   title: "Sagui",
-  description: "Sistema Aberto de Gestão Universitaria Institucional",
+  description: "Sistema Aberto de Gestão Universitária Institucional",
 };
 
 export default function RootLayout({
@@ -14,9 +17,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" data-theme="light">
-      <body className="min-h-screen flex flex-col">
-        <ThemeRegistry>{children}</ThemeRegistry>
+    <html lang="pt-BR">
+      <body>
+        <ThemeRegistry>
+          <AuthProvider>
+            <DataProvider>{children}</DataProvider>
+          </AuthProvider>
+        </ThemeRegistry>
       </body>
     </html>
   );
