@@ -3,6 +3,7 @@
 import DrawerLayout from "@/components/drawer";
 import { HeaderItem } from "@/components/layout/types";
 import { useUser } from "@/services/AuthContext";
+import { AssignmentOutlined, HomeOutlined, Inventory2Outlined, MenuBookOutlined, SchoolOutlined } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo } from "react";
 
@@ -43,8 +44,12 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
       title=""
       avatarSrc="/avatar.png"
       items={[
-        { label: "Início", href: "/" },
-        { label: "Disciplinas", href: "/disciplinas" },
+        { icon: <HomeOutlined />, label: "Início", href: "/" },
+        // caso role ou admin mostrar esse menu
+        { icon: <SchoolOutlined />, label: "Cursos", href: "/cursos" }, 
+        { icon: <MenuBookOutlined />, label: "Disciplinas", href: "/disciplinas" },
+        { icon: <Inventory2Outlined />, label: "Materiais", href: "/materiais" },
+        { icon: <AssignmentOutlined />, label: "Avaliações", href: "/avaliacoes" },
       ]}
       settings={settings}
     >

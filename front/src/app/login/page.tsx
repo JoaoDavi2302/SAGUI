@@ -14,7 +14,15 @@ import {
   Alert,
   CircularProgress,
   Stack,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
+import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+});
 
 export default function LoginPage() {
   const { login } = useUser();
@@ -22,6 +30,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -51,56 +60,78 @@ export default function LoginPage() {
       sx={{
         minHeight: "100vh",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        background: "#f9fafb",
         px: 2,
       }}
     >
+      <Stack spacing={0.5} sx={{ mb: 3 }}>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 800,
+            fontSize: "30px",
+            fontFamily: "system-ui",
+            textAlign: "center",
+            mb: 3,
+          }}
+        >
+          SAGUI
+        </Typography>
+        <Typography
+          sx={{ fontFamily: "system-ui", fontWeight: 400, fontSize: "16px", color: "#556255" }}
+        >
+          Entre com sua conta para continuar
+        </Typography>
+      </Stack>
       <Card
         sx={{
           width: 380,
-          borderRadius: 3,
+          borderRadius: 2,
           p: 1,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+          // boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
         }}
       >
         <CardContent>
           {/* HEADER */}
-          <Stack spacing={0.5} sx={{ mb: 3 }}>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 700,
-                mb: 3,
-              }}
-            >
-              Sagui
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Entre com sua conta para continuar
-            </Typography>
-          </Stack>
-
           {/* FORM */}
-          <Box component="form" onSubmit={handleSubmit}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Email</Typography>
+
             <TextField
               fullWidth
-              label="Email"
               margin="normal"
               value={email}
+              size="small"
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
+              sx={{ mt: 0.5 }}
             />
 
+            <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2 }}>Senha</Typography>
             <TextField
               fullWidth
-              label="Senha"
-              type="password"
+              type={showPassword ? "text" : "password"}
               margin="normal"
               value={password}
+              size="small"
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
+              slotProps={{
+                input: {
+                  endAdornment: password.length > 0 ? (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(!showPassword)}
+                        edge="end">
+                        {showPassword ? <VisibilityOffOutlined /> : <VisibilityOutlined />}
+                      </IconButton>
+                    </InputAdornment>
+                  ) : null,
+                },
+              }}
+              sx={{ mt: 0.5 }}
             />
 
             {error && (

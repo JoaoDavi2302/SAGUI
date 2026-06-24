@@ -14,11 +14,13 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 
 import MenuIcon from "@mui/icons-material/Menu";
 import { useRouter } from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
+import { useTheme } from "@mui/material/styles";
 
 import type { HeaderItem } from "./layout/types";
 import { useUser } from "@/services/AuthContext";
@@ -29,6 +31,8 @@ type Props = {
   avatarSrc?: string;
   settings?: HeaderItem[];
   onMenuClick?: () => void;
+  drawerWidth?: number;
+  isMobile?: boolean;
 };
 
 export default function DashboardHeader({
@@ -36,21 +40,37 @@ export default function DashboardHeader({
   avatarSrc,
   settings = [],
   onMenuClick,
+  drawerWidth = 260,
+  isMobile = false,
 }: Props) {
   const router = useRouter();
   const { logout, user } = useUser();
-  const [anchorUser, setAnchorUser] = React.useState<HTMLElement | null>(null);
+
+  const [anchorUser, setAnchorUser] =
+    React.useState<HTMLElement | null>(null);
+
+  const theme = useTheme();
 
   return (
-    <AppBar position="fixed">
+    <AppBar
+      position="fixed"
+      sx={(theme) => ({
+        width: isMobile ? "100%" : `calc(100% - ${drawerWidth}px)`,
+        ml: isMobile ? 0 : `${drawerWidth}px`,
+        transition: theme.transitions.create(["width", "margin"], {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.standard,
+        }),
+      })}
+    >
       <Toolbar>
-        {onMenuClick && (
+        {isMobile && onMenuClick && (
           <IconButton color="inherit" onClick={onMenuClick} edge="start">
             <MenuIcon />
           </IconButton>
         )}
 
-        <Typography variant="h6" sx={{ ml: 2, flexGrow: 1 }}>
+        <Typography variant="h6" sx={{ ml: 2, color:"#fff" }}>
           {title}
         </Typography>
 
@@ -76,7 +96,7 @@ export default function DashboardHeader({
           onClose={() => setAnchorUser(null)}
         >
           <Box sx={{ px: 2, py: 1.5 }}>
-            <Typography variant="subtitle2" sx={{fontWeight:600}}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
               {user?.name ?? "Usuário"}
             </Typography>
 
@@ -84,7 +104,9 @@ export default function DashboardHeader({
               {user?.role ?? "Sem perfil"}
             </Typography>
           </Box>
+
           <Divider />
+
           {settings.map((item) => {
             if ("action" in item && item.action === "logout") {
               return (
@@ -96,9 +118,7 @@ export default function DashboardHeader({
                     router.push("/login");
                   }}
                 >
-                  <Typography sx={{fontFamily:"sans-serif"}}>
-                    {item.label}
-                  </Typography>
+                  {item.label}
                 </MenuItem>
               );
             }

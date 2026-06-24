@@ -1,3 +1,4 @@
+// customizar
 "use client";
 
 import Link from "next/link";
@@ -10,6 +11,7 @@ export default function Footer() {
     <Box
       component="footer"
       className="box-footer"
+      sx={{p:1, py:3}}
     >
       <Container maxWidth="lg">
         <Grid container spacing={4}>
