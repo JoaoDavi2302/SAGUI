@@ -92,9 +92,11 @@ public class DisciplineService {
         return disciplineRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada"));
     }
-}
 
-@Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public DisciplineResponse findById(UUID id) {
         return DisciplineResponse.from(getDisciplineEntity(id));
     }
+}
+
+

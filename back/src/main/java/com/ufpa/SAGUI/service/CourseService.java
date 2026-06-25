@@ -12,8 +12,11 @@ import org.springframework.web.server.ResponseStatusException;
 import com.ufpa.SAGUI.dto.course.CourseRequest;
 import com.ufpa.SAGUI.dto.course.CourseResponse;
 import com.ufpa.SAGUI.enums.EntityStatus;
+import com.ufpa.SAGUI.enums.UserRole;
 import com.ufpa.SAGUI.models.Course;
+import com.ufpa.SAGUI.models.User;
 import com.ufpa.SAGUI.repository.CourseRepository;
+import com.ufpa.SAGUI.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
 
     public CourseResponse create(CourseRequest dto) {
         Course course = Course.builder()
@@ -65,9 +69,8 @@ public class CourseService {
         return courseRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso não encontrado"));
     }
-}
 
-@Transactional
+    @Transactional
     public void addProfessor(UUID courseId, UUID profId) {
         Course course = getCourseEntity(courseId);
         User professor = userRepository.findById(profId)
@@ -82,3 +85,7 @@ public class CourseService {
             courseRepository.save(course);
         }
     }
+
+}
+
+

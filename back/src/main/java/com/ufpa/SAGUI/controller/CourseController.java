@@ -61,11 +61,13 @@ public class CourseController {
         courseService.changeStatus(id, status);
         return ResponseEntity.noContent().build();
     }
-}
 
-@PostMapping("/{id}/professors/{profId}")
+    @PostMapping("/{id}/professors/{profId}")
     @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<Void> addProfessor(@PathVariable UUID id, @PathVariable UUID profId) {
         courseService.addProfessor(id, profId);
         return ResponseEntity.noContent().build();
     }
+
+}
+
