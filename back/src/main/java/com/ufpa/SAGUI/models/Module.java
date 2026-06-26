@@ -38,4 +38,7 @@ public class Module extends BaseEntity {
 
     @OneToMany(mappedBy = "module")
     private List<Lesson> lessons;
+
+    @OneToMany(mappedBy = "module")
+    private List<Attachment> attachments;
 }
