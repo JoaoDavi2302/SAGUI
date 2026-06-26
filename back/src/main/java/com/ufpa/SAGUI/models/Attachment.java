@@ -1,12 +1,9 @@
 package com.ufpa.SAGUI.models;
 
-import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,30 +12,29 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "modules")
+@Table(name = "attachments")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Module extends BaseEntity {
+public class Attachment extends BaseEntity {
 
     @Column(nullable = false, length = 200)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
     @Column(nullable = false)
-    private Integer orderIndex;
+    private String fileUrl;
+
+    private String fileType;
+
+    private Long fileSize;
 
     @ManyToOne
-    @JoinColumn(name = "discipline_id", nullable = false)
-    private Discipline discipline;
+    @JoinColumn(name = "lesson_id")
+    private Lesson lesson;
 
-    @OneToMany(mappedBy = "module")
-    private List<Lesson> lessons;
-
-    @OneToMany(mappedBy = "module")
-    private List<Attachment> attachments;
+    @ManyToOne
+    @JoinColumn(name = "module_id")
+    private Module module;
 }

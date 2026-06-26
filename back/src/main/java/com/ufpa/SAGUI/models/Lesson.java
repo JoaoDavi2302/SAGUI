@@ -15,13 +15,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "modules")
+@Table(name = "lessons")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Module extends BaseEntity {
+public class Lesson extends BaseEntity {
 
     @Column(nullable = false, length = 200)
     private String name;
@@ -33,12 +33,9 @@ public class Module extends BaseEntity {
     private Integer orderIndex;
 
     @ManyToOne
-    @JoinColumn(name = "discipline_id", nullable = false)
-    private Discipline discipline;
+    @JoinColumn(name = "module_id", nullable = false)
+    private Module module;
 
-    @OneToMany(mappedBy = "module")
-    private List<Lesson> lessons;
-
-    @OneToMany(mappedBy = "module")
+    @OneToMany(mappedBy = "lesson")
     private List<Attachment> attachments;
 }
