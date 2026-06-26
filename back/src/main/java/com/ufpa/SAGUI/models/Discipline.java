@@ -1,5 +1,7 @@
 package com.ufpa.SAGUI.models;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,5 +27,8 @@ public class Discipline extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "responsible_professor_id", nullable = false)
     private User responsibleProfessor;
+
+    @OneToMany(mappedBy = "discipline")
+    private List<Module> modules;
 
 }
