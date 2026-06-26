@@ -2,7 +2,11 @@ export interface DashboardData {
   stats: any[];
   courses: any[];
   subjects: any[];
+  modules: any[]
   // faltam resto das tabelas
+   module_progress?: any[];
+  progressPercent?: number;
+  completedModules?: number;
 }
 
 export abstract class Dashboard {
@@ -16,3 +20,4 @@ export abstract class Dashboard {
 
   abstract getData(): DashboardData;
 }
+
