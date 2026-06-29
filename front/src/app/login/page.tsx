@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/services/auth/AuthContext";
+import { useUser } from "../../services/auth/AuthContext";
 
 // USO DO UI/BUTTON
 import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
 
 import {
   Box,
@@ -192,14 +193,30 @@ export default function LoginPage() {
                 Esqueci minha senha
               </Typography>
 
-              {/* Exemplo de uso do Button*/}
-              <Button variant="contained" color="primary" isLoading={loading}>
-                Exemplo/Teste
-              </Button>
-
               <Typography variant="caption" sx={{ cursor: "pointer" }}>
                 Criar conta
               </Typography>
+
+              {/* Exemplo de uso do Button*/}
+
+              {/* 
+              exemplos detipos específicos que o  botão aceitará
+              Variant = 'contained' | 'outlined' | 'text' | 'soft'; // adicionado 'soft'
+              Color = 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'; */
+              }
+
+              <Button variant="contained" color="primary" isLoading={loading}>
+                Exemplo/Teste
+              </Button>
+              <Button variant="outlined" color="error" isLoading={loading}>
+                Exemplo/Teste
+              </Button>
+
+
+              <Input 
+                label="Teste" 
+                placeholder="Testando...."
+              />
             </Stack>
           </Box>
         </CardContent>
