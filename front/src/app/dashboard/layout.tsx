@@ -1,7 +1,7 @@
 "use client";
 
 import DrawerLayout from "@/components/drawer";
-import { useUser } from "@/services/AuthContext";
+import { useUser } from "@/services/auth/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import React from "react";
@@ -11,48 +11,37 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useUser();
-
+  const { user, loading, effectiveRole } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    console.log("LAYOUT", {
-      user,
-      loading,
-    });
+    if (loading) return;
 
-    if (!loading && !user) {
+    if (!user) {
       router.replace("/login");
+      return;
     }
-  }, [user, loading]);
 
-  if (loading) return null;
+    if (effectiveRole !== "ADMIN") {
+      router.replace("/not-found");
+    }
+  }, [user, loading, effectiveRole, router]);
 
-  if (!user) return null;
+  if (loading || !user) return null;
+
+  if (effectiveRole !== "ADMIN") return null;
 
   return (
     <DrawerLayout
       title="Sagui Admin"
       avatarSrc="/avatar.png"
       items={[
-        {
-          label: "Dashboard",
-          href: "/dashboard",
-        },
+        { label: "Dashboard", href: "/dashboard" },
       ]}
       settings={[
-        {
-          label: "Site",
-          href: "/",
-        },
-        {
-          label: "Perfil",
-          href: "/perfil",
-        },
-        {
-          label: "Sair",
-          action: "logout",
-        },
+        { label: "Site", href: "/" },
+        { label: "Perfil", href: "/perfil" },
+        { label: "Sair", action: "logout" },
       ]}
     >
       {children}

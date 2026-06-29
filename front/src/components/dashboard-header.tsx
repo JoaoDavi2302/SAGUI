@@ -23,7 +23,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useTheme } from "@mui/material/styles";
 
 import type { HeaderItem } from "./layout/types";
-import { useUser } from "@/services/AuthContext";
+import { useUser } from "@/services/auth/AuthContext";
 import { Search, SearchIconWrapper, StyledInputBase } from "./components";
 
 type Props = {

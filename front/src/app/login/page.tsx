@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/services/AuthContext";
+import { useUser } from "@/services/auth/AuthContext";
 
 import {
   Box,
@@ -48,7 +48,9 @@ export default function LoginPage() {
         return;
       }
 
-      // home neutra (decisão correta do seu fluxo)
+      // teste de login, redirecionando
+      console.log("LOGIN SUCCESS");
+
       router.replace("/");
     } finally {
       setLoading(false);
@@ -81,7 +83,12 @@ export default function LoginPage() {
           SAGUI
         </Typography>
         <Typography
-          sx={{ fontFamily: "system-ui", fontWeight: 400, fontSize: "16px", color: "#556255" }}
+          sx={{
+            fontFamily: "system-ui",
+            fontWeight: 400,
+            fontSize: "16px",
+            color: "#556255",
+          }}
         >
           Entre com sua conta para continuar
         </Typography>
@@ -98,7 +105,9 @@ export default function LoginPage() {
           {/* HEADER */}
           {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Email</Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+              Email
+            </Typography>
 
             <TextField
               fullWidth
@@ -110,7 +119,9 @@ export default function LoginPage() {
               sx={{ mt: 0.5 }}
             />
 
-            <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2 }}>Senha</Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 2 }}>
+              Senha
+            </Typography>
             <TextField
               fullWidth
               type={showPassword ? "text" : "password"}
@@ -121,14 +132,21 @@ export default function LoginPage() {
               autoComplete="current-password"
               slotProps={{
                 input: {
-                  endAdornment: password.length > 0 ? (
-                    <InputAdornment position="end">
-                      <IconButton onClick={() => setShowPassword(!showPassword)}
-                        edge="end">
-                        {showPassword ? <VisibilityOffOutlined /> : <VisibilityOutlined />}
-                      </IconButton>
-                    </InputAdornment>
-                  ) : null,
+                  endAdornment:
+                    password.length > 0 ? (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                        >
+                          {showPassword ? (
+                            <VisibilityOffOutlined />
+                          ) : (
+                            <VisibilityOutlined />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ) : null,
                 },
               }}
               sx={{ mt: 0.5 }}

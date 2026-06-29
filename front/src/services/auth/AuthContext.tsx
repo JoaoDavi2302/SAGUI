@@ -9,7 +9,7 @@ import {
   ReactNode,
 } from "react";
 
-import database from "../components/mock.json";
+import database from "@/components/mock.json";
 
 export type Role = "ADMIN" | "PROFESSOR" | "ALUNO";
 
@@ -60,45 +60,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const id = localStorage.getItem("userId");
 
-    console.log({
-      token,
-      id,
-    });
+    console.log("COOKIE TOKEN:", token);
+    console.log("LOCAL USERID:", id);
 
     if (!token || !id) {
-      console.log("SEM SESSAO");
-
-      localStorage.removeItem("userId");
-
+      console.log("SEM SESSÃO");
       setUser(null);
       setLoading(false);
-
       return;
     }
 
-    // substituir por api usando async await
     const dbUser = database.users.find((u) => u.id === id);
 
+    console.log("DB USER:", dbUser);
+
     if (!dbUser) {
-      console.log("USUARIO INVALIDO");
-
-      localStorage.removeItem("userId");
-
+      console.log("USER INVÁLIDO");
       setUser(null);
       setLoading(false);
-
       return;
     }
 
     const role = getRole(dbUser.id);
 
-    console.log("SESSAO RESTAURADA");
+    console.log("ROLE:", role);
 
-    setUser({
-      ...dbUser,
-      role,
-    });
+    setUser({ ...dbUser, role });
 
+    console.log("SESSÃO RESTAURADA");
     setLoading(false);
   }, []);
 
@@ -112,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // busca se usuario existe
     if (!foundUser) {
-      console.log("LOGIN INVALIDO");
+      // console.log("LOGIN INVALIDO");
       return false;
     }
 
@@ -129,10 +118,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     //teste de login
-    console.log("LOGIN OK", {
-      role,
-      cookies: document.cookie,
-    });
+    // console.log("LOGIN OK", {
+    //   role,
+    //   cookies: document.cookie,
+    // });
 
     // recebe dados do usuario logado
     setUser(loggedUser);
@@ -141,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   function logout() {
-    console.log("LOGOUT");
+    // console.log("LOGOUT");
 
     // remove dados armazenados em cookie do usuario logado
     localStorage.removeItem("userId");

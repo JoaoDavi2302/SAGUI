@@ -20,7 +20,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
-import { useUser } from "@/services/AuthContext";
+import { useUser } from "@/services/auth/AuthContext";
 import database from "@/components/mock.json";
 import { AccessTimeOutlined, LayersOutlined } from "@mui/icons-material";
 
@@ -240,7 +240,7 @@ export default function DisciplinasPage() {
                         </Box>
                       )}
                       <Divider sx={{ my: 2 }} />
-                      <Box component="button" variant="outlined" sx={{
+                      <Box component="button" sx={{
                         border: "none", display: "flex", flex: 1, cursor: "pointer", "&:hover": {
                           fontWeight: 800
                         },

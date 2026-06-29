@@ -9,7 +9,7 @@ import {
   ReactNode,
 } from "react";
 
-import database from "../components/mock.json";
+import database from "@/components/mock.json";
 import { useUser } from "./AuthContext";
 
 import {

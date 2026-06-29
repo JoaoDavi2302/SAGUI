@@ -25,7 +25,7 @@ import DashboardHeader from "./dashboard-header";
 import Footer from "./footer";
 
 import type { SidebarItem, HeaderItem } from "./layout/types";
-import { useUser } from "@/services/AuthContext";
+import { useUser } from "@/services/auth/AuthContext";
 
 type Props = {
   title: string;
@@ -60,7 +60,6 @@ export default function DrawerLayout({
     <>
       <Toolbar>
         <Box sx={{ py: 2 }}>
-
           <Typography
             variant="h5"
             sx={{
@@ -107,10 +106,10 @@ export default function DrawerLayout({
                   mb: 0.5,
                   ml: 1,
                   height: "40px",
-                  color: "#4c34b9",
+                  color: "#1976d2",
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 36, color: "#4c34b9" }}>
+                <ListItemIcon sx={{ minWidth: 36, color: "#1976d2" }}>
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText
@@ -169,9 +168,7 @@ export default function DrawerLayout({
         }}
       >
         <Toolbar />
-        <Box sx={{ p: 4 }}>
-          {children}
-        </Box>
+        <Box sx={{ p: 4 }}>{children}</Box>
         <Divider sx={{ mt: 3 }} />
         <Footer />
       </Box>

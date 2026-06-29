@@ -11,7 +11,7 @@ import {
   LinearProgress,
 } from "@mui/material";
 
-import { useUser } from "@/services/AuthContext";
+import { useUser } from "@/services/auth/AuthContext";
 import database from "@/components/mock.json";
 import { DashboardProvider } from "@/services/dashboardProvider";
 import { AccessTimeOutlined, ArrowRightAltOutlined, SchoolOutlined } from "@mui/icons-material";
