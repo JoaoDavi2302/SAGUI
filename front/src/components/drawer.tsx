@@ -153,11 +153,53 @@ export default function DrawerLayout({
           "& .MuiDrawer-paper": {
             width: drawerWidth,
             boxSizing: "border-box",
+            backgroundColor:"var(--background-drawer)",
           },
         }}
       >
         {drawerContent}
       </Drawer>
+
+      
+
+      {/*
+
+      MAIS BONITINHO...
+      
+      <Drawer
+        variant={isMobile ? "temporary" : "permanent"}
+        open={isMobile ? open : true}
+        onClose={() => setOpen(false)}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            // ==========================================
+            // MODIFICAÇÕES DE DESIGN 
+            // ==========================================
+            backgroundColor: "#ffffff", // Altera a cor de fundo para branco puro
+            borderRight: "none",        // Remove a linha divisória vertical padrão do MUI
+            boxShadow: "4px 0px 24px rgba(24, 49, 83, 0.04)", // Sombra lateral ultra suave visível no protótipo
+            
+            // Aplica os cantos arredondados do lado direito se não estiver no celular
+            ...(!isMobile && {
+              borderTopRightRadius: "24px",
+              borderBottomRightRadius: "24px",
+              height: "calc(100vh - 16px)", // Descolado levemente do teto/chão para dar o efeito de card
+              margin: "8px 0 8px 8px",      // Afasta um pouco das bordas da tela
+            }),
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+
+      
+      
+      */}
 
       <Box
         component="main"
