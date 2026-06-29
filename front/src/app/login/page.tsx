@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/services/auth/AuthContext";
 
+// USO DO UI/BUTTON
+import { Button } from '../../components/ui/Button';
+
 import {
   Box,
-  Button,
   Card,
   CardContent,
   TextField,
@@ -189,6 +191,11 @@ export default function LoginPage() {
               <Typography variant="caption" sx={{ cursor: "pointer" }}>
                 Esqueci minha senha
               </Typography>
+
+              {/* Exemplo de uso do Button*/}
+              <Button variant="contained" color="primary" isLoading={loading}>
+                Exemplo/Teste
+              </Button>
 
               <Typography variant="caption" sx={{ cursor: "pointer" }}>
                 Criar conta
