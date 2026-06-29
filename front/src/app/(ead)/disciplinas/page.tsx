@@ -15,6 +15,8 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
+  FormGroup,
+  Checkbox,
 } from "@mui/material";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -22,10 +24,22 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 import { useUser } from "@/services/auth/AuthContext";
 import database from "@/components/mock.json";
-import { AccessTimeOutlined, LayersOutlined } from "@mui/icons-material";
+import { AccessTimeOutlined, CheckCircle, Circle, LayersOutlined } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
+
+// para passar id na url
+const slugify = (text: string) =>
+  text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
 
 export default function DisciplinasPage() {
   const { user, effectiveRole } = useUser();
+  const router = useRouter();
+
   const isStudent = effectiveRole === "ALUNO";
 
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({});
@@ -105,6 +119,12 @@ export default function DisciplinasPage() {
     };
   }, [user, effectiveRole]);
 
+  // handle 
+  const openDiscipline = (subject: any) => {
+    const slug = slugify(subject.name);
+    router.push(`/disciplinas/${slug}?id=${subject.id}`);
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Typography sx={{ fontSize: 24, fontWeight: "bold" }}>
@@ -159,10 +179,10 @@ export default function DisciplinasPage() {
 
               return (
                 <Grid size={{ xs: 12, md: 12 }} key={subject.id}>
-                  <Card sx={{ borderRadius: 3 }}>
+                  <Card sx={{ borderRadius: 3 }} >
                     <CardContent>
                       {/* HEADER */}
-                      <Box>
+                      <Box sx={{ cursor: "pointer" }} onClick={() => openDiscipline(subject)}>
                         <Box
                           sx={{
                             flex: 1,
@@ -258,7 +278,7 @@ export default function DisciplinasPage() {
                       {/* MODULOS */}
                       <Collapse in={isOpen}>
                         <Box sx={{ mt: 2 }}>
-                          <RadioGroup>
+                          <FormGroup>
                             {disciplineModules.map((m: any) => {
                               const progress = data.moduleProgress.find(
                                 (p: any) => p.module_id === m.id
@@ -273,42 +293,32 @@ export default function DisciplinasPage() {
                                   key={m.id}
                                   sx={{
                                     display: "flex",
-                                    justifyContent: "space-between",
                                     alignItems: "center",
-                                    py: 0.5,
+                                    gap: 1.5,
+                                    p: 1,
+                                    borderRadius: 2,
+                                    cursor: "pointer",
+                                    "&:hover": { bgcolor: "#f5f5f5" },
+
                                   }}
                                 >
-                                  <FormControlLabel
-                                    value={m.id}
-                                    control={
-                                      <Radio
-                                        checked={isCompleted}
-                                        disabled // opcional: só leitura
-                                        sx={{
-                                          "&.Mui-checked": {
-                                            color: "#1976d2",
-                                          },
+                                  {isCompleted ? (
+                                    <CheckCircle sx={{ fontSize: 18, color: "green" }} />
+                                  ) : (
+                                    <Circle sx={{ fontSize: 18, color: "gray" }} />
+                                  )}
 
-                                          "&.Mui-disabled": {
-                                            opacity: 1,
-                                          },
-                                        }}
-                                      />
-                                    }
-                                    label={
-                                      <Typography variant="body2">
-                                        {m.name}
-                                      </Typography>
-                                    }
-                                  />
+                                  <Typography variant="body2">
+                                    {m.name}
+                                  </Typography>
 
-                                  <Typography variant="caption" sx={{color:"gray"}}>
-                                        ({lessonsCount} aulas)
-                                      </Typography>
+                                  <Typography variant="caption" sx={{ color: "gray", ml:"auto" }}>
+                                    ({lessonsCount} aulas)
+                                  </Typography>
                                 </Box>
                               );
                             })}
-                          </RadioGroup>
+                          </FormGroup>
                         </Box>
                       </Collapse>
                     </CardContent>

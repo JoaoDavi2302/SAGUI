@@ -79,16 +79,20 @@ export default function Home() {
           <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
             <Card
               sx={{
-                borderRadius: 2.5,
-                border: "1px solid #e0e0e0",
-                height: "80px",
+                p: 1.5,
+                borderRadius: 2,
+                boxShadow:"none",
+                bgcolor: "rgba(0,0,0,0.03)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 0.5,
               }}
             >
               <CardContent
                 sx={{ display: "flex", gap: 2, alignItems: "center" }}
               >
                 <Box sx={{ bgcolor: "#add3f8", p: 1, borderRadius: 2 }}>
-                  <SchoolOutlined sx={{ color: "#1976d2" }} />
+                  {stat.icon}
                 </Box>
 
                 <Box>
@@ -164,7 +168,7 @@ export default function Home() {
           Minhas Disciplinas
         </Typography>
 
-        <Link href="/disciplinas" style={{ color: "#1976d2", fontSize:"14px" }}>
+        <Link href="/disciplinas" style={{ color: "#1976d2", fontSize: "14px" }}>
           Ver todos
           <ArrowRightAltOutlined />
         </Link>
