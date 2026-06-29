@@ -46,15 +46,11 @@ public class UserController {
         return ResponseEntity.ok(userService.listUsers(role, status, search, pageable));
     }
 
-
-
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserProfileResponse> getMyProfile() {
         return ResponseEntity.ok(userService.getMyProfile());
     }
-
-
 
     @PutMapping("/me")
     @PreAuthorize("isAuthenticated()")
@@ -62,15 +58,11 @@ public class UserController {
         return ResponseEntity.ok(userService.updateMyProfile(request));
     }
 
-
-
     @PatchMapping("/{id}/activate")
     @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<UserProfileResponse> activateUser(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.activateUser(id));
     }
-
-
 
     @PatchMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('Admin')")
