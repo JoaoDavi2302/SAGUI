@@ -17,6 +17,7 @@ import {
   InputAdornment,
   IconButton,
 } from "@mui/material";
+
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 import { Inter } from "next/font/google";
 
@@ -80,7 +81,7 @@ export default function LoginPage() {
             mb: 3,
           }}
         >
-          SAGUI
+          //SAGUI
         </Typography>
         <Typography
           sx={{
@@ -98,7 +99,7 @@ export default function LoginPage() {
           width: 380,
           borderRadius: 2,
           p: 1,
-          // boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+          border: "2px solid rgba(0,0,0,0.3)",
         }}
       >
         <CardContent>
