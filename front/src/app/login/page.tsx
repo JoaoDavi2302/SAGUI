@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "../../services/auth/AuthContex
+import { useUser } from "../../services/auth/AuthContext";
 
 // USO DO UI/BUTTON
 import { Button } from '../../components/ui/Button';
