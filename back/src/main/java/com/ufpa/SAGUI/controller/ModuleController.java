@@ -38,7 +38,7 @@ public class ModuleController {
     public ResponseEntity<Page<ModuleResponse>> listModules(
             @RequestParam(required = false) UUID disciplineId,
             @RequestParam(required = false) EntityStatus status,
-            @PageableDefault(size = 20, sort = "orderIndex") Pageable pageable) {
+            @PageableDefault(size = 20, sort = {"discipline.name", "orderIndex"}) Pageable pageable) {
         return ResponseEntity.ok(moduleService.findAll(disciplineId, status, pageable));
     }
 
