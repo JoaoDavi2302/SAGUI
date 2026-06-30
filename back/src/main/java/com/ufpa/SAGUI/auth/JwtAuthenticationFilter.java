@@ -35,7 +35,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             String jwt = authHeader.substring(7);
-            String email = jwtService.extractEmail(jwt);
+            String email;
+
+            try {
+                email = jwtService.extractEmail(jwt);
+            } catch (io.jsonwebtoken.JwtException e) {
+                reponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido ou expirado");
+                return;
+            }
+
 
             if(email !=  null){
                 UserDetails userDetails = userService.loadUserByUsername(email);
