@@ -15,9 +15,13 @@ import com.ufpa.SAGUI.dto.course.CourseResponse;
 import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.service.CourseService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "Cursos", description = "Gestão de cursos")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/courses")
 @RequiredArgsConstructor

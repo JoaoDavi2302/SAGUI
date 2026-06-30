@@ -23,9 +23,13 @@ import com.ufpa.SAGUI.dto.module.ModuleResponse;
 import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.service.ModuleService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "Módulos", description = "Gestão de módulos de disciplinas")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/modules")
 @RequiredArgsConstructor

@@ -16,8 +16,12 @@ import com.ufpa.SAGUI.dto.lesson.LessonResponse;
 import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.service.LessonService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "Aulas", description = "Consulta de aulas por módulo")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/lessons")
 @RequiredArgsConstructor
