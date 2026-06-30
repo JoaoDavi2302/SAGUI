@@ -1,36 +1,50 @@
-// configuração de rotas de dashboard
-// irão ser protegidas
-// irá ter um novo header e menu lateral
-import Footer from "@/components/footer";
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+"use client";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import DrawerLayout from "@/components/drawer";
+import { useUser } from "@/services/auth/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import React from "react";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Sagui | Dashboard",
-  description: "Gestão Sagui",
-};
-
-export default function RootLayout({
+export default function DashboardLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const { user, loading, effectiveRole } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (!user) {
+      router.replace("/login");
+      return;
+    }
+
+    if (effectiveRole !== "ADMIN") {
+      router.replace("/not-found");
+    }
+  }, [user, loading, effectiveRole, router]);
+
+  if (loading || !user) return null;
+
+  if (effectiveRole !== "ADMIN") return null;
+
   return (
-      <div className="min-h-screen flex flex-col">
-        <div className="flex-1">
-          {children}
-        </div>
-        <Footer />
-      </div>
+    <DrawerLayout
+      title="Sagui Admin"
+      avatarSrc="/avatar.png"
+      items={[
+        { label: "Dashboard", href: "/dashboard" },
+      ]}
+      settings={[
+        { label: "Site", href: "/" },
+        { label: "Perfil", href: "/perfil" },
+        { label: "Sair", action: "logout" },
+      ]}
+    >
+      {children}
+    </DrawerLayout>
   );
 }

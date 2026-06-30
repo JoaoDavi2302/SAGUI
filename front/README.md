@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Criar página
+1. criar pasta com nome da rota
+    ex: /disciplinas
+2. criar page.tsx dentro de pasta (será o index)
+3. caso queira passar um id indicar nome da pasta "(nome-da-pagina)"
+    ex: /curso/id ou /curso/nome-do-curso
+Ou caso queira uma subpagina /curso/disciplina, criar pasta com index do nome da rota
 
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Estilização
+Mui pode estilizar direto no tsx atravez do style
+Exemplo:
+```
+<Link
+href="/sobre"
+style={{
+    textDecoration:
+    'none',
+    color: 'inherit',
+}}
+>
+<Typography>
+    Sobre
+</Typography>
+</Link>
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ou passar classeName
+Exemplo:
+- Componente card
+    ```
+    <Card className="curso-card">
+    ```
+- styles.css
+    ```
+    .curso-card {
+    border-radius: 16px;
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+    padding: 16px;
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+    transition: 0.3s;
 
-## Learn More
+    border: 1px solid #ddd;
+    }
 
-To learn more about Next.js, take a look at the following resources:
+    .curso-card:hover {
+    transform: translateY(-4px);
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    box-shadow:
+        0 10px 30px
+        rgba(0, 0, 0, 0.15);
+    }
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    .curso-title {
+    color: #1565c0;
 
-## Deploy on Vercel
+    font-weight: 700;
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    margin-bottom: 12px;
+    }
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    .curso-description {
+    color: #666;
+
+    margin-bottom: 16px;
+    }
+
+    .curso-button {
+    text-transform: none;
+    }
+    ```
+
+    Evitar mexer em responsividade sem criar breakpoints
+
+*** se ficar em loop de login, verificar public routes em middleware e habilitar "/"
+*** rever logica do mock (se dados fake batem)
+
+** O que falta
+[] editar dados da disciplina da visão do professor (ead)
+[] editar dados da do modulo visão do professor (ead)
+[] editar material (link e outros) da visão do professor (ead)
+[] editar aula
+[] pagina de cursos
+[] detalhes do curso (visualização somente do curso para aluno e todos os cursos que o professor faz parte na visão do professor)
+[] atividades (lista)
+[] perfil
+[] dashboard completo

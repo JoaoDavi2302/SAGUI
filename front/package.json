@@ -9,12 +9,16 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@mantine/core": "^9.3.1",
-    "@mantine/hooks": "^9.3.1",
-    "daisyui": "^5.5.23",
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.1.1",
+    "@mui/material": "^9.1.1",
+    "@mui/material-nextjs": "^9.1.1",
     "next": "16.2.9",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-youtube": "^10.1.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

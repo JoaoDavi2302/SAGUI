@@ -1,28 +1,137 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  themes: light --default, dark;
-}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Fundo principal azulado */
+  --background: #edf3fb;
+  --foreground: #183153;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  /*TIPOGRAFIA*/
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-size: 18px;
+  --font-size-title:;
+  --font-size-drawer:;
+  --font-size-footer-title:;
+  --font-size-footer-paragraph:;
+
+
+  /*ERROS/AVISOS*/
+  
+  --color-warning: #FDCB58 ;
+  --color-error: #DD2E44 ;
+  --color-sucess: #78B159;
+
+  /*BORDES*/
+  --border-rounded-back-icones:50;
+  --border-box-drawer:2;
+  --border-cards:2;
+
+  /*ESPAÇAMENTO*/
+
+  --cards-padding: 5px;
+  --general-margin: 5px;
+  
+  
+  /*================================================*/
+
+  /*TEMA CLARO*/
+
+  /*BACKGROUNDS */
+  --background-drawer: #E7EEF6 ; 
+  --background-top-bar: #E7EEF6 ; 
+  --background-gradiente-page: #E7EEF6 ; 
+  --background-drawer-selected-gradient:  linear-gradient(45deg,rgba(209, 224, 244, 1) 0%, rgba(240, 248, 252, 1) 100%);
+  --background-inicial-login: radial-gradient(circle,rgba(197, 227, 227, 1) 0%, rgba(223, 230, 230, 1) 100%);
+
+  /*TEXT*/
+
+  --text-color: #031541;
+  --text-color-selected: #82C5DF;
+  --text-color-title-m: #1096B6 ;
+
+  /*CARDS*/
+
+  --card-mini-color: #F3F6FB ;
+  --card-mega-color-gradiente: linear-gradient(90deg,rgba(156, 217, 231, 1) 0%, rgba(218, 240, 242, 1) 100%);
+
+
+  /*SHADOW*/
+  --shadow-cards: 1px 2px 4px rgba(0,0,0,0.3);
+
+  /*Progess Bar*/
+  --bar-progress-gradient: linear-gradient(90deg,rgba(3, 136, 200, 1) 0%, rgba(1, 160, 174, 1) 100%);
+
+  /*ICONES*/
+
+  --color-icones: #087FF1;
+  --rounded-back-icones:#D2EAF3 ;
+  --rounded-back-icones-modules:#D2EAF3 ;
+
+
+  /*TEMA ESCURO*/
+
+  /*BACKGROUNDS */
+  --background-dark-drawer: linear-gradient(90deg,rgba(2, 17, 35, 1) 0%, rgba(8, 29, 56, 1) 100%); ; 
+  --background-dark-top-bar:  linear-gradient(90deg,rgba(9, 37, 86, 1) 0%, rgba(19, 155, 166, 1) 100%); ; 
+  --background-dark-gradiente-page:  linear-gradient(90deg,rgba(2, 12, 25, 1) 0%, rgba(1, 11, 23, 1) 100%);; 
+  --background-dark-drawer-selected-gradient:   linear-gradient(90deg,rgba(2, 16, 33, 1) 0%, rgba(8, 74, 85, 1) 100%);
+  --background-dark-inicial-login: radial-gradient(circle,rgba(10, 32, 61, 1) 0%, rgba(8, 74, 85, 1) 100%);
+
+  /*TEXT*/
+  --text-dark-color: ##F7F7F7;
+  --text-dark-color-selected: #82C5DF;
+  --text-dark-color-title-m: #24A0C2 ;
+
+  /*CARDS*/
+  --card-dark-mini-color: linear-gradient(90deg,rgba(2, 12, 25, 1) 0%, rgba(3, 14, 29, 1) 0%, rgba(7, 30, 59, 1) 100%); ;
+  --card-dark-mega-color-gradiente: linear-gradient(90deg,rgba(2, 12, 25, 1) 0%, rgba(3, 15, 32, 1) 0%, rgba(2, 39, 54, 1) 100%);
+
+
+  /*SHADOW*/
+  --shadow-dark-cards: 2px solid #1F79A0;
+
+  /*Progess Bar*/
+  --bar-dark-progress-gradient: linear-gradient(90deg,rgba(3, 136, 200, 1) 0%, rgba(1, 160, 174, 1) 100%);
+
+  /*ICONES*/
+  --color-dark-icones-cards: #14E8EF;
+  --color-dark-icones-drawer: #1DA6B4;
+  --rounded-dark-back-icones:linear-gradient(90deg,rgba(9, 50, 104, 1) 0%, rgba(66, 117, 150, 1) 48%, rgba(9, 50, 104, 1) 100%);
+  --rounded-dark-back-modules:linear-gradient(90deg,rgba(9, 50, 104, 1) 0%, rgba(66, 117, 150, 1) 48%, rgba(9, 50, 104, 1) 100%);
+
+  
+
+
+
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Mantido escopo padrão caso o usuário force o dark mode */
+    --background: #0b1320;
+    --foreground: #f6faff;
   }
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(180deg, #edf3fb 0%, #e6ecf4 50%, #e2f8f1 100%);
+  background-attachment: fixed; /* Garante que o gradiente não quebre ao rolar a página */
+  
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-h-screen: 100vh;
 }
+
+/* Classe utilitária personalizada para o card de Administração */
+.card-administracao-gradient {
+  /* Gradiente horizontal suave (da esquerda para a direita) */
+  background: linear-gradient(90deg, #e0effe 0%, #f0f7ff 50%, #ffffff 100%);
+  border: 1px solid #b8ebff; /* Borda sutil combinando com o tom primário 200 */
+}
+
+
