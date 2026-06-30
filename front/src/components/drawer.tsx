@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
+import Logo from "../../public/Longa-logo.svg";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -59,19 +61,20 @@ export default function DrawerLayout({
   const drawerContent = (
     <>
       <Toolbar>
-        <Box sx={{ py: 2 }}>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 600,
-              fontSize: "24px",
-              fontFamily: "system-ui",
-              color: "#1f2937",
-            }}
-          >
-            SAGUI
-          </Typography>
-          <Typography
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+            justifyContent: "center",
+          }}
+        >
+          <Image
+            src={Logo}
+            alt="logo"
+            style={{ width: "180px", marginTop: "-10px", alignSelf: "center" }}
+          />
+          {/* <Typography
             variant="body2"
             sx={{
               fontSize: "12px",
@@ -81,7 +84,7 @@ export default function DrawerLayout({
             }}
           >
             Plataforma academica
-          </Typography>
+          </Typography> */}
         </Box>
       </Toolbar>
 
@@ -153,14 +156,12 @@ export default function DrawerLayout({
           "& .MuiDrawer-paper": {
             width: drawerWidth,
             boxSizing: "border-box",
-            backgroundColor:"var(--background-drawer)",
+            backgroundColor: "var(--background-drawer)",
           },
         }}
       >
         {drawerContent}
       </Drawer>
-
-      
 
       {/*
 

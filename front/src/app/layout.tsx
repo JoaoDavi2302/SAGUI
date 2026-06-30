@@ -9,6 +9,9 @@ import { DataProvider } from "@/services/auth/dataContext";
 export const metadata: Metadata = {
   title: "Sagui",
   description: "Sistema Aberto de Gestão Universitária Institucional",
+  icons: {
+    icon: "/Curta-logo.svg",
+  },
 };
 
 export default function RootLayout({

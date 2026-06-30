@@ -70,3 +70,17 @@ Exemplo:
     ```
 
     Evitar mexer em responsividade sem criar breakpoints
+
+*** se ficar em loop de login, verificar public routes em middleware e habilitar "/"
+*** rever logica do mock (se dados fake batem)
+
+** O que falta
+[] editar dados da disciplina da visão do professor (ead)
+[] editar dados da do modulo visão do professor (ead)
+[] editar material (link e outros) da visão do professor (ead)
+[] editar aula
+[] pagina de cursos
+[] detalhes do curso (visualização somente do curso para aluno e todos os cursos que o professor faz parte na visão do professor)
+[] atividades (lista)
+[] perfil
+[] dashboard completo

@@ -24,7 +24,12 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 import { useUser } from "@/services/auth/AuthContext";
 import database from "@/components/mock.json";
-import { AccessTimeOutlined, CheckCircle, Circle, LayersOutlined } from "@mui/icons-material";
+import {
+  AccessTimeOutlined,
+  CheckCircle,
+  Circle,
+  LayersOutlined,
+} from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 
 // para passar id na url
@@ -63,19 +68,17 @@ export default function DisciplinasPage() {
     // ALUNO
     if (effectiveRole === "ALUNO") {
       const enrollment = database.enrollments.find(
-        (e: any) => e.student_id === user.id
+        (e: any) => e.student_id === user.id,
       );
 
       if (!enrollment) {
         return { grouped: [], modules, moduleProgress };
       }
 
-      const course = courses.find(
-        (c: any) => c.id === enrollment.course_id
-      );
+      const course = courses.find((c: any) => c.id === enrollment.course_id);
 
       const subjects = disciplines.filter(
-        (d: any) => d.course_id === enrollment.course_id
+        (d: any) => d.course_id === enrollment.course_id,
       );
 
       return {
@@ -93,7 +96,7 @@ export default function DisciplinasPage() {
 
     // PROFESSOR
     const professorDisciplines = disciplines.filter(
-      (d: any) => d.professor_id === user.id
+      (d: any) => d.professor_id === user.id,
     );
 
     const map = new Map<string, any>();
@@ -119,10 +122,22 @@ export default function DisciplinasPage() {
     };
   }, [user, effectiveRole]);
 
-  // handle 
+  // handle para detalhes de disciplina
   const openDiscipline = (subject: any) => {
     const slug = slugify(subject.name);
     router.push(`/disciplinas/${slug}?id=${subject.id}`);
+  };
+
+  // handle para assistir aulas do modulo
+  // handle para abrir primeira aula do módulo
+  const openModule = (_subject: any, moduleId: string) => {
+    const firstLesson = (data.lessons ?? [])
+      .filter((l: any) => l.module_id === moduleId)
+      ?.sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))[0];
+
+    if (!firstLesson) return;
+
+    router.push(`/aulas/${firstLesson.id}`);
   };
 
   return (
@@ -138,7 +153,7 @@ export default function DisciplinasPage() {
       </Typography>
 
       {data.grouped.map((group: any) => (
-        <Box key={group.course?.id ?? Math.random()} sx={{ mb: 4, }}>
+        <Box key={group.course?.id ?? Math.random()} sx={{ mb: 4 }}>
           {!isStudent && group.course && (
             <>
               <Typography sx={{ fontSize: 16, color: "gray" }}>
@@ -152,7 +167,7 @@ export default function DisciplinasPage() {
             {group.subjects.map((subject: any) => {
               const disciplineModules =
                 data.modules?.filter(
-                  (m: any) => m.discipline_id === subject.id
+                  (m: any) => m.discipline_id === subject.id,
                 ) ?? [];
 
               const moduleProgress = data.moduleProgress ?? [];
@@ -160,29 +175,29 @@ export default function DisciplinasPage() {
               const completedModules = moduleProgress.filter(
                 (p: any) =>
                   p.status === "COMPLETED" &&
-                  disciplineModules.some((m: any) => m.id === p.module_id)
+                  disciplineModules.some((m: any) => m.id === p.module_id),
               ).length;
 
               const progressPercent =
                 disciplineModules.length > 0
                   ? Math.round(
-                    (completedModules / disciplineModules.length) * 100
-                  )
+                      (completedModules / disciplineModules.length) * 100,
+                    )
                   : 0;
 
-              const safeProgress = Math.min(
-                100,
-                Math.max(0, progressPercent)
-              );
+              const safeProgress = Math.min(100, Math.max(0, progressPercent));
 
               const isOpen = openMap[subject.id] || false;
 
               return (
                 <Grid size={{ xs: 12, md: 12 }} key={subject.id}>
-                  <Card sx={{ borderRadius: 3 }} >
+                  <Card sx={{ borderRadius: 3 }}>
                     <CardContent>
                       {/* HEADER */}
-                      <Box sx={{ cursor: "pointer" }} onClick={() => openDiscipline(subject)}>
+                      <Box
+                        sx={{ cursor: "pointer" }}
+                        onClick={() => openDiscipline(subject)}
+                      >
                         <Box
                           sx={{
                             flex: 1,
@@ -191,15 +206,22 @@ export default function DisciplinasPage() {
                             alignItems: "center",
                           }}
                         >
-                          <Box sx={{ p: 2, bgcolor: "#add3f8", borderRadius: 2 }}>
-                            <LayersOutlined fontSize="small" sx={{ color: "#1976d2" }} />
+                          <Box
+                            sx={{ p: 2, bgcolor: "#add3f8", borderRadius: 2 }}
+                          >
+                            <LayersOutlined
+                              fontSize="small"
+                              sx={{ color: "#1976d2" }}
+                            />
                           </Box>
-                          <Box sx={{
-                            flex: 1,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between"
-                          }}>
+                          <Box
+                            sx={{
+                              flex: 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                            }}
+                          >
                             <Typography sx={{ fontWeight: "bold" }}>
                               {subject.name}
                             </Typography>
@@ -237,8 +259,16 @@ export default function DisciplinasPage() {
                       {/* PROGRESSO (ALUNO) */}
                       {isStudent && (
                         <Box sx={{ mt: 1.5 }}>
-                          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                            <Typography variant="caption" color="text.secondary">
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               Progresso
                             </Typography>
                             <Typography variant="caption">
@@ -254,25 +284,29 @@ export default function DisciplinasPage() {
                               borderRadius: 5,
                             }}
                           />
-
-
-
                         </Box>
                       )}
                       <Divider sx={{ my: 2 }} />
-                      <Box component="button" sx={{
-                        border: "none", display: "flex", flex: 1, cursor: "pointer", "&:hover": {
-                          fontWeight: 800
-                        },
-                      }} onClick={() => toggle(subject.id)}>
-                        <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                      <Box
+                        component="button"
+                        sx={{
+                          border: "none",
+                          display: "flex",
+                          flex: 1,
+                          cursor: "pointer",
+                          "&:hover": {
+                            fontWeight: 800,
+                          },
+                        }}
+                        onClick={() => toggle(subject.id)}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{ fontWeight: "bold" }}
+                        >
                           Ver módulos ({disciplineModules.length})
                         </Typography>
-                        {isOpen ? (
-                          <ExpandLessIcon />
-                        ) : (
-                          <ExpandMoreIcon />
-                        )}
+                        {isOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                       </Box>
 
                       {/* MODULOS */}
@@ -281,16 +315,18 @@ export default function DisciplinasPage() {
                           <FormGroup>
                             {disciplineModules.map((m: any) => {
                               const progress = data.moduleProgress.find(
-                                (p: any) => p.module_id === m.id
+                                (p: any) => p.module_id === m.id,
                               );
 
-                              const isCompleted = progress?.status === "COMPLETED";
+                              const isCompleted =
+                                progress?.status === "COMPLETED";
                               const lessonsCount = (data.lessons ?? []).filter(
-                                (l: any) => l.module_id === m.id
+                                (l: any) => l.module_id === m.id,
                               ).length;
                               return (
                                 <Box
                                   key={m.id}
+                                  onClick={() => openModule(subject, m.id)}
                                   sx={{
                                     display: "flex",
                                     alignItems: "center",
@@ -299,20 +335,26 @@ export default function DisciplinasPage() {
                                     borderRadius: 2,
                                     cursor: "pointer",
                                     "&:hover": { bgcolor: "#f5f5f5" },
-
                                   }}
                                 >
                                   {isCompleted ? (
-                                    <CheckCircle sx={{ fontSize: 18, color: "green" }} />
+                                    <CheckCircle
+                                      sx={{ fontSize: 18, color: "green" }}
+                                    />
                                   ) : (
-                                    <Circle sx={{ fontSize: 18, color: "gray" }} />
+                                    <Circle
+                                      sx={{ fontSize: 18, color: "gray" }}
+                                    />
                                   )}
 
                                   <Typography variant="body2">
                                     {m.name}
                                   </Typography>
 
-                                  <Typography variant="caption" sx={{ color: "gray", ml:"auto" }}>
+                                  <Typography
+                                    variant="caption"
+                                    sx={{ color: "gray", ml: "auto" }}
+                                  >
                                     ({lessonsCount} aulas)
                                   </Typography>
                                 </Box>
