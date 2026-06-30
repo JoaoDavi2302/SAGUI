@@ -24,11 +24,8 @@ import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.enums.UserRole;
 import com.ufpa.SAGUI.service.UserService;
 
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
-
 
 @RestController
 @RequestMapping("/api/users")
@@ -68,6 +65,12 @@ public class UserController {
     @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<UserProfileResponse> deactivateUser(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.deactivateUser(id));
+    }
+
+    @PatchMapping("/{id}/role")
+    @PreAuthorize("hasRole('Admin')")
+    public ResponseEntity<UserProfileResponse> changeRole(@PathVariable UUID id, @RequestParam UserRole role){
+        return ResponseEntity.ok(userService.changeRole(id, role));
     }
 }
 

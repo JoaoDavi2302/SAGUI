@@ -117,6 +117,19 @@ public class UserService implements UserDetailsService {
         return UserProfileResponse.from(userRepository.save(user));
     }
 
+    @Transactional
+    public UserProfileResponse changeRole(UUID userId, UserRole role){
+        User user = findUserById(userId);
+        User current = findAuthenticatedUser();
+
+        if(user.getId().equals(current.getId())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Não é possível alterar a própria role");
+        }
+
+        user.setRole(role);
+        return UserProfileResponse.from(userRepository.save(user));
+    }
+
     private User findUserById(UUID userId) {
         return userRepository.findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
