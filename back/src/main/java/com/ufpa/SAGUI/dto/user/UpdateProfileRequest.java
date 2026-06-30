@@ -6,7 +6,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
 public record UpdateProfileRequest(
-    String name, LocalDate birthDate,
+    String name, 
+    
+    LocalDate birthDate,
 
     String address,
 
