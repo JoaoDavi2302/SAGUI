@@ -15,9 +15,13 @@ import com.ufpa.SAGUI.dto.discipline.DisciplineResponse;
 import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.service.DisciplineService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "Disciplinas", description = "Gestão de disciplinas")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/disciplines")
 @RequiredArgsConstructor
