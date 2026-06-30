@@ -3,7 +3,9 @@ package com.ufpa.SAGUI.exception;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "Resposta padrão de erro da API")
 public record ErrorResponse(
     int status,
     String error, 

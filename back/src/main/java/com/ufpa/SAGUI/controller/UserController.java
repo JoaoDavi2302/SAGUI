@@ -24,9 +24,13 @@ import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.enums.UserRole;
 import com.ufpa.SAGUI.service.UserService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "Usuários", description = "Gestão e perfil de usuários")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
