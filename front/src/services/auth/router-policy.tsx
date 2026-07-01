@@ -3,7 +3,7 @@ export type Role = "ADMIN" | "PROFESSOR" | "ALUNO";
 
 export const routerPolicy: Record<string, Role[]> = {
   "/dashboard": ["ADMIN"],
-  "/cursos": ["ADMIN", "PROFESSOR"],
+  "/cursos": ["ADMIN", "PROFESSOR", "ALUNO"],
   "/disciplinas": ["ADMIN", "PROFESSOR", "ALUNO"],
   "/materiais": ["ADMIN", "PROFESSOR", "ALUNO"],
   "/avaliacoes": ["ADMIN", "PROFESSOR", "ALUNO"],

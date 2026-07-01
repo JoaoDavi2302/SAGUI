@@ -1,0 +1,254 @@
+import {
+  CourseEntity,
+  Database,
+  DisciplineEntity,
+  DisciplineProgress,
+  LessonEntity,
+  LoggedUser,
+  ModuleEntity,
+  ModuleProgressEntity,
+} from "./types";
+
+export abstract class RoleBase {
+  constructor(
+    protected database: Database,
+    protected user: LoggedUser,
+  ) {}
+
+  /* acessar tabelas */
+  protected courses(): CourseEntity[] {
+    return this.database.courses;
+  }
+
+  protected disciplines(): DisciplineEntity[] {
+    return this.database.disciplines;
+  }
+
+  protected modules(): ModuleEntity[] {
+    return this.database.modules;
+  }
+
+  protected lessons(): LessonEntity[] {
+    return this.database.lessons;
+  }
+
+  protected enrollments() {
+    return this.database.enrollments;
+  }
+
+  protected users() {
+    return this.database.users;
+  }
+
+  protected moduleProgress(): ModuleProgressEntity[] {
+    return this.database.module_progress ?? [];
+  }
+
+  /* cursos */
+  protected getCourseById(courseId: string): CourseEntity | null {
+    return this.courses().find((c) => c.id === courseId) ?? null;
+  }
+
+  protected getStudentCourseIds(): string[] {
+    return this.enrollments()
+      .filter((e: any) => e.student_id === this.user.id)
+      .map((e: any) => e.course_id);
+  }
+
+  protected getProfessorCourseIds(): string[] {
+    return [
+      ...new Set(
+        this.disciplines()
+          .filter((d) => d.professor_id === this.user.id)
+          .map((d) => d.course_id),
+      ),
+    ];
+  }
+
+  protected isStudentEnrolled(courseId: string): boolean {
+    return this.getStudentCourseIds().includes(courseId);
+  }
+
+  /* disciplinas */
+  protected getDisciplineById(disciplineId: string): DisciplineEntity | null {
+    return this.disciplines().find((d) => d.id === disciplineId) ?? null;
+  }
+
+  protected getDisciplinesByCourse(courseId: string): DisciplineEntity[] {
+    return this.disciplines()
+      .filter((d) => d.course_id === courseId)
+      .sort((a, b) => a.order_index - b.order_index);
+  }
+
+  protected getProfessorName(discipline: DisciplineEntity): string {
+    const professor = this.users().find(
+      (u: any) => u.id === discipline.professor_id,
+    );
+
+    return professor?.name ?? "";
+  }
+
+  /* modulos */
+  protected getModulesByDiscipline(disciplineId: string): ModuleEntity[] {
+    return this.modules()
+      .filter((m) => m.discipline_id === disciplineId)
+      .sort((a, b) => a.order_index - b.order_index);
+  }
+
+  protected getModuleById(moduleId: string): ModuleEntity | null {
+    return this.modules().find((m) => m.id === moduleId) ?? null;
+  }
+
+  /* aulas */
+  protected getLessonsByModule(moduleId: string): LessonEntity[] {
+    return this.lessons()
+      .filter((l) => l.module_id === moduleId)
+      .sort((a, b) => a.order_index - b.order_index);
+  }
+
+  protected getLessonsCount(moduleId: string): number {
+    return this.getLessonsByModule(moduleId).length;
+  }
+
+  /* progresso de modulo */
+  protected isModuleCompleted(moduleId: string): boolean {
+    return this.moduleProgress().some(
+      (p) =>
+        p.student_id === this.user.id &&
+        p.module_id === moduleId &&
+        p.status === "COMPLETED",
+    );
+  }
+
+  /* progresso de disciplina */
+  protected getDisciplineProgress(
+    disciplineId: string,
+  ): DisciplineProgress {
+    const modules = this.getModulesByDiscipline(disciplineId);
+
+    if (modules.length === 0) {
+      return {
+        completedModules: 0,
+        totalModules: 0,
+        percentage: 0,
+      };
+    }
+
+    const completedModules = modules.filter((m) =>
+      this.isModuleCompleted(m.id),
+    ).length;
+
+    return {
+      completedModules,
+      totalModules: modules.length,
+      percentage: Math.round(
+        (completedModules / modules.length) * 100,
+      ),
+    };
+  }
+
+  /* card de aulas */
+  protected buildLessonCard(lesson: LessonEntity) {
+    const completed = this.moduleProgress().some(
+      (p) =>
+        p.student_id === this.user.id &&
+        p.module_id === lesson.module_id &&
+        p.status === "COMPLETED",
+    );
+
+    return {
+      ...lesson,
+      completed,
+    };
+  }
+
+  /* card de modulo */
+  protected buildModuleCard(module: ModuleEntity) {
+    const lessons = this.getLessonsByModule(module.id);
+
+    const completedLessons = lessons.filter((l) =>
+      this.buildLessonCard(l).completed,
+    ).length;
+
+    const totalLessons = lessons.length;
+
+    return {
+      ...module,
+
+      lessons: lessons.map((l) => this.buildLessonCard(l)),
+
+      lessonsCount: totalLessons,
+
+      completedLessons,
+
+      percentage: totalLessons
+        ? Math.round((completedLessons / totalLessons) * 100)
+        : 0,
+    };
+  }
+
+  /* progresso do aluno em disciplina */
+
+  protected buildStudentProgress(studentId: string) {
+    const student = this.users().find(
+      (u: any) => u.id === studentId,
+    );
+
+    const allLessons = this.lessons();
+
+    const completedLessons = allLessons.filter((l) =>
+      this.moduleProgress().some(
+        (p) =>
+          p.student_id === studentId &&
+          p.module_id === l.module_id &&
+          p.status === "COMPLETED",
+      ),
+    ).length;
+
+    const totalLessons = allLessons.length;
+
+    const quizAttempts =
+      this.database.quiz_attempts?.filter(
+        (q: any) => q.student_id === studentId,
+      ) ?? [];
+
+    const average =
+      quizAttempts.length > 0
+        ? quizAttempts.reduce(
+            (a: number, b: any) => a + (b.score ?? 0),
+            0,
+          ) / quizAttempts.length
+        : 0;
+
+    return {
+      id: studentId,
+      name: student?.name ?? "",
+
+      completedLessons,
+      totalLessons,
+
+      percentage: totalLessons
+        ? Math.round(
+            (completedLessons / totalLessons) * 100,
+          )
+        : 0,
+
+      average: Number(average.toFixed(1)),
+    };
+  }
+
+  /* card de pagina de disciplina */
+  protected buildDisciplineCard(discipline: DisciplineEntity) {
+    return {
+      ...discipline,
+
+      professorName: this.getProfessorName(discipline),
+
+      modules: this.getModulesByDiscipline(discipline.id).map(
+        (m) => this.buildModuleCard(m),
+      ),
+
+      progress: this.getDisciplineProgress(discipline.id),
+    };
+  }
+}

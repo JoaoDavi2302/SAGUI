@@ -21,18 +21,20 @@ export default function CursosLayout({
       return;
     }
 
-    if (effectiveRole === "ALUNO") {
-      router.replace("/not-found");
-    }
+    // redireciona para não encontrado
+    // if (effectiveRole === "ALUNO") {
+    //   router.replace("/not-found");
+    // }
   }, [user, loading, effectiveRole, router]);
 
   if (loading) return null;
 
   if (!user) {
-  return <></>; // middleware já redireciona
-}
+    return <></>; // middleware já redireciona
+  }
 
-  if (effectiveRole === "ALUNO") return null;
+  // retorna rota vazia
+  // if (effectiveRole === "ALUNO") return null;
 
   return <>{children}</>;
 }

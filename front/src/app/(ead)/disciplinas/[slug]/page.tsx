@@ -52,7 +52,7 @@ const Stat = ({ icon: Icon, label, value }: any) => (
     </Box>
 );
 
-export default function DisciplinePage() {
+export default function DisciplineDetailsPage() {
     const searchParams = useSearchParams();
     const disciplineId = searchParams.get("id");
     const router = useRouter();

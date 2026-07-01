@@ -21,15 +21,15 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
     return [
       { icon: <HomeOutlined />, label: "Início", href: "/" },
 
-      ...(effectiveRole === "ADMIN" || effectiveRole === "PROFESSOR"
-        ? [
+      // ...(effectiveRole === "ADMIN" || effectiveRole === "PROFESSOR"
+      //   ? [
             {
               icon: <SchoolOutlined />,
               label: "Cursos",
               href: "/cursos",
             },
-          ]
-        : []),
+        //   ]
+        // : []),
 
       {
         icon: <MenuBookOutlined />,

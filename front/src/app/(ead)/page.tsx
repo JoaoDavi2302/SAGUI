@@ -13,7 +13,7 @@ import {
 
 import { useUser } from "@/services/auth/AuthContext";
 import database from "@/components/mock.json";
-import { DashboardProvider } from "@/services/dashboardProvider";
+import { DashboardProvider } from "@/services/poo/dashboard/dashboardProvider";
 import { AccessTimeOutlined, ArrowRightAltOutlined, SchoolOutlined } from "@mui/icons-material";
 import Link from "next/link";
 

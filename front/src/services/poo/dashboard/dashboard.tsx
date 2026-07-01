@@ -1,8 +1,9 @@
+// para homepage de dashboard e (ead)
 export interface DashboardData {
   stats: any[];
   courses: any[];
   subjects: any[];
-  modules: any[]
+  modules: any[];
   // faltam resto das tabelas
    module_progress?: any[];
   progressPercent?: number;

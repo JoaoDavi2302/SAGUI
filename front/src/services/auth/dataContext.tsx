@@ -20,7 +20,7 @@ import {
   Module,
   Quiz,
   User,
-} from "@/services/types/database";
+} from "@/services/poo/dashboard/types/database";
 
 interface DataContextType {
   loading: boolean;

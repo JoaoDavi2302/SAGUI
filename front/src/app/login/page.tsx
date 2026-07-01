@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "../../services/auth/AuthContext";
+import Image from "next/image";
+import Logo from "../../../public/Longa-logo.svg";
 
 // USO DO UI/BUTTON
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 
 import {
   Box,
@@ -73,19 +75,12 @@ export default function LoginPage() {
         px: 2,
       }}
     >
-      <Stack spacing={0.5} sx={{ mb: 3 }}>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 800,
-            fontSize: "30px",
-            fontFamily: "system-ui",
-            textAlign: "center",
-            mb: 3,
-          }}
-        >
-          //SAGUI
-        </Typography>
+      <Stack spacing={0.5} sx={{ mb: 2 }}>
+        <Image
+          src={Logo}
+          alt="logo"
+          style={{ width: "220px", alignSelf: "center", marginBottom: "-15px" }}
+        />
         <Typography
           sx={{
             fontFamily: "system-ui",
@@ -94,7 +89,7 @@ export default function LoginPage() {
             color: "#556255",
           }}
         >
-          Entre com sua conta para continuar
+          Plataforma academica de estudos
         </Typography>
       </Stack>
       <Card
@@ -106,8 +101,6 @@ export default function LoginPage() {
         }}
       >
         <CardContent>
-          {/* HEADER */}
-          {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
             <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
               Email
@@ -196,27 +189,6 @@ export default function LoginPage() {
               <Typography variant="caption" sx={{ cursor: "pointer" }}>
                 Criar conta
               </Typography>
-
-              {/* Exemplo de uso do Button*/}
-
-              {/* 
-              exemplos detipos específicos que o  botão aceitará
-              Variant = 'contained' | 'outlined' | 'text' | 'soft'; // adicionado 'soft'
-              Color = 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'; */
-              }
-
-              <Button variant="contained" color="primary" isLoading={loading}>
-                Exemplo/Teste
-              </Button>
-              <Button variant="outlined" color="error" isLoading={loading}>
-                Exemplo/Teste
-              </Button>
-
-
-              <Input 
-                label="Teste" 
-                placeholder="Testando...."
-              />
             </Stack>
           </Box>
         </CardContent>

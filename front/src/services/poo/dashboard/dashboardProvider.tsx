@@ -1,5 +1,4 @@
-import { StudentDashboard } from "./poo/dashboardAluno";
-import { ProfessorDashboard } from "./poo/dashboardProfessor";
+import { StudentDashboard, ProfessorDashboard } from "./Roles";
 
 export class DashboardProvider {
 

@@ -55,3 +55,4 @@ export interface Quiz {
   description: string;
   passing_score: number;
 }
+
