@@ -4,6 +4,7 @@ import {
   DisciplineEntity,
   DisciplineGroup,
   DisciplinePageData,
+  DisciplineDetailsPage,
 } from "../shared/types";
 
 /* aluno */
@@ -11,9 +12,7 @@ export class StudentDiscipline extends Discipline {
   listDisciplines(): DisciplineEntity[] {
     const courseIds = this.getStudentCourseIds();
 
-    return this.disciplines().filter((d) =>
-      courseIds.includes(d.course_id)
-    );
+    return this.disciplines().filter((d) => courseIds.includes(d.course_id));
   }
 
   getDiscipline(id: string): DisciplineEntity | null {
@@ -23,9 +22,7 @@ export class StudentDiscipline extends Discipline {
       return null;
     }
 
-    return this.isStudentEnrolled(discipline.course_id)
-      ? discipline
-      : null;
+    return this.isStudentEnrolled(discipline.course_id) ? discipline : null;
   }
 
   getByCourse(courseId: string): DisciplineEntity[] {
@@ -46,7 +43,7 @@ export class StudentDiscipline extends Discipline {
         course,
 
         subjects: this.getDisciplinesByCourse(courseId).map((d) =>
-          this.buildDisciplineCard(d)
+          this.buildDisciplineCard(d),
         ),
       });
     });
@@ -58,14 +55,37 @@ export class StudentDiscipline extends Discipline {
       moduleProgress: this.moduleProgress(),
     };
   }
+  protected getLessonsByDiscipline(disciplineId: string) {
+    const modules = this.getModulesByDiscipline(disciplineId);
+
+    return modules.flatMap((m) => this.getLessonsByModule(m.id));
+  }
+
+  getDetails(id: string): DisciplineDetailsPage {
+    const discipline = this.buildDisciplineCard(this.getDisciplineById(id)!);
+
+    const modules = this.getModulesByDiscipline(id)
+      .map((m) => this.buildModuleDetailsSafe(m.id))
+      .filter((m): m is NonNullable<typeof m> => m !== null);
+
+    const lessons = this.getLessonsByDiscipline(id);
+
+    const students = this.getStudentsByDiscipline(id).map((s: any) =>
+      this.buildStudentProgress(s.id, lessons),
+    );
+
+    return {
+      discipline,
+      modules,
+      students,
+    };
+  }
 }
 
 /* professor */
 export class ProfessorDiscipline extends Discipline {
   listDisciplines(): DisciplineEntity[] {
-    return this.disciplines().filter(
-      (d) => d.professor_id === this.user.id
-    );
+    return this.disciplines().filter((d) => d.professor_id === this.user.id);
   }
 
   getDiscipline(id: string): DisciplineEntity | null {
@@ -75,14 +95,12 @@ export class ProfessorDiscipline extends Discipline {
       return null;
     }
 
-    return discipline.professor_id === this.user.id
-      ? discipline
-      : null;
+    return discipline.professor_id === this.user.id ? discipline : null;
   }
 
   getByCourse(courseId: string): DisciplineEntity[] {
     return this.getDisciplinesByCourse(courseId).filter(
-      (d) => d.professor_id === this.user.id
+      (d) => d.professor_id === this.user.id,
     );
   }
 
@@ -96,7 +114,7 @@ export class ProfessorDiscipline extends Discipline {
         course,
 
         subjects: this.getByCourse(courseId).map((d) =>
-          this.buildDisciplineCard(d)
+          this.buildDisciplineCard(d),
         ),
       });
     });
@@ -106,6 +124,32 @@ export class ProfessorDiscipline extends Discipline {
       modules: this.modules(),
       lessons: this.lessons(),
       moduleProgress: [],
+    };
+  }
+
+  protected getLessonsByDiscipline(disciplineId: string) {
+    const modules = this.getModulesByDiscipline(disciplineId);
+
+    return modules.flatMap((m) => this.getLessonsByModule(m.id));
+  }
+
+  getDetails(id: string): DisciplineDetailsPage {
+    const discipline = this.buildDisciplineCard(this.getDisciplineById(id)!);
+
+    const modules = this.getModulesByDiscipline(id)
+      .map((m) => this.buildModuleDetailsSafe(m.id))
+      .filter((m): m is NonNullable<typeof m> => m !== null);
+
+    const lessons = this.getLessonsByDiscipline(id);
+
+    const students = this.getStudentsByDiscipline(id).map((s: any) =>
+      this.buildStudentProgress(s.id, lessons),
+    );
+
+    return {
+      discipline,
+      modules,
+      students,
     };
   }
 }
@@ -132,7 +176,7 @@ export class AdminDiscipline extends Discipline {
         course,
 
         subjects: this.getDisciplinesByCourse(course.id).map((d) =>
-          this.buildDisciplineCard(d)
+          this.buildDisciplineCard(d),
         ),
       });
     });
@@ -142,6 +186,32 @@ export class AdminDiscipline extends Discipline {
       modules: this.modules(),
       lessons: this.lessons(),
       moduleProgress: this.moduleProgress(),
+    };
+  }
+
+  protected getLessonsByDiscipline(disciplineId: string) {
+    const modules = this.getModulesByDiscipline(disciplineId);
+
+    return modules.flatMap((m) => this.getLessonsByModule(m.id));
+  }
+  
+  getDetails(id: string): DisciplineDetailsPage {
+    const discipline = this.buildDisciplineCard(this.getDisciplineById(id)!);
+
+    const modules = this.getModulesByDiscipline(id)
+      .map((m) => this.buildModuleDetailsSafe(m.id))
+      .filter((m): m is NonNullable<typeof m> => m !== null);
+
+    const lessons = this.getLessonsByDiscipline(id);
+
+    const students = this.getStudentsByDiscipline(id).map((s: any) =>
+      this.buildStudentProgress(s.id, lessons),
+    );
+
+    return {
+      discipline,
+      modules,
+      students,
     };
   }
 }

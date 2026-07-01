@@ -138,20 +138,28 @@ export interface ModuleCard extends ModuleEntity {
   percentage: number;
 }
 
+// detalhes da disciplina
+export interface ModuleDetailsCard extends ModuleEntity {
+  lessons: LessonCard[];
+  progress: number;
+}
+
+// detalhes da aula disciplina
+export interface LessonCard extends LessonEntity {
+  completed: boolean;
+}
+
 export interface StudentProgressCard {
   id: string;
   name: string;
-
   completedLessons: number;
   totalLessons: number;
-
   percentage: number;
   average: number;
 }
 
-export interface DisciplineDetailsPageData {
+export interface DisciplineDetailsPage {
   discipline: DisciplineCard;
-  modules: ModuleCard[];
+  modules: ModuleDetailsCard[];
   students: StudentProgressCard[];
-  totalLessons: number;
 }
