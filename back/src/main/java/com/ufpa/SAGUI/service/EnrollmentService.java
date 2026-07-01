@@ -40,7 +40,7 @@ public class EnrollmentService {
                 student.getId(), discipline.getId(), EntityStatus.Inactive);
         
         if (alreadyEnrolled) {
-            throw new RuntimeException("Aluno já possui matrícula ativa ou pendente nesta disciplina!");
+        	throw new IllegalArgumentException("Erro de Validação: O aluno já possui uma matrícula ativa ou pendente nesta disciplina.");
         }
 
       
@@ -62,5 +62,40 @@ public class EnrollmentService {
                 .status(savedEnrollment.getEnrollmentStatus()) 
                 .message("Solicitação de matrícula enviada com sucesso!")
                 .build();
+    }
+    
+    @Transactional
+    public EnrollmentResponse approveEnrollment(java.util.UUID enrollmentId) {
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new RuntimeException("Matrícula não encontrada com o ID: " + enrollmentId));
+
+        if (enrollment.getEnrollmentStatus() != EnrollmentStatus.PENDING) {
+            throw new RuntimeException("Apenas matrículas PENDENTES podem ser aprovadas.");
+        }
+
+        enrollment.setEnrollmentStatus(EnrollmentStatus.APPROVED);
+
+        Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
+
+        return EnrollmentResponse.builder()
+                .id(savedEnrollment.getId())
+                .status(savedEnrollment.getEnrollmentStatus())
+                .message("Matrícula aprovada com sucesso!")
+                .build();
+    }
+    
+    @Transactional(readOnly = true)
+    public boolean isStudentEnrolledInDiscipline(java.util.UUID studentId, java.util.UUID disciplineId) {
+        return enrollmentRepository.findById(studentId).isPresent(); // Vamos ajustar a busca real abaixo
+    }
+    
+    @Transactional(readOnly = true)
+    public void validateContentAccess(java.util.UUID studentId, java.util.UUID disciplineId) {
+        boolean hasAccess = enrollmentRepository.existsByStudent_IdAndDiscipline_IdAndEnrollmentStatus(
+                studentId, disciplineId, EnrollmentStatus.APPROVED);
+
+        if (!hasAccess) {
+            throw new RuntimeException("Acesso negado: O aluno não possui uma matrícula aprovada nesta disciplina.");
+        }
     }
 }
