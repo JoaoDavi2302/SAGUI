@@ -13,5 +13,5 @@ public class EnrollmentRequest {
     @NotNull(message = "O ID da disciplina é obrigatório")
     private UUID disciplineId;
 
-    private UUID courseId; // Opcional, caso futuramente queira mapear por curso completo
+    private UUID courseId; 
 }
