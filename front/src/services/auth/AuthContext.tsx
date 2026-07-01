@@ -9,21 +9,12 @@ import {
 } from "react";
 
 import { ApiError } from "../api/client";
-import { LoginRequest, getMyProfile, logoutRequest } from "./api";
+import { getMyProfile, loginRequest, logoutRequest, registerRequest } from "./api";
 import { UserProfileResponseDTO } from "./api";
-import { AuthContextType, LoggedUser, Role } from "./types";
-import { getCookie, setCookie, clearCookie } from "../api/cookies";
+import { AuthContextType, LoggedUser, RegisterInput, Role } from "./types";
+import { clearSession, getAccessToken, persistSession } from "../api/tokens";
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
-function decodeJwtExp(token: string): number | null {
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    return typeof payload.exp === "number" ? payload.exp : null;
-  } catch {
-    return null;
-  }
-}
 
 function toLoggedUser(profile: UserProfileResponseDTO): LoggedUser {
   if (!profile.id || !profile.name || !profile.email || !profile.role || !profile.status) {
@@ -44,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<LoggedUser | null>(null);
 
   useEffect(() => {
-    const token = getCookie("token");
+    const token = getAccessToken();
 
     if (!token) {
       setUser(null);
@@ -52,39 +43,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    getMyProfile().then((profile) => setUser(toLoggedUser(profile))).catch(() => {
-        // token inválido/expirado ou perfil incompleto
-        clearCookie("token");
-        localStorage.removeItem("refreshToken");
+    getMyProfile()
+      .then((profile) => setUser(toLoggedUser(profile)))
+      .catch(() => {
+        clearSession();
         setUser(null);
       })
       .finally(() => setLoading(false));
   }, []);
 
-  async function login(email: string, password: string) {
+  async function establishSession(accesToken: string, refreshToken: string): Promise<Role> {
+    persistSession(accesToken, refreshToken);
+
+    const profile = await getMyProfile();
+    const loggedUser = toLoggedUser(profile);
+    setUser(loggedUser);
+
+    return loggedUser.role;
+  }
+
+  async function login(email: string, password: string): Promise<Role | null> {
     try {
-      const { accesToken, refreshToken } = await LoginRequest(email, password);
+      const { accesToken, refreshToken } = await loginRequest(email, password);
 
       if (!accesToken || !refreshToken) {
         throw new Error("Resposta de login inválida (token ausente)");
       }
 
-      const exp = decodeJwtExp(accesToken);
-      const maxAge = exp ? exp - Math.floor(Date.now() / 1000) : 86400;
-
-      setCookie("token", accesToken, maxAge);
-      localStorage.setItem("refreshToken", refreshToken);
-
-      const profile = await getMyProfile();
-      setUser(toLoggedUser(profile));
-
-      return true;
+      return await establishSession(accesToken, refreshToken);
     } catch (err) {
       if (err instanceof ApiError && (err.status === 401 || err.status === 400)) {
-        return false;
+        return null;
       }
       throw err;
     }
+  }
+
+  async function register(input: RegisterInput): Promise<Role> {
+    const { accesToken, refreshToken } = await registerRequest({
+      name: input.name,
+      email: input.email,
+      password: input.password,
+      birthDate: input.birthDate,
+      address: input.address,
+    });
+
+    if (!accesToken || !refreshToken) {
+      throw new Error("Resposta de cadastro inválida (token ausente)");
+    }
+
+    return establishSession(accesToken, refreshToken);
   }
 
   async function logout() {
@@ -98,8 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    localStorage.removeItem("refreshToken");
-    clearCookie("token");
+    clearSession();
     setUser(null);
 
     window.location.href = "/login";
@@ -108,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const effectiveRole = user?.role ?? "ALUNO";
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, effectiveRole }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, effectiveRole }}>
       {children}
     </AuthContext.Provider>
   );

@@ -12,43 +12,64 @@ import {
 } from "@mui/material";
 
 import { useUser } from "@/services/auth/AuthContext";
-import database from "@/components/mock.json";
+import { useCatalogDatabase } from "@/services/auth/dataContext";
 import { DashboardProvider } from "@/services/dashboardProvider";
-import { AccessTimeOutlined, ArrowRightAltOutlined, SchoolOutlined } from "@mui/icons-material";
+import { AccessTimeOutlined, ArrowRightAltOutlined } from "@mui/icons-material";
 import Link from "next/link";
 
+function getHomeCopy(role: string) {
+  if (role === "PROFESSOR") {
+    return {
+      subtitle: "Acompanhe os cursos e disciplinas sob sua responsabilidade.",
+      coursesTitle: "Cursos vinculados",
+      disciplinesTitle: "Minhas Disciplinas",
+      coursesLinkLabel: "Ver todos",
+      showDisciplines: true,
+    };
+  }
+
+  return {
+    subtitle: "Continue de onde parou ou descubra novos cursos.",
+    coursesTitle: "Meus Cursos",
+    disciplinesTitle: "Minhas Disciplinas",
+    coursesLinkLabel: "Ver todos",
+    showDisciplines: false,
+  };
+}
+
 export default function Home() {
-  // usuario logado e role do usuario
   const { user, effectiveRole } = useUser();
+  const { database, loading, error } = useCatalogDatabase();
   const isStudent = effectiveRole === "ALUNO";
+  const copy = getHomeCopy(effectiveRole);
 
-  // seleciona qual dashboard (aluno ou professor) usar e cria o dashboard (componentes de seção)
-  // ex: aluno possui progressbar, mas professor não
   const dashboard = useMemo(() => {
+    if (!user) return null;
     return DashboardProvider.create(effectiveRole, user, database);
-  }, [effectiveRole, user]);
+  }, [effectiveRole, user, database]);
 
-  // renderiza dados
-  const data = dashboard.getData();
+  const data = useMemo(() => dashboard?.getData() ?? null, [dashboard]);
 
-  // transforma par array os dados
   const coursesMap = useMemo(
     () =>
-      Object.fromEntries(
-        data.courses.map((course: any) => [course.id, course])
-      ),
-    [data.courses]
+      data
+        ? Object.fromEntries(
+            data.courses.map((course: any) => [course.id, course]),
+          )
+        : {},
+    [data],
   );
 
-  // modulos da disciplina agrupados
   const modulesMap = useMemo(() => {
+    if (!data) return {};
+
     const grouped: Record<string, any[]> = data.modules.reduce(
       (acc: Record<string, any[]>, module: any) => {
         if (!acc[module.discipline_id]) acc[module.discipline_id] = [];
         acc[module.discipline_id].push(module);
         return acc;
       },
-      {}
+      {},
     );
 
     Object.values(grouped).forEach((modules: any[]) => {
@@ -56,9 +77,24 @@ export default function Home() {
     });
 
     return grouped;
-  }, [data.modules]);
+  }, [data]);
 
-  // tabela de nodulos usada para progressbar
+  if (loading) {
+    return (
+      <Box sx={{ p: 3, display: "flex", justifyContent: "center" }}>
+        <Typography>Carregando...</Typography>
+      </Box>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography color="error">{error ?? "Não foi possível carregar o início."}</Typography>
+      </Box>
+    );
+  }
+
   const moduleProgress = data.module_progress ?? [];
 
   return (
@@ -70,7 +106,7 @@ export default function Home() {
       </Typography>
 
       <Typography sx={{ mb: 3, fontSize: 14, color: "gray" }}>
-        Continue de onde parou ou descubra novos cursos.
+        {copy.subtitle}
       </Typography>
 
       {/* METRICAS */}
@@ -111,14 +147,14 @@ export default function Home() {
       </Grid>
 
       {/* CURSOS */}
-      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-          Meus Cursos
+          {copy.coursesTitle}
         </Typography>
 
         <Link href="/cursos" style={{ color: "#1976d2", fontSize: "14px" }}>
-          Ver todos
-          <ArrowRightAltOutlined />
+          {copy.coursesLinkLabel}
+          <ArrowRightAltOutlined sx={{ fontSize: 16, verticalAlign: "middle" }} />
         </Link>
       </Box>
 
@@ -162,20 +198,23 @@ export default function Home() {
         ))}
       </Grid>
 
-      {/* DISCIPLINAS */}
-      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-          Minhas Disciplinas
-        </Typography>
+      {copy.showDisciplines && (
+        <>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+              {copy.disciplinesTitle}
+            </Typography>
 
-        <Link href="/disciplinas" style={{ color: "#1976d2", fontSize: "14px" }}>
-          Ver todos
-          <ArrowRightAltOutlined />
-        </Link>
-      </Box>
+            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+              <Link href="/disciplinas" style={{ color: "#1976d2", fontSize: "14px" }}>
+                Ver todos
+                <ArrowRightAltOutlined sx={{ fontSize: 16, verticalAlign: "middle" }} />
+              </Link>
+            </Box>
+          </Box>
 
-      <Grid container spacing={2}>
-        {data.subjects.slice(0, 6).map((subject: any) => {
+          <Grid container spacing={2}>
+            {data.subjects.slice(0, 6).map((subject: any) => {
           const course = coursesMap[subject.course_id];
           const modules = modulesMap[subject.id] || [];
 
@@ -275,7 +314,9 @@ export default function Home() {
             </Grid>
           );
         })}
-      </Grid>
+          </Grid>
+        </>
+      )}
     </Box>
   );
 }

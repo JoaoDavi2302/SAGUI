@@ -64,6 +64,8 @@ public class AuthService {
             .passwordHash(
                 passwordEncoder.encode(request.password())
             )
+            .birthDate(request.birthDate())
+            .address(request.address())
             .role(UserRole.Aluno)
             .build();
         user.setStatus(EntityStatus.Active);

@@ -4,24 +4,43 @@ import { DashboardData } from "./dashboard";
 
 export class StudentDashboard extends Dashboard {
   getData(): DashboardData {
-    const enrollment = this.database.enrollments.find(
+    const enrollment = this.database.enrollments?.find(
       (e: any) => e.student_id === this.user.id
     );
 
     if (!enrollment) {
+      const disciplines = this.database.disciplines ?? [];
+      const disciplineIds = disciplines.map((d: any) => d.id);
+      const modules = (this.database.modules ?? []).filter((m: any) =>
+        disciplineIds.includes(m.discipline_id),
+      );
+      const lessons = (this.database.lessons ?? []).filter((l: any) =>
+        modules.some((m: any) => m.id === l.module_id),
+      );
+      const courseIds = [...new Set(disciplines.map((d: any) => d.course_id))];
+      const courses = (this.database.courses ?? []).filter((c: any) =>
+        courseIds.includes(c.id),
+      );
+
       return {
-        stats: [],
-        courses: [],
-        subjects: [],
-        modules: [],
+        stats: [
+          { icon:<MenuBookOutlined sx={{ color: "#1976d2" }} /> , label: "Aulas", value: `0/${lessons.length}` },
+          { icon:<AssignmentOutlined sx={{ color: "#1976d2" }} /> ,label: "Atividades", value: "0/0" },
+          { icon:<ShowChartOutlined sx={{ color: "#1976d2" }} /> ,label: "Média de atividades", value: "0" },
+          { icon:<EmojiEventsOutlined sx={{ color: "#1976d2" }} /> ,label: "Conclusão de curso", value: "0%" },
+        ],
+        courses,
+        subjects: disciplines,
+        modules,
         module_progress: [],
         progressPercent: 0,
         completedModules: 0,
       };
     }
 
+    const enrollmentData = enrollment;
     const course = this.database.courses.find(
-      (c: any) => c.id === enrollment.course_id
+      (c: any) => c.id === enrollmentData.course_id
     );
 
     const disciplines = this.database.disciplines.filter(
@@ -34,7 +53,7 @@ export class StudentDashboard extends Dashboard {
       disciplineIds.includes(m.discipline_id)
     );
 
-    const moduleProgress = this.database.module_progress.filter(
+    const moduleProgress = (this.database.module_progress ?? []).filter(
       (p: any) => p.student_id === this.user.id
     );
 
@@ -48,7 +67,7 @@ export class StudentDashboard extends Dashboard {
       modules.some((m: any) => m.id === l.module_id)
     );
 
-    const lessonProgress = this.database.lesson_progress.filter(
+    const lessonProgress = (this.database.lesson_progress ?? []).filter(
       (lp: any) => lp.student_id === this.user.id
     );
 
@@ -61,14 +80,14 @@ export class StudentDashboard extends Dashboard {
     // progresso das aulas
     const progressLessons = `${completedLessons}/${lessons.length}`;
 
-    const quizzes = this.database.quizzes.filter((q: any) =>
+    const quizzes = (this.database.quizzes ?? []).filter((q: any) =>
       modules.some((m: any) => m.id === q.module_id)
     );
 
 
     const quizIds = quizzes.map((q: any) => q.id);
 
-    const quizAttempts = this.database.quiz_attempts.filter(
+    const quizAttempts = (this.database.quiz_attempts ?? []).filter(
       (qa: any) =>
         qa.student_id === this.user.id &&
         quizIds.includes(qa.quiz_id)

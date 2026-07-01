@@ -1,24 +1,18 @@
-import { MenuBookOutlined, SchoolOutlined } from "@mui/icons-material";
+import {
+  LayersOutlined,
+  MenuBookOutlined,
+  SchoolOutlined,
+} from "@mui/icons-material";
 import { Dashboard } from "./dashboard";
 import { DashboardData } from "./dashboard";
 
-export class ProfessorDashboard extends Dashboard {
+export class AdminDashboard extends Dashboard {
   getData(): DashboardData {
-    const disciplines = this.database.disciplines.filter(
-      (d: { professor_id: string }) => d.professor_id === this.user.id,
-    );
-
+    const courses = this.database.courses ?? [];
+    const disciplines = this.database.disciplines ?? [];
     const disciplineIds = disciplines.map((d: { id: string }) => d.id);
 
-    const courseIds = [
-      ...new Set(disciplines.map((d: { course_id: string }) => d.course_id)),
-    ];
-
-    const courses = this.database.courses.filter((c: { id: string }) =>
-      courseIds.includes(c.id),
-    );
-
-    const modules = this.database.modules.filter((m: { discipline_id: string }) =>
+    const modules = (this.database.modules ?? []).filter((m: { discipline_id: string }) =>
       disciplineIds.includes(m.discipline_id),
     );
 
@@ -26,7 +20,7 @@ export class ProfessorDashboard extends Dashboard {
       stats: [
         {
           icon: <SchoolOutlined sx={{ color: "#1976d2" }} />,
-          label: "Cursos vinculados",
+          label: "Cursos",
           value: courses.length,
         },
         {
@@ -34,8 +28,12 @@ export class ProfessorDashboard extends Dashboard {
           label: "Disciplinas",
           value: disciplines.length,
         },
+        {
+          icon: <LayersOutlined sx={{ color: "#1976d2" }} />,
+          label: "Módulos",
+          value: modules.length,
+        },
       ],
-
       courses,
       subjects: disciplines,
       modules,

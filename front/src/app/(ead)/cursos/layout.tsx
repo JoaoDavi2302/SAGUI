@@ -1,4 +1,3 @@
-// para bloqueio do aluno
 "use client";
 
 import { useUser } from "@/services/auth/AuthContext";
@@ -10,29 +9,15 @@ export default function CursosLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading, effectiveRole } = useUser();
+  const { user, loading } = useUser();
   const router = useRouter();
 
   useEffect(() => {
     if (loading) return;
+    if (!user) router.replace("/login");
+  }, [user, loading, router]);
 
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
-
-    if (effectiveRole === "ALUNO") {
-      router.replace("/not-found");
-    }
-  }, [user, loading, effectiveRole, router]);
-
-  if (loading) return null;
-
-  if (!user) {
-  return <></>; // middleware já redireciona
-}
-
-  if (effectiveRole === "ALUNO") return null;
+  if (loading || !user) return null;
 
   return <>{children}</>;
 }

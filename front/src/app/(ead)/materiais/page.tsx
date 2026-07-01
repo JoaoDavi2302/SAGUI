@@ -27,11 +27,12 @@ import {
   StyledInputBase,
 } from "@/components/components";
 
-import database from "@/components/mock.json";
+import { useCatalogDatabase } from "@/services/auth/dataContext";
 import { useUser } from "@/services/auth/AuthContext";
 
 export default function MateriaisPage() {
   const { user, effectiveRole } = useUser();
+  const { database } = useCatalogDatabase();
 
   const [search, setSearch] = useState("");
   // chip
