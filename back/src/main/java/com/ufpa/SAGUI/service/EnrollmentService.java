@@ -34,7 +34,7 @@ public class EnrollmentService {
         Discipline discipline = disciplineRepository.findById(request.getDisciplineId())
                 .orElseThrow(() -> new RuntimeException("Disciplina não encontrada"));
 
-        )
+    
         
         boolean alreadyEnrolled = enrollmentRepository.existsByStudent_IdAndDiscipline_IdAndStatusNot(
                 student.getId(), discipline.getId(), EntityStatus.Inactive);
