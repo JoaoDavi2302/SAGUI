@@ -16,16 +16,16 @@
 
 ## Distribuição da Equipe
 
-| Pessoa    | Papel                                                                      |
-|-----------|----------------------------------------------------------------------------|
-| **Líder** | Arquitetura, decisões técnicas, code review, integração geral              |
-| **P1**    | UX Lead — Design system, acessibilidade, defesa das escolhas visuais       |
-| **P2**    | Prototipagem — Wireframes, fluxos por perfil, alternativas de UI           |
-| **P3**    | Implementação — Base compartilhada (login, rotas, componentes globais)     |
-| **P4**    | Implementação — Admin: gestão de entidades (cursos, disciplinas, usuários) |
-| **P5**    | Implementação — Admin: conteúdo pedagógico e matrículas                    |
-| **P6**    | Implementação — Rota principal: perfil do Aluno                            |
-| **P7**    | Implementação — Rota principal: perfil do Professor                        |
+| Pessoa    | Papel                                                                      | Aluno          |
+|-----------|----------------------------------------------------------------------------|----------------|
+| **Líder** | Arquitetura, decisões técnicas, code review, integração geral              | Letícia        |
+| **P1**    | UX Lead — Design system, acessibilidade, defesa das escolhas visuais       | Anny           |
+| **P2**    | Prototipagem — Wireframes, fluxos por perfil, alternativas de UI           | -              |
+| **P3**    | Implementação — Base compartilhada (login, rotas, componentes globais)     | Marcelly       |
+| **P4**    | Implementação — Admin: gestão de entidades (cursos, disciplinas, usuários) | Juliana        |
+| **P5**    | Implementação — Admin: conteúdo pedagógico e matrículas                    | Lucas          |
+| **P6**    | Implementação — Rota principal: perfil do Aluno                            | Yuri           |
+| **P7**    | Implementação — Rota principal: perfil do Professor                        | -              |
 
 ---
 
@@ -34,13 +34,13 @@
 ### Fase 0 — Setup e Decisões (Semana 1)
 **Todo o time.**
 
-- [ ] Criar e configurar repositório (estrutura de pastas, `.gitignore`, `README`)
-- [ ] Definir e documentar convenções de código (nomenclatura de componentes, organização de arquivos)
-- [ ] Confirmar stack: React + Tailwind CSS
-- [ ] Inicializar projeto React com Tailwind configurado
-- [ ] Criar workspace compartilhado no Figma
-- [ ] Definir paleta de cores e tipografia iniciais (P1 lidera, time aprova)
-- [ ] Alinhar cronograma e canais de comunicação
+- [x] Criar e configurar repositório (estrutura de pastas, `.gitignore`, `README`)
+- [x] Definir e documentar convenções de código (nomenclatura de componentes, organização de arquivos)
+- [x] Confirmar stack: React + Tailwind CSS
+- [x] Inicializar projeto React com Tailwind configurado
+- [ ] Criar workspace compartilhado no Figma - **Anny**
+- [ ] Definir paleta de cores e tipografia iniciais (P1 lidera, time aprova) - **Letícia / Anny**
+- [x] Alinhar cronograma e canais de comunicação
 
 ---
 
