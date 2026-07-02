@@ -4,6 +4,7 @@ export interface DashboardData {
   courses: any[];
   subjects: any[];
   modules: any[];
+  lessons?: any[];
   // faltam resto das tabelas
    module_progress?: any[];
   progressPercent?: number;

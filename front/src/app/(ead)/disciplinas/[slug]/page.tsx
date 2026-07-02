@@ -49,7 +49,9 @@ const Stat = ({ icon: Icon, label, value }: any) => (
   >
     <Icon sx={{ fontSize: 18, color: "#1976d2" }} />
     <Typography sx={{ fontSize: 18, fontWeight: 700 }}>{value}</Typography>
-    <Typography sx={{ fontSize: 10, color: "gray", textTransform: "uppercase" }}>
+    <Typography
+      sx={{ fontSize: 10, color: "gray", textTransform: "uppercase" }}
+    >
       {label}
     </Typography>
   </Box>
@@ -171,7 +173,11 @@ export default function DisciplineDetailsPage() {
 
       {/* TABS */}
       {!isStudent && (
-        <Tabs value={tabIndex} onChange={(_, v) => setTabIndex(v)} sx={{ mb: 2 }}>
+        <Tabs
+          value={tabIndex}
+          onChange={(_, v) => setTabIndex(v)}
+          sx={{ mb: 2 }}
+        >
           <Tab label="Detalhes" />
           <Tab label="Alunos" />
         </Tabs>
@@ -197,46 +203,69 @@ export default function DisciplineDetailsPage() {
               >
                 <AccordionSummary expandIcon={<ExpandMore />}>
                   <Box sx={{ width: "100%" }}>
-                    <Typography sx={{ fontWeight: 600 }}>
-                      {m.name}
-                    </Typography>
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <Typography sx={{ fontWeight: 600 }}>{m.name}</Typography>
 
-                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                      {m.description}
-                    </Typography>
+                      {isStudent && (
+                        <Chip size="small" label={`${m.progress}%`} />
+                      )}
+                    </Box>
+
+                    {isStudent && (
+                      <LinearProgress
+                        value={m.progress}
+                        variant="determinate"
+                        sx={{ mt: 1, height: 6, borderRadius: 5 }}
+                      />
+                    )}
+
+                    {!isStudent && (
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "text.secondary" }}
+                      >
+                        {m.description}
+                      </Typography>
+                    )}
                   </Box>
                 </AccordionSummary>
 
                 <AccordionDetails>
-                  {(m.lessons ?? []).map((l: any) => (
-                    <Box
-                      key={l.id}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.5,
-                        p: 1,
-                        borderRadius: 2,
-                        cursor: "pointer",
-                        "&:hover": { bgcolor: "#f5f5f5" },
-                      }}
-                      onClick={() => handleOpenLesson(l.id)}
-                    >
-                      {isStudent ? (
-                        l.done ? (
-                          <CheckCircle sx={{ fontSize: 18, color: "green" }} />
-                        ) : (
-                          <Circle sx={{ fontSize: 18, color: "gray" }} />
-                        )
-                      ) : (
-                        <PlayCircle sx={{ fontSize: 18, color: "#1976d2" }} />
-                      )}
+                  {(m.lessons ?? []).map((l: any) => {
+                    const done = l.completed;
 
-                      <Typography sx={{ fontSize: 14 }}>
-                        {l.name}
-                      </Typography>
-                    </Box>
-                  ))}
+                    return (
+                      <Box
+                        key={l.id}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          p: 1,
+                          borderRadius: 2,
+                          cursor: "pointer",
+                          "&:hover": { bgcolor: "#f5f5f5" },
+                        }}
+                        onClick={() => handleOpenLesson(l.id)}
+                      >
+                        {isStudent ? (
+                          done ? (
+                            <CheckCircle
+                              sx={{ fontSize: 18, color: "green" }}
+                            />
+                          ) : (
+                            <Circle sx={{ fontSize: 18, color: "gray" }} />
+                          )
+                        ) : (
+                          <PlayCircle sx={{ fontSize: 18, color: "#1976d2" }} />
+                        )}
+
+                        <Typography sx={{ fontSize: 14 }}>{l.name}</Typography>
+                      </Box>
+                    );
+                  })}
                 </AccordionDetails>
               </Accordion>
             ))}
@@ -276,9 +305,7 @@ export default function DisciplineDetailsPage() {
                         variant="determinate"
                         sx={{ height: 6, borderRadius: 5 }}
                       />
-                      <Typography variant="caption">
-                        {s.percentage}%
-                      </Typography>
+                      <Typography variant="caption">{s.percentage}%</Typography>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -41,6 +41,10 @@ export abstract class RoleBase {
     return this.database.users;
   }
 
+  protected userRoles() {
+    return this.database.user_roles;
+  }
+
   protected moduleProgress(): ModuleProgressEntity[] {
     return this.database.module_progress ?? [];
   }
@@ -291,5 +295,20 @@ export abstract class RoleBase {
         ? Math.round((completed / lessons.length) * 100)
         : 0,
     };
+  }
+
+  // para admin
+  protected getAllStudents(): any[] {
+    const studentRoleId = this.database.roles.find(
+      (r) => r.name === "ALUNO",
+    )?.id;
+
+    if (!studentRoleId) return [];
+
+    const studentIds = this.userRoles()
+      .filter((ur) => ur.role_id === studentRoleId)
+      .map((ur) => ur.user_id);
+
+    return this.users().filter((u) => studentIds.includes(u.id));
   }
 }

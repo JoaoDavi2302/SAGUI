@@ -1,4 +1,4 @@
-import { StudentDashboard, ProfessorDashboard } from "./Roles";
+import { StudentDashboard, ProfessorDashboard, AdminDashboard } from "./Roles";
 
 export class DashboardProvider {
 
@@ -18,6 +18,12 @@ export class DashboardProvider {
 
       case "PROFESSOR":
         return new ProfessorDashboard(
+          user,
+          database
+        );
+
+        case "ADMIN":
+        return new AdminDashboard(
           user,
           database
         );

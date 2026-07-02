@@ -168,3 +168,38 @@ export class ProfessorDashboard extends Dashboard {
     };
   }
 }
+
+export class AdminDashboard extends Dashboard {
+  getData(): DashboardData {
+    const courses = this.database.courses;
+
+    const disciplines = this.database.disciplines;
+
+    const modules = this.database.modules;
+
+    const lessons = this.database.lessons;
+
+    const users = this.database.users;
+
+    // const enrollments = this.database.enrollments;
+
+    // const moduleProgress = this.database.module_progress ?? [];
+
+    // const quizAttempts = this.database.quiz_attempts ?? [];
+
+    return {
+      stats: [
+        { label: "Cursos", value: courses.length },
+        { label: "Disciplinas", value: disciplines.length },
+        { label: "Módulos", value: modules.length },
+        { icon:<MenuBookOutlined sx={{ color: "#1976d2" }} /> ,label: "Aulas", value: lessons.length },
+        { label: "Usuários", value: users.length },
+      ],
+
+      courses,
+      subjects: disciplines,
+      modules,
+      lessons,
+    };
+  }
+}

@@ -29,11 +29,11 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/services/auth/AuthContext";
 import { DatabaseProvider } from "@/services/poo/databaseProvider";
 
-
 import { DisciplineProvider } from "@/services/poo/discipline/disciplineProvider";
 import { DisciplineCard } from "@/services/poo/shared/types";
 
 const database = DatabaseProvider.getDatabase();
+// para passar o nome na url
 const slugify = (text: string) =>
   text
     .toLowerCase()
@@ -49,9 +49,7 @@ export default function DisciplinasPage() {
 
   const isStudent = effectiveRole === "ALUNO";
 
-  const [openMap, setOpenMap] = useState<
-    Record<string, boolean>
-  >({});
+  const [openMap, setOpenMap] = useState<Record<string, boolean>>({});
 
   const toggle = (id: string) => {
     setOpenMap((prev) => ({
@@ -63,11 +61,7 @@ export default function DisciplinasPage() {
   const provider = useMemo(() => {
     if (!user) return null;
 
-    return DisciplineProvider.create(
-      effectiveRole,
-      database,
-      user
-    );
+    return DisciplineProvider.create(effectiveRole, database, user);
   }, [effectiveRole, user]);
 
   const data = useMemo(() => {
@@ -83,28 +77,16 @@ export default function DisciplinasPage() {
     return provider.getPageData();
   }, [provider]);
 
-  const openDiscipline = (
-    discipline: DisciplineCard
-  ) => {
+  const openDiscipline = (discipline: DisciplineCard) => {
     const slug = slugify(discipline.name);
 
-    router.push(
-      `/disciplinas/${slug}?id=${discipline.id}`
-    );
+    router.push(`/disciplinas/${slug}?id=${discipline.id}`);
   };
 
-  const openModule = (
-    moduleId: string
-  ) => {
+  const openModule = (moduleId: string) => {
     const firstLesson = data.lessons
-      .filter(
-        (lesson) =>
-          lesson.module_id === moduleId
-      )
-      .sort(
-        (a, b) =>
-          a.order_index - b.order_index
-      )[0];
+      .filter((lesson) => lesson.module_id === moduleId)
+      .sort((a, b) => a.order_index - b.order_index)[0];
 
     if (!firstLesson) return;
 
@@ -119,7 +101,7 @@ export default function DisciplinasPage() {
           fontWeight: "bold",
         }}
       >
-        Minhas Disciplinas
+        {isStudent ? "Minhas Disciplinas" : "Disciplinas"}
       </Typography>
 
       <Typography
@@ -129,16 +111,11 @@ export default function DisciplinasPage() {
           mb: 3,
         }}
       >
-        {isStudent
-          ? "Disciplinas do seu curso"
-          : "Disciplinas disponíveis"}
+        {isStudent ? "Disciplinas do seu curso" : "Disciplinas disponíveis"}
       </Typography>
 
       {data.grouped.map((group) => (
-        <Box
-          key={group.course?.id}
-          sx={{ mb: 4 }}
-        >
+        <Box key={group.course?.id} sx={{ mb: 4 }}>
           {!isStudent && group.course && (
             <>
               <Typography
@@ -154,323 +131,249 @@ export default function DisciplinasPage() {
             </>
           )}
 
-          <Grid
-            container
-            spacing={2}
-          >
-            {group.subjects.map(
-              (subject) => {
-                const isOpen =
-                  openMap[subject.id] ??
-                  false;
+          <Grid container spacing={2}>
+            {group.subjects.map((subject) => {
+              const isOpen = openMap[subject.id] ?? false;
 
-                const progress =
-                  subject.progress;
+              const progress = subject.progress;
 
-                return (
-                  <Grid
-                    key={subject.id}
-                    size={{
-                      xs: 12,
-                      md: 12,
+              return (
+                <Grid
+                  key={subject.id}
+                  size={{
+                    xs: 12,
+                    md: 12,
+                  }}
+                >
+                  <Card
+                    sx={{
+                      borderRadius: 3,
                     }}
                   >
-                    <Card
-                      sx={{
-                        borderRadius: 3,
-                      }}
-                    >
-                      <CardContent>
+                    <CardContent>
+                      {/* HEADER */}
 
-                        {/* HEADER */}
-
+                      <Box
+                        sx={{
+                          cursor: "pointer",
+                        }}
+                        onClick={() => openDiscipline(subject)}
+                      >
                         <Box
                           sx={{
-                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
                           }}
-                          onClick={() =>
-                            openDiscipline(
-                              subject
-                            )
-                          }
                         >
                           <Box
                             sx={{
-                              display: "flex",
-                              alignItems:
-                                "center",
-                              gap: 2,
+                              p: 2,
+                              bgcolor: "#add3f8",
+                              borderRadius: 2,
                             }}
                           >
-                            <Box
+                            <LayersOutlined
+                              fontSize="small"
                               sx={{
-                                p: 2,
-                                bgcolor:
-                                  "#add3f8",
-                                borderRadius: 2,
-                              }}
-                            >
-                              <LayersOutlined
-                                fontSize="small"
-                                sx={{
-                                  color:
-                                    "#1976d2",
-                                }}
-                              />
-                            </Box>
-
-                            <Box
-                              sx={{
-                                flex: 1,
-                                display:
-                                  "flex",
-                                justifyContent:
-                                  "space-between",
-                                alignItems:
-                                  "center",
-                              }}
-                            >
-                              <Typography
-                                sx={{
-                                  fontWeight:
-                                    "bold",
-                                }}
-                              >
-                                {subject.name}
-                              </Typography>
-
-                              <Box
-                                sx={{
-                                  display:
-                                    "flex",
-                                  gap: 1,
-                                  alignItems:
-                                    "center",
-                                }}
-                              >
-                                <AccessTimeOutlined fontSize="small" />
-
-                                <Typography variant="caption">
-                                  {subject.workload}
-                                  h
-                                </Typography>
-                              </Box>
-                            </Box>
-                          </Box>
-
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              mt: 1,
-                              color:
-                                "text.secondary",
-                              display:
-                                "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient:
-                                "vertical",
-                              overflow:
-                                "hidden",
-                            }}
-                          >
-                            {subject.description}
-                          </Typography>
-                        </Box>
-
-                        {/* continua na Parte 2 */}
-
-                                                {/* PROGRESSO */}
-
-                        {isStudent && (
-                          <Box sx={{ mt: 1.5 }}>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent:
-                                  "space-between",
-                              }}
-                            >
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                              >
-                                Progresso
-                              </Typography>
-
-                              <Typography variant="caption">
-                                {progress.percentage}%
-                              </Typography>
-                            </Box>
-
-                            <LinearProgress
-                              variant="determinate"
-                              value={progress.percentage}
-                              sx={{
-                                mt: 0.5,
-                                height: 6,
-                                borderRadius: 5,
+                                color: "#1976d2",
                               }}
                             />
                           </Box>
-                        )}
 
-                        <Divider sx={{ my: 2 }} />
-
-                        {/* BOTÃO */}
-
-                        <Box
-                          component="button"
-                          onClick={() =>
-                            toggle(subject.id)
-                          }
-                          sx={{
-                            border: "none",
-                            background: "transparent",
-                            width: "100%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent:
-                              "space-between",
-                            cursor: "pointer",
-                            p: 0,
-                            "&:hover": {
-                              fontWeight: 700,
-                            },
-                          }}
-                        >
-                          <Typography
-                            variant="caption"
+                          <Box
                             sx={{
-                              fontWeight: "bold",
+                              flex: 1,
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
                             }}
                           >
-                            Ver módulos (
-                            {
-                              subject.modules
-                                .length
-                            }
-                            )
-                          </Typography>
+                            <Typography
+                              sx={{
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {subject.name}
+                            </Typography>
 
-                          {isOpen ? (
-                            <ExpandLessIcon />
-                          ) : (
-                            <ExpandMoreIcon />
-                          )}
+                            <Box
+                              sx={{
+                                display: "flex",
+                                gap: 1,
+                                alignItems: "center",
+                              }}
+                            >
+                              <AccessTimeOutlined fontSize="small" />
+
+                              <Typography variant="caption">
+                                {subject.workload}h
+                              </Typography>
+                            </Box>
+                          </Box>
                         </Box>
 
-                        {/* MÓDULOS */}
-
-                        <Collapse
-                          in={isOpen}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            mt: 1,
+                            color: "text.secondary",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                          }}
                         >
-                          <Box sx={{ mt: 2 }}>
-                            <FormGroup>
-                              {subject.modules.map(
-                                (module) => {
-                                  const completed =
-                                    isStudent &&
-                                    subject.progress.completedModules >
-                                      0
-                                      ? data.moduleProgress.some(
-                                          (
-                                            p
-                                          ) =>
-                                            p.student_id ===
-                                              user?.id &&
-                                            p.module_id ===
-                                              module.id &&
-                                            p.status ===
-                                              "COMPLETED"
-                                        )
-                                      : false;
+                          {subject.description}
+                        </Typography>
+                      </Box>
 
-                                  const lessonsCount =
-                                    data.lessons.filter(
-                                      (
-                                        lesson
-                                      ) =>
-                                        lesson.module_id ===
-                                        module.id
-                                    ).length;
+                      {/* continua na Parte 2 */}
 
-                                  return (
-                                    <Box
-                                      key={
-                                        module.id
-                                      }
-                                      onClick={() =>
-                                        openModule(
-                                          module.id
-                                        )
-                                      }
-                                      sx={{
-                                        display:
-                                          "flex",
-                                        alignItems:
-                                          "center",
-                                        gap: 1.5,
-                                        p: 1,
-                                        borderRadius: 2,
-                                        cursor:
-                                          "pointer",
-                                        "&:hover":
-                                          {
-                                            bgcolor:
-                                              "#f5f5f5",
-                                          },
-                                      }}
-                                    >
-                                      {completed ? (
-                                        <CheckCircle
-                                          sx={{
-                                            fontSize: 18,
-                                            color:
-                                              "green",
-                                          }}
-                                        />
-                                      ) : (
-                                        <Circle
-                                          sx={{
-                                            fontSize: 18,
-                                            color:
-                                              "gray",
-                                          }}
-                                        />
-                                      )}
+                      {/* PROGRESSO */}
 
-                                      <Typography variant="body2">
-                                        {
-                                          module.name
-                                        }
-                                      </Typography>
+                      {isStudent && (
+                        <Box sx={{ mt: 1.5 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              Progresso
+                            </Typography>
 
-                                      <Typography
-                                        variant="caption"
-                                        sx={{
-                                          ml: "auto",
-                                          color:
-                                            "gray",
-                                        }}
-                                      >
-                                        (
-                                        {
-                                          lessonsCount
-                                        }{" "}
-                                        aulas)
-                                      </Typography>
-                                    </Box>
-                                  );
-                                }
-                              )}
-                            </FormGroup>
+                            <Typography variant="caption">
+                              {progress.percentage}%
+                            </Typography>
                           </Box>
-                        </Collapse>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                );
-              })}
+
+                          <LinearProgress
+                            variant="determinate"
+                            value={progress.percentage}
+                            sx={{
+                              mt: 0.5,
+                              height: 6,
+                              borderRadius: 5,
+                            }}
+                          />
+                        </Box>
+                      )}
+
+                      <Divider sx={{ my: 2 }} />
+
+                      {/* BOTÃO */}
+
+                      <Box
+                        component="button"
+                        onClick={() => toggle(subject.id)}
+                        sx={{
+                          border: "none",
+                          background: "transparent",
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          cursor: "pointer",
+                          p: 0,
+                          "&:hover": {
+                            fontWeight: 700,
+                          },
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Ver módulos ({subject.modules.length})
+                        </Typography>
+
+                        {isOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                      </Box>
+
+                      {/* MÓDULOS */}
+
+                      <Collapse in={isOpen}>
+                        <Box sx={{ mt: 2 }}>
+                          <FormGroup>
+                            {subject.modules.map((module) => {
+                              const completed =
+                                isStudent &&
+                                subject.progress.completedModules > 0
+                                  ? data.moduleProgress.some(
+                                      (p) =>
+                                        p.student_id === user?.id &&
+                                        p.module_id === module.id &&
+                                        p.status === "COMPLETED",
+                                    )
+                                  : false;
+
+                              const lessonsCount = data.lessons.filter(
+                                (lesson) => lesson.module_id === module.id,
+                              ).length;
+
+                              return (
+                                <Box
+                                  key={module.id}
+                                  onClick={() => openModule(module.id)}
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1.5,
+                                    p: 1,
+                                    borderRadius: 2,
+                                    cursor: "pointer",
+                                    "&:hover": {
+                                      bgcolor: "#f5f5f5",
+                                    },
+                                  }}
+                                >
+                                  {completed ? (
+                                    <CheckCircle
+                                      sx={{
+                                        fontSize: 18,
+                                        color: "green",
+                                      }}
+                                    />
+                                  ) : (
+                                    <Circle
+                                      sx={{
+                                        fontSize: 18,
+                                        color: "gray",
+                                      }}
+                                    />
+                                  )}
+
+                                  <Typography variant="body2">
+                                    {module.name}
+                                  </Typography>
+
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      ml: "auto",
+                                      color: "gray",
+                                    }}
+                                  >
+                                    ({lessonsCount} aulas)
+                                  </Typography>
+                                </Box>
+                              );
+                            })}
+                          </FormGroup>
+                        </Box>
+                      </Collapse>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              );
+            })}
           </Grid>
         </Box>
       ))}

@@ -174,7 +174,6 @@ export class AdminDiscipline extends Discipline {
     this.courses().forEach((course) => {
       groups.push({
         course,
-
         subjects: this.getDisciplinesByCourse(course.id).map((d) =>
           this.buildDisciplineCard(d),
         ),
@@ -191,12 +190,17 @@ export class AdminDiscipline extends Discipline {
 
   protected getLessonsByDiscipline(disciplineId: string) {
     const modules = this.getModulesByDiscipline(disciplineId);
-
     return modules.flatMap((m) => this.getLessonsByModule(m.id));
   }
-  
+
   getDetails(id: string): DisciplineDetailsPage {
-    const discipline = this.buildDisciplineCard(this.getDisciplineById(id)!);
+    const disciplineEntity = this.getDisciplineById(id);
+
+    if (!disciplineEntity) {
+      throw new Error("Discipline not found");
+    }
+
+    const discipline = this.buildDisciplineCard(disciplineEntity);
 
     const modules = this.getModulesByDiscipline(id)
       .map((m) => this.buildModuleDetailsSafe(m.id))
@@ -204,7 +208,8 @@ export class AdminDiscipline extends Discipline {
 
     const lessons = this.getLessonsByDiscipline(id);
 
-    const students = this.getStudentsByDiscipline(id).map((s: any) =>
+    // 🔥 ADMIN = TODOS os alunos (sem filtro)
+    const students = this.getAllStudents().map((s) =>
       this.buildStudentProgress(s.id, lessons),
     );
 
