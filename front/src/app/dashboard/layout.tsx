@@ -37,6 +37,7 @@ export default function DashboardLayout({
       avatarSrc="/avatar.png"
       items={[
         { label: "Dashboard", href: "/dashboard" },
+        { label: "Disciplinas", href: "/dashboard/disciplinas" },
       ]}
       settings={[
         { label: "Site", href: "/" },
