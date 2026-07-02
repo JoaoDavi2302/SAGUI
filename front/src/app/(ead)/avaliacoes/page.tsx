@@ -222,7 +222,7 @@ export default function MateriaisPage() {
           </Typography>
 
           {discipline.modules.map((group: any) => (
-            <Box key={group.module.id} sx={{ mb: 5 }}>
+            <Stack key={group.module.id} sx={{ mb: 5 }}>
               <Typography
                 sx={{
                   mb: 2,
@@ -318,7 +318,7 @@ export default function MateriaisPage() {
                   </Grid>
                 ))}
               </Grid>
-            </Box>
+            </Stack>
           ))}
         </Box>
       ))}

@@ -84,6 +84,17 @@ export interface MaterialEntity {
   status: string;
 }
 
+export interface MaterialCard extends MaterialEntity {
+  courseId: string;
+  courseName: string;
+
+  disciplineId: string;
+  disciplineName: string;
+
+  moduleId: string;
+  moduleName: string;
+}
+
 /* quiz */
 export interface QuizEntity {
   id: string;

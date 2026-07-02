@@ -27,129 +27,96 @@ import {
   StyledInputBase,
 } from "@/components/components";
 
-import database from "@/components/mock.json";
+import { DatabaseProvider } from "@/services/poo/databaseProvider";
+import { MaterialProvider } from "@/services/poo/material/materialProvider";
 import { useUser } from "@/services/auth/AuthContext";
+
+const database = DatabaseProvider.getDatabase();
+
 
 export default function MateriaisPage() {
   const { user, effectiveRole } = useUser();
 
   const [search, setSearch] = useState("");
-  // chip
+  // chip não usado
   // const [selectedModule, setSelectedModule] = useState<string>("all");
 
   const data = useMemo(() => {
-    const disciplines = database.disciplines ?? [];
-    const modules = database.modules ?? [];
-    const lessons = database.lessons ?? [];
-    const materials = database.materials ?? [];
-    const lessonMaterials = database.lesson_materials ?? [];
+    if (!user) return [];
 
-    let allowedDisciplines = disciplines;
-
-    if (effectiveRole === "ALUNO") {
-      const enrollment = database.enrollments.find(
-        (e: any) => e.student_id === user?.id,
-      );
-
-      allowedDisciplines = disciplines.filter(
-        (d: any) => d.course_id === enrollment?.course_id,
-      );
-    }
-
-    if (effectiveRole === "PROFESSOR") {
-      allowedDisciplines = disciplines.filter(
-        (d: any) => d.professor_id === user?.id,
-      );
-    }
-
-    const disciplineIds = allowedDisciplines.map((d: any) => d.id);
-
-    const availableModules = modules.filter((m: any) =>
-      disciplineIds.includes(m.discipline_id),
+    const materialService = MaterialProvider.create(
+      effectiveRole,
+      database,
+      user,
     );
 
-    const moduleIds = availableModules.map((m: any) => m.id);
-
-    const availableLessons = lessons.filter((l: any) =>
-      moduleIds.includes(l.module_id),
-    );
-
-    const grouped = allowedDisciplines
-      .map((discipline: any) => {
-        const disciplineModules = availableModules.filter(
-          (m: any) => m.discipline_id === discipline.id,
-        );
-
-        const modules = disciplineModules
-          .map((module: any) => {
-            const moduleLessons = availableLessons.filter(
-              (l: any) => l.module_id === module.id,
-            );
-
-            const materialsList = lessonMaterials
-              .filter((lm: any) =>
-                moduleLessons.some((l: any) => l.id === lm.lesson_id),
-              )
-              .map((lm: any) => {
-                const lesson = moduleLessons.find(
-                  (l: any) => l.id === lm.lesson_id,
-                );
-
-                const material = materials.find(
-                  (m: any) => m.id === lm.material_id,
-                );
-
-                if (!material) return null;
-
-                return {
-                  ...material,
-                  lesson,
-                };
-              })
-              .filter(Boolean);
-
-            return {
-              module,
-              materials: materialsList,
-            };
-          })
-          .filter((m: any) => m.materials.length);
-
-        return {
-          discipline,
-          modules,
-        };
-      })
-      .filter((d: any) => d.modules.length);
-
-    return grouped;
+    return materialService.listMaterials();
   }, [user, effectiveRole]);
 
-  const filtered = data
-    .map((discipline) => ({
-      ...discipline,
+  const filtered = useMemo(() => {
+    const materials = data.filter((material: any) => {
+      const text = [
+        material.courseName,
+        material.disciplineName,
+        material.moduleName,
+        material.lessonName,
+        material.title,
+        material.description,
+      ]
+        .join(" ")
+        .toLowerCase();
 
-      modules: discipline.modules
-        .map((group: any) => ({
-          ...group,
+      return text.includes(search.toLowerCase());
+    });
 
-          materials: group.materials.filter((m: any) => {
-            const text = [
-              discipline.discipline?.name,
-              group.module?.name,
-              m.title,
-              m.description,
-              m.lesson?.name,
-            ]
-              .join(" ")
-              .toLowerCase();
+    const grouped = materials.reduce((acc: any[], material: any) => {
+      let discipline = acc.find(
+        (d) => d.discipline.id === material.disciplineId,
+      );
 
-            return text.includes(search.toLowerCase());
-          }),
-        }))
-        .filter((m: any) => m.materials.length),
-    }))
-    .filter((d: any) => d.modules.length);
+      if (!discipline) {
+        discipline = {
+          discipline: {
+            id: material.disciplineId,
+            name: material.disciplineName,
+            courseId: material.courseId,
+            courseName: material.courseName,
+          },
+          modules: [],
+        };
+
+        acc.push(discipline);
+      }
+
+      let module = discipline.modules.find(
+        (m: any) => m.module.id === material.moduleId,
+      );
+
+      if (!module) {
+        module = {
+          module: {
+            id: material.moduleId,
+            name: material.moduleName,
+          },
+          materials: [],
+        };
+
+        discipline.modules.push(module);
+      }
+
+      module.materials.push({
+        ...material,
+        lesson: {
+          id: material.lessonId,
+          name: material.lessonName,
+        },
+      });
+
+      return acc;
+    }, []);
+
+    return grouped;
+  }, [data, search]);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -222,20 +189,21 @@ export default function MateriaisPage() {
 
           {discipline.modules.map((group: any) => (
             <Stack key={group.module.id} sx={{ mb: 5 }}>
-              <Typography
-                sx={{
-                  mb: 2,
-                  fontSize: 16,
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                {group.module.name}
-
+              <Box sx={{display:"flex", flex:1, gap:2}}>
+                <Typography
+                  sx={{
+                    mb: 2,
+                    fontSize: 16,
+                    fontWeight: 600,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  {group.module.name}
+                </Typography>
                 <Chip size="small" label={group.materials.length} />
-              </Typography>
+              </Box>
 
               <Grid container spacing={2}>
                 {group.materials.map((material: any) => (
