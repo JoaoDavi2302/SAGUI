@@ -55,4 +55,20 @@ export interface Quiz {
   description: string;
   passing_score: number;
 }
+export interface StudentPerformance {
+  student_id: string;
+  discipline_id: string;
+  progress_percent: number;
+  grade: number;
+}
+export interface AppDatabase {
+  users: User[];
+  courses: Course[];
+  disciplines: Discipline[];
+  modules: Module[];
+  lessons: Lesson[];
+  materials: Material[];
+  quizzes: Quiz[];
+  student_performance: StudentPerformance[];
+}
 

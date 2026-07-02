@@ -1394,6 +1394,14 @@
       "order_index": 8
     }
   ],
+  "student_performance": [
+  {
+    "student_id": "cb686784-151e-4e11-b70d-598a6b7bc318",
+    "discipline_id": "cf930846-ed0b-499c-926d-eda54cf05273",
+    "progress_percent": 75,
+    "grade": 8.5
+  }
+],
   "lessons": [
     {
       "id": "8703e599-a379-49e8-80af-caadf673c326",
