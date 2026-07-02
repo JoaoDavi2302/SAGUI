@@ -5,6 +5,7 @@ import {
   DisciplineGroup,
   DisciplinePageData,
   DisciplineDetailsPage,
+  UserEntity,
 } from "../shared/types";
 
 /* aluno */
@@ -23,6 +24,10 @@ export class StudentDiscipline extends Discipline {
     }
 
     return this.isStudentEnrolled(discipline.course_id) ? discipline : null;
+  }
+
+  listProfessors(): UserEntity[] {
+    return this.getProfessors();
   }
 
   getByCourse(courseId: string): DisciplineEntity[] {
@@ -55,6 +60,7 @@ export class StudentDiscipline extends Discipline {
       moduleProgress: this.moduleProgress(),
     };
   }
+
   protected getLessonsByDiscipline(disciplineId: string) {
     const modules = this.getModulesByDiscipline(disciplineId);
 
@@ -80,6 +86,21 @@ export class StudentDiscipline extends Discipline {
       students,
     };
   }
+
+  // Ações bloqueadas: atualizar
+  updateDiscipline(): DisciplineEntity {
+    throw new Error("Permissão negada");
+  }
+
+  // Ações bloqueadas: criar
+  createDiscipline(): DisciplineEntity {
+    throw new Error("Permissão negada");
+  }
+
+  // Ações bloqueadas: deletar
+  deleteDiscipline(): boolean {
+    throw new Error("Permissão negada");
+  }
 }
 
 /* professor */
@@ -96,6 +117,10 @@ export class ProfessorDiscipline extends Discipline {
     }
 
     return discipline.professor_id === this.user.id ? discipline : null;
+  }
+
+  listProfessors(): UserEntity[] {
+    return this.getProfessors();
   }
 
   getByCourse(courseId: string): DisciplineEntity[] {
@@ -152,12 +177,40 @@ export class ProfessorDiscipline extends Discipline {
       students,
     };
   }
+
+  // pode atualizar dados da disciplina
+  updateDiscipline(
+    id: string,
+    data: Partial<DisciplineEntity>,
+  ): DisciplineEntity {
+    const discipline = this.getDiscipline(id);
+
+    if (!discipline) throw new Error("Disciplina não encontrada.");
+
+    Object.assign(discipline, data);
+
+    return discipline;
+  }
+
+  // ação bloqueada: criar disciplina
+  createDiscipline(): DisciplineEntity {
+    throw new Error("Professor não pode criar disciplinas.");
+  }
+
+  // ação bloqueada: deletar disciplina
+  deleteDiscipline(): boolean {
+    throw new Error("Professor não pode remover disciplinas.");
+  }
 }
 
 /* admin */
 export class AdminDiscipline extends Discipline {
   listDisciplines(): DisciplineEntity[] {
     return this.disciplines();
+  }
+
+  listProfessors(): UserEntity[] {
+    return this.getProfessors();
   }
 
   getDiscipline(id: string): DisciplineEntity | null {
@@ -193,6 +246,7 @@ export class AdminDiscipline extends Discipline {
     return modules.flatMap((m) => this.getLessonsByModule(m.id));
   }
 
+  // detalhes da disciplina para criar card
   getDetails(id: string): DisciplineDetailsPage {
     const disciplineEntity = this.getDisciplineById(id);
 
@@ -208,7 +262,7 @@ export class AdminDiscipline extends Discipline {
 
     const lessons = this.getLessonsByDiscipline(id);
 
-    // ADMIN = TODOS os alunos (sem filtro)
+    // visualiza todos os alunos (sem filtro)
     const students = this.getAllStudents().map((s) =>
       this.buildStudentProgress(s.id, lessons),
     );
@@ -218,5 +272,42 @@ export class AdminDiscipline extends Discipline {
       modules,
       students,
     };
+  }
+
+  // pode atualizar disciplina
+  updateDiscipline(
+    id: string,
+    data: Partial<DisciplineEntity>,
+  ): DisciplineEntity {
+    const discipline = this.getDisciplineById(id);
+
+    if (!discipline) throw new Error("Disciplina não encontrada.");
+
+    Object.assign(discipline, data);
+
+    return discipline;
+  }
+
+  // pode criar disciplina
+  createDiscipline(data: Omit<DisciplineEntity, "id">): DisciplineEntity {
+    const discipline: DisciplineEntity = {
+      id: crypto.randomUUID(),
+      ...data,
+    };
+
+    this.database.disciplines.push(discipline);
+
+    return discipline;
+  }
+
+  // pode deletar disciplina
+  deleteDiscipline(id: string): boolean {
+    const index = this.database.disciplines.findIndex((d) => d.id === id);
+
+    if (index === -1) return false;
+
+    this.database.disciplines.splice(index, 1);
+
+    return true;
   }
 }

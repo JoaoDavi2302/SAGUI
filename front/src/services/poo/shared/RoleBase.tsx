@@ -8,6 +8,7 @@ import {
   LoggedUser,
   ModuleEntity,
   ModuleProgressEntity,
+  UserEntity,
 } from "./types";
 
 export abstract class RoleBase {
@@ -71,8 +72,8 @@ export abstract class RoleBase {
   }
 
   protected getAllCourseIds(): string[] {
-  return this.database.courses.map(c => c.id);
-}
+    return this.database.courses.map((c) => c.id);
+  }
 
   protected isStudentEnrolled(courseId: string): boolean {
     return this.getStudentCourseIds().includes(courseId);
@@ -96,6 +97,28 @@ export abstract class RoleBase {
 
     return professor?.name ?? "";
   }
+
+  protected getProfessors(): UserEntity[] {
+
+    const professorRole = this.database.roles.find(
+        r => r.name === "PROFESSOR"
+    );
+
+    if (!professorRole)
+        return [];
+
+    const professorIds = this.database.user_roles
+        .filter(
+            ur => ur.role_id === professorRole.id
+        )
+        .map(
+            ur => ur.user_id
+        );
+
+    return this.database.users.filter(
+        u => professorIds.includes(u.id)
+    );
+}
 
   /* modulos */
   protected getModulesByDiscipline(disciplineId: string): ModuleEntity[] {

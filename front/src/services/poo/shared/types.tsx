@@ -4,13 +4,23 @@ export type Database = typeof database;
 
 export type Role = "ADMIN" | "PROFESSOR" | "ALUNO";
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  birth_date: string;
-  status: string;
-  role: Role;
+// export interface User {
+//   id: string;
+//   name: string;
+//   email: string;
+//   birth_date: string;
+//   status: string;
+//   role: Role;
+// }
+
+export interface UserEntity {
+    id: string;
+    name: string;
+    email: string;
+    birth_date: string;
+    status: string;
+    password_hash: string;
+    photo_url: string | null;
 }
 
 export interface LoggedUser {
