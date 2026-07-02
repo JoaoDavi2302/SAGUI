@@ -23,20 +23,38 @@ export interface LoggedUser {
 /* curso */
 export interface CourseEntity {
   id: string;
+  description: string;
   name: string;
   area: string;
   workload: number;
+}
+
+export interface CourseCard extends CourseEntity {
+  image?: string;
+
+  enrolled?: boolean;
+  available?: boolean;
+  disciplinesCount?: number;
 }
 
 /* disciplina */
 export interface DisciplineEntity {
   id: string;
   course_id: string;
-  professor_id: string;
+  professor_id: string | null;
   name: string;
   description: string;
   workload: number;
   order_index: number;
+}
+
+/* cards de disciplina */
+export interface DisciplineCard extends DisciplineEntity {
+  professorName: string;
+
+  modules: ModuleEntity[];
+
+  progress: DisciplineProgress;
 }
 
 /* modulo de entidade */
@@ -94,15 +112,6 @@ export interface DisciplineProgress {
   completedModules: number;
   totalModules: number;
   percentage: number;
-}
-
-/* cards de disciplina */
-export interface DisciplineCard extends DisciplineEntity {
-  professorName: string;
-
-  modules: ModuleEntity[];
-
-  progress: DisciplineProgress;
 }
 
 /* grupo disciplina */

@@ -94,7 +94,7 @@
     {
       "id": "212a47da-adef-4dbf-9d95-62df94d34ba4",
       "course_id": "61084f48-0879-4514-bb79-4a4ab2c394e8",
-      "professor_id": "f6d8e96c-d356-4029-91f9-264dcf61d9ef",
+      "professor_id": null,
       "name": "Teoria Geral da Administração",
       "description": "Apresenta os principais fundamentos da administração, sua evolução histórica, escolas administrativas e os processos de planejamento, organização, direção e controle nas organizações.",
       "workload": 60,

@@ -1,14 +1,14 @@
-import {
-  Database,
-  User,
-  CourseEntity
-} from "../shared/types";
+import { RoleBase } from "../shared/RoleBase";
 
-export abstract class Course {
+import { Database, LoggedUser, CourseEntity } from "../shared/types";
+
+export abstract class Course extends RoleBase{
   constructor(
     protected database: Database,
-    protected user: User
-  ) {}
+    protected user: LoggedUser,
+  ) {
+    super(database, user);
+  }
 
   abstract listCourses(): CourseEntity[];
 

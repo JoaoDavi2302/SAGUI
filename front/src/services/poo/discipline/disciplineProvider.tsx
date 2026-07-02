@@ -18,6 +18,8 @@ export class DisciplineProvider {
         return new ProfessorDiscipline(database, user);
 
       case "ALUNO":
+        return new StudentDiscipline(database, user);
+
       default:
         return new StudentDiscipline(database, user);
     }

@@ -80,7 +80,7 @@ export default function DisciplineDetailsPage() {
     return DisciplineProvider.create(effectiveRole, database, user);
   }, [user, effectiveRole]);
 
-  // ✅ POO PRINCIPAL (substitui tudo manual)
+  // POO PRINCIPAL (substitui tudo manual)
   const data = useMemo(() => {
     if (!provider || !disciplineId) return null;
 

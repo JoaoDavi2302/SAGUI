@@ -1,41 +1,30 @@
 import { Course } from "./Course";
 import { RoleBase } from "../shared/RoleBase";
-import { CourseEntity } from "../shared/types";
+import { CourseCard, CourseEntity } from "../shared/types";
 
 function getProfessorName(db: any, discipline: any) {
   if (!discipline) return "";
 
-  const professor = db.users.find(
-    (u: any) => u.id === discipline.professor_id
-  );
+  const professor = db.users.find((u: any) => u.id === discipline.professor_id);
 
   return professor?.name ?? "";
 }
 
 function getCourseDisciplines(db: any, courseId: string) {
-  return db.disciplines.filter(
-    (d: any) => d.course_id === courseId
-  );
+  return db.disciplines.filter((d: any) => d.course_id === courseId);
 }
 
 /* aluno */
 export class StudentCourse extends Course {
-  listCourses(): CourseEntity[] {
-    return this.database.courses.map((course: any) => {
-      const enrolled = this.database.enrollments.some(
-        (e: any) =>
-          e.course_id === course.id &&
-          e.student_id === this.user.id
-      );
+  listCourses(): CourseCard[] {
+    return this.database.courses.map((course) => {
+      const enrolled = this.isStudentEnrolled(course.id);
 
       return {
-        id: course.id,
-        name: course.name,
-        area: course.area,
-        workload: course.workload,
-
+        ...course,
         enrolled,
-        available: !enrolled
+        available: !enrolled,
+        disciplinesCount: this.getDisciplinesByCourse(course.id).length,
       };
     });
   }
@@ -51,28 +40,21 @@ export class StudentCourse extends Course {
 
 /* professor */
 export class ProfessorCourse extends Course {
-  listCourses(): CourseEntity[] {
-    const disciplines = this.database.disciplines.filter(
-      (d: any) => d.professor_id === this.user.id
-    );
-
-    const courseIds = [...new Set(disciplines.map((d: any) => d.course_id))];
+  listCourses(): CourseCard[] {
+    const courseIds = this.getProfessorCourseIds();
 
     return this.database.courses
-      .filter((c: any) => courseIds.includes(c.id))
-      .map((course: any) => ({
-        id: course.id,
-        name: course.name,
-        area: course.area,
-        workload: course.workload
+      .filter((c) => courseIds.includes(c.id))
+      .map((course) => ({
+        ...course,
+        enrolled: true,
+        available: false,
+        disciplinesCount: this.getDisciplinesByCourse(course.id).length,
       }));
   }
-
   getCourse(id: string) {
     const hasAccess = this.database.disciplines.some(
-      (d: any) =>
-        d.course_id === id &&
-        d.professor_id === this.user.id
+      (d: any) => d.course_id === id && d.professor_id === this.user.id,
     );
 
     if (!hasAccess) return null;
@@ -82,17 +64,20 @@ export class ProfessorCourse extends Course {
 
   getDisciplines(courseId: string) {
     return this.database.disciplines.filter(
-      (d: any) =>
-        d.course_id === courseId &&
-        d.professor_id === this.user.id
+      (d: any) => d.course_id === courseId && d.professor_id === this.user.id,
     );
   }
 }
 
 /* admin */
 export class AdminCourse extends Course {
-  listCourses(): CourseEntity[] {
-    return this.database.courses;
+  listCourses(): CourseCard[] {
+    return this.database.courses.map((course) => ({
+      ...course,
+      enrolled: true,
+      available: true,
+      disciplinesCount: this.getDisciplinesByCourse(course.id).length,
+    }));
   }
 
   getCourse(id: string) {
@@ -101,7 +86,7 @@ export class AdminCourse extends Course {
 
   getDisciplines(courseId: string) {
     return this.database.disciplines.filter(
-      (d: any) => d.course_id === courseId
+      (d: any) => d.course_id === courseId,
     );
   }
 }
