@@ -6,7 +6,6 @@ import {
   DisciplineEntity,
   DisciplinePageData,
   LoggedUser,
-  User,
   UserEntity,
 } from "../shared/types";
 

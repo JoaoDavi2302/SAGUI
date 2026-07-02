@@ -80,26 +80,43 @@ export class StudentDiscipline extends Discipline {
       this.buildStudentProgress(s.id, lessons),
     );
 
+    const moduleIds = this.getModulesByDiscipline(id).map((m) => m.id);
+
+    const materials = (this.database.materials ?? [])
+      .filter((m: any) => moduleIds.includes(m.module_id || m.moduleId))
+      .map((m: any) => this.buildMaterialCard(m, id));
+
+    const quizzes = this.database.quizzes
+      .filter((q: any) =>
+        this.getModulesByDiscipline(id).some((mod) => mod.id === q.module_id),
+      )
+      .map((q: any) => this.buildActivityCard(q));
+
     return {
       discipline,
       modules,
       students,
+      materials,
+      quizzes,
     };
   }
 
   // Ações bloqueadas: atualizar
-  updateDiscipline(): DisciplineEntity {
-    throw new Error("Permissão negada");
+  updateDiscipline(
+    id: string,
+    data: Partial<DisciplineEntity>,
+  ): DisciplineEntity {
+    throw new Error("Permissão negada.");
   }
 
   // Ações bloqueadas: criar
-  createDiscipline(): DisciplineEntity {
-    throw new Error("Permissão negada");
+  createDiscipline(data: Omit<DisciplineEntity, "id">): DisciplineEntity {
+    throw new Error("Permissão negada.");
   }
 
   // Ações bloqueadas: deletar
-  deleteDiscipline(): boolean {
-    throw new Error("Permissão negada");
+  deleteDiscipline(id: string): boolean {
+    throw new Error("Permissão negada.");
   }
 }
 
@@ -171,10 +188,24 @@ export class ProfessorDiscipline extends Discipline {
       this.buildStudentProgress(s.id, lessons),
     );
 
+    const moduleIds = this.getModulesByDiscipline(id).map((m) => m.id);
+
+    const materials = (this.database.materials ?? [])
+      .filter((m: any) => moduleIds.includes(m.module_id || m.moduleId))
+      .map((m: any) => this.buildMaterialCard(m, id));
+
+    const quizzes = this.database.quizzes
+      .filter((q: any) =>
+        this.getModulesByDiscipline(id).some((mod) => mod.id === q.module_id),
+      )
+      .map((q: any) => this.buildActivityCard(q));
+
     return {
       discipline,
       modules,
       students,
+      materials,
+      quizzes,
     };
   }
 
@@ -267,10 +298,28 @@ export class AdminDiscipline extends Discipline {
       this.buildStudentProgress(s.id, lessons),
     );
 
+    const moduleIds = this.getModulesByDiscipline(id).map((m) => m.id);
+
+    const materials = (this.database.materials ?? [])
+      .filter((m: any) => moduleIds.includes(m.module_id || m.moduleId))
+      .map((m: any) => this.buildMaterialCard(m, id));
+
+    console.log("MATERIALS RAW", this.database.materials);
+    console.log("MODULE IDS", moduleIds);
+    console.log("RESULT", materials);
+
+    const quizzes = this.database.quizzes
+      .filter((q: any) =>
+        this.getModulesByDiscipline(id).some((mod) => mod.id === q.module_id),
+      )
+      .map((q: any) => this.buildActivityCard(q));
+
     return {
       discipline,
       modules,
       students,
+      materials,
+      quizzes,
     };
   }
 

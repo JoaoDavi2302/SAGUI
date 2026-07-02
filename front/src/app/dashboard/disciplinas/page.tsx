@@ -12,6 +12,7 @@ import { useUser } from "@/services/auth/AuthContext";
 import { DatabaseProvider } from "@/services/poo/databaseProvider";
 import { DisciplineProvider } from "@/services/poo/discipline/disciplineProvider";
 import DisciplineModal from "./edit_addModal";
+import DisciplineViewModal from "./vierDiscipline_Modal";
 
 const database = DatabaseProvider.getDatabase();
 
@@ -28,7 +29,8 @@ export default function GerenciarDisciplinasPage() {
     return provider.getPageData();
   }, [provider]);
 
-  const [openModal, setOpenModal] = useState(false);
+  const [openModalEdit, setOpenModalEdit] = useState(false);
+  const [openModalView, setOpenModalView] = useState(false);
   const [selectedId, setSelectedId] = useState<string>();
 
   const rows = useMemo(() => {
@@ -67,14 +69,17 @@ export default function GerenciarDisciplinasPage() {
       sortable: false,
       renderCell: (params) => (
         <Box sx={{ display: "flex", gap: 1 }}>
-          <IconButton size="small">
+          <IconButton size="small" onClick={() => {
+              setSelectedId(params.row.id);
+              setOpenModalView(true);
+            }}>
             <Visibility fontSize="small" />
           </IconButton>
 
           <IconButton
             onClick={() => {
               setSelectedId(params.row.id);
-              setOpenModal(true);
+              setOpenModalEdit(true);
             }}
           >
             <Edit />
@@ -109,7 +114,7 @@ export default function GerenciarDisciplinasPage() {
           variant="contained"
           onClick={() => {
             setSelectedId(undefined);
-            setOpenModal(true);
+            setOpenModalEdit(true);
           }}
         >
           Nova disciplina
@@ -143,14 +148,21 @@ export default function GerenciarDisciplinasPage() {
         />
       </Paper>
       <DisciplineModal
-        open={openModal}
+        open={openModalEdit}
         disciplineId={selectedId}
         onClose={(reload) => {
-          setOpenModal(false);
+          setOpenModalEdit(false);
 
           if (reload) {
             // atualizar listagem
           }
+        }}
+      />
+
+      <DisciplineViewModal
+        open={openModalView}
+        disciplineId={selectedId}
+        onClose={() => {setOpenModalView(false);
         }}
       />
     </Box>

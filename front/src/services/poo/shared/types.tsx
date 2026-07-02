@@ -4,15 +4,6 @@ export type Database = typeof database;
 
 export type Role = "ADMIN" | "PROFESSOR" | "ALUNO";
 
-// export interface User {
-//   id: string;
-//   name: string;
-//   email: string;
-//   birth_date: string;
-//   status: string;
-//   role: Role;
-// }
-
 export interface UserEntity {
     id: string;
     name: string;
@@ -61,10 +52,9 @@ export interface DisciplineEntity {
 /* cards de disciplina */
 export interface DisciplineCard extends DisciplineEntity {
   professorName: string;
-
   modules: ModuleEntity[];
-
   progress: DisciplineProgress;
+  courseName:string;
 }
 
 /* modulo de entidade */
@@ -85,6 +75,11 @@ export interface LessonEntity {
   order_index: number;
 }
 
+// detalhes da aula disciplina
+export interface LessonCard extends LessonEntity {
+  completed: boolean;
+}
+
 /* material */
 export interface MaterialEntity {
   id: string;
@@ -97,10 +92,8 @@ export interface MaterialEntity {
 export interface MaterialCard extends MaterialEntity {
   courseId: string;
   courseName: string;
-
   disciplineId: string;
   disciplineName: string;
-
   moduleId: string;
   moduleName: string;
 }
@@ -176,18 +169,6 @@ export interface DisciplinePageData {
   moduleProgress: ModuleProgressEntity[];
 }
 
-export interface User extends LoggedUser {
-  birth_date: string;
-  status: string;
-}
-
-// novo
-export interface LessonCard {
-  id: string;
-  name: string;
-  completed: boolean;
-}
-
 export interface ModuleCard extends ModuleEntity {
   lessons: LessonCard[];
   lessonsCount: number;
@@ -201,10 +182,6 @@ export interface ModuleDetailsCard extends ModuleEntity {
   progress: number;
 }
 
-// detalhes da aula disciplina
-export interface LessonCard extends LessonEntity {
-  completed: boolean;
-}
 
 export interface StudentProgressCard {
   id: string;
@@ -219,4 +196,6 @@ export interface DisciplineDetailsPage {
   discipline: DisciplineCard;
   modules: ModuleDetailsCard[];
   students: StudentProgressCard[];
+  materials:MaterialCard[];
+  quizzes:ActivityCard[];
 }
