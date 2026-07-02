@@ -36,6 +36,41 @@ public class LessonService {
         return lessonRepository.findAllByModule_Id(moduleId, pageable).map(LessonResponse::from);
     }
 
+    public LessonResponse createLesson(LessonRequest dto) {
+        Module module = getModuleEntity(dto.moduleId());
+        validateResponsibleProfessor(module);
+
+        Lesson lesson = Lesson.builder()
+            .name(dto.name())
+            .description(dto.description())
+            .orderIndex(dto.orderIndex())
+            .module(module)
+            .build();
+
+        lesson.setStatus(EntityStatus.Active);
+        return LessonResponse.from(lessonRepository.save(lesson));
+    }
+
+    public LessonResponse updateLesson(UUID id, LessonRequest dto) {
+        Lesson lesson = getLessonEntity(id);
+        validateResponsibleProfessor(lesson.getModule());
+
+        Module module = getModuleEntity(dto.moduleId());
+        validateResponsibleProfessor(module);
+
+        lesson.setName(dto.name());
+        lesson.setDescription(dto.description());
+        lesson.setOrderIndex(dto.orderIndex());
+        lesson.setModule(module);
+        return LessonResponse.from(lessonRepository.save(lesson));
+    }
+
+    public void changeStatus(UUID id, EntityStatus status) {
+        Lesson lesson = getLessonEntity(id);
+        lesson.setStatus(status);
+        lessonRepository.save(lesson);
+    }
+
     private void ensureModuleExists(UUID moduleId) {
         if (!moduleRepository.existsById(moduleId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Modulo nao encontrado");
