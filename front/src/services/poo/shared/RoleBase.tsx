@@ -1,13 +1,16 @@
 // helpers
 import {
+  ActivityCard,
   CourseEntity,
   Database,
   DisciplineEntity,
   DisciplineProgress,
   LessonEntity,
   LoggedUser,
+  MaterialCard,
   ModuleEntity,
   ModuleProgressEntity,
+  UserEntity,
 } from "./types";
 
 export abstract class RoleBase {
@@ -71,8 +74,8 @@ export abstract class RoleBase {
   }
 
   protected getAllCourseIds(): string[] {
-  return this.database.courses.map(c => c.id);
-}
+    return this.database.courses.map((c) => c.id);
+  }
 
   protected isStudentEnrolled(courseId: string): boolean {
     return this.getStudentCourseIds().includes(courseId);
@@ -95,6 +98,20 @@ export abstract class RoleBase {
     );
 
     return professor?.name ?? "";
+  }
+
+  protected getProfessors(): UserEntity[] {
+    const professorRole = this.database.roles.find(
+      (r) => r.name === "PROFESSOR",
+    );
+
+    if (!professorRole) return [];
+
+    const professorIds = this.database.user_roles
+      .filter((ur) => ur.role_id === professorRole.id)
+      .map((ur) => ur.user_id);
+
+    return this.database.users.filter((u) => professorIds.includes(u.id));
   }
 
   /* modulos */
@@ -154,12 +171,7 @@ export abstract class RoleBase {
 
   /* card de aulas */
   protected buildLessonCard(lesson: LessonEntity) {
-    const completed = this.moduleProgress().some(
-      (p) =>
-        p.student_id === this.user.id &&
-        p.module_id === lesson.module_id &&
-        p.status === "COMPLETED",
-    );
+    const completed = this.isLessonDone(this.user.id, lesson.id);
 
     return {
       ...lesson,
@@ -230,26 +242,67 @@ export abstract class RoleBase {
       ...discipline,
 
       professorName: this.getProfessorName(discipline),
-
       modules: modules.map((m) => this.buildModuleCard(m)),
-
       progress: this.getDisciplineProgress(discipline.id),
+      courseName: this.getCourseById(discipline.course_id)?.name ?? "",
+    };
+  }
+
+  protected buildMaterialCard(material: any, disciplineId: string) {
+    const discipline = this.getDisciplineById(disciplineId);
+    const course = discipline ? this.getCourseById(discipline.course_id) : null;
+
+    return {
+      ...material,
+
+      courseId: course?.id ?? "",
+      courseName: course?.name ?? "",
+
+      disciplineId: discipline?.id ?? "",
+      disciplineName: discipline?.name ?? "",
+
+      moduleId: material.module_id ?? "",
+      moduleName: this.getModuleById(material.module_id)?.name ?? "",
+    };
+  }
+
+  protected buildActivityCard(quiz: any) {
+    const module = this.getModuleById(quiz.module_id);
+    const discipline = module
+      ? this.getDisciplineById(module.discipline_id)
+      : null;
+    const course = discipline ? this.getCourseById(discipline.course_id) : null;
+
+    return {
+      ...quiz,
+
+      courseId: course?.id ?? "",
+      courseName: course?.name ?? "",
+
+      disciplineId: discipline?.id ?? "",
+      disciplineName: discipline?.name ?? "",
+
+      moduleId: module?.id ?? "",
+      moduleName: module?.name ?? "",
+
+      questionCount:
+        this.database.questions?.filter((q: any) => q.quiz_id === quiz.id)
+          .length ?? 0,
     };
   }
 
   //disciplina id
   protected getStudentsByDiscipline(disciplineId: string) {
-    const modules = this.getModulesByDiscipline(disciplineId);
+    const discipline = this.getDisciplineById(disciplineId);
+    if (!discipline) return [];
 
-    const enrollments = this.enrollments().filter((e) =>
-      modules.some((m) => m.discipline_id === disciplineId),
+    const enrollments = this.enrollments().filter(
+      (e) => e.course_id === discipline.course_id,
     );
 
     const ids = [...new Set(enrollments.map((e) => e.student_id))];
 
-    return ids
-      .map((id) => this.users().find((u) => u.id === id))
-      .filter(Boolean);
+    return this.users().filter((u) => ids.includes(u.id));
   }
 
   protected isLessonDone(studentId: string, lessonId: string) {
@@ -314,5 +367,67 @@ export abstract class RoleBase {
       .map((ur) => ur.user_id);
 
     return this.users().filter((u) => studentIds.includes(u.id));
+  }
+
+  protected getMaterialsByDiscipline(disciplineId: string): MaterialCard[] {
+    const modules = this.getModulesByDiscipline(disciplineId);
+
+    return (this.database.materials ?? [])
+      .filter((m: any) => modules.some((mod) => mod.id === m.module_id))
+      .map((m: any) => {
+        const module = this.getModuleById(m.module_id);
+        const discipline = module
+          ? this.getDisciplineById(module.discipline_id)
+          : null;
+        const course = discipline
+          ? this.getCourseById(discipline.course_id)
+          : null;
+
+        return {
+          ...m,
+
+          courseId: course?.id ?? "",
+          courseName: course?.name ?? "",
+
+          disciplineId: discipline?.id ?? "",
+          disciplineName: discipline?.name ?? "",
+
+          moduleId: module?.id ?? "",
+          moduleName: module?.name ?? "",
+        };
+      });
+  }
+
+  protected getQuizzesByDiscipline(disciplineId: string): ActivityCard[] {
+    const modules = this.getModulesByDiscipline(disciplineId);
+
+    return (this.database.quizzes ?? [])
+      .filter((q: any) => modules.some((m) => m.id === q.module_id))
+      .map((q: any) => {
+        const module = this.getModuleById(q.module_id);
+        const discipline = module
+          ? this.getDisciplineById(module.discipline_id)
+          : null;
+        const course = discipline
+          ? this.getCourseById(discipline.course_id)
+          : null;
+
+        return {
+          ...q,
+
+          courseId: course?.id ?? "",
+          courseName: course?.name ?? "",
+
+          disciplineId: discipline?.id ?? "",
+          disciplineName: discipline?.name ?? "",
+
+          moduleId: module?.id ?? "",
+          moduleName: module?.name ?? "",
+
+          questionCount:
+            this.database.questions?.filter((x: any) => x.quiz_id === q.id)
+              .length ?? 0,
+        };
+      });
   }
 }

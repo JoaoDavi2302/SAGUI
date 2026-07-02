@@ -1,22 +1,22 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { Box, Typography, Button, IconButton, Paper } from "@mui/material";
 
-import { DataGrid, GridColDef, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 import { Edit, Delete, Visibility, Add } from "@mui/icons-material";
 
-import { useRouter } from "next/navigation";
 import { useUser } from "@/services/auth/AuthContext";
 import { DatabaseProvider } from "@/services/poo/databaseProvider";
 import { DisciplineProvider } from "@/services/poo/discipline/disciplineProvider";
+import DisciplineModal from "./edit_addModal";
+import DisciplineViewModal from "./vierDiscipline_Modal";
 
 const database = DatabaseProvider.getDatabase();
 
 export default function GerenciarDisciplinasPage() {
-  const router = useRouter();
   const { user, effectiveRole } = useUser();
 
   const provider = useMemo(() => {
@@ -28,6 +28,10 @@ export default function GerenciarDisciplinasPage() {
     if (!provider) return { grouped: [] };
     return provider.getPageData();
   }, [provider]);
+
+  const [openModalEdit, setOpenModalEdit] = useState(false);
+  const [openModalView, setOpenModalView] = useState(false);
+  const [selectedId, setSelectedId] = useState<string>();
 
   const rows = useMemo(() => {
     return data.grouped.flatMap((g) =>
@@ -65,12 +69,20 @@ export default function GerenciarDisciplinasPage() {
       sortable: false,
       renderCell: (params) => (
         <Box sx={{ display: "flex", gap: 1 }}>
-          <IconButton size="small">
+          <IconButton size="small" onClick={() => {
+              setSelectedId(params.row.id);
+              setOpenModalView(true);
+            }}>
             <Visibility fontSize="small" />
           </IconButton>
 
-          <IconButton size="small">
-            <Edit fontSize="small" />
+          <IconButton
+            onClick={() => {
+              setSelectedId(params.row.id);
+              setOpenModalEdit(true);
+            }}
+          >
+            <Edit />
           </IconButton>
 
           <IconButton size="small" color="error">
@@ -95,22 +107,22 @@ export default function GerenciarDisciplinasPage() {
           <Typography variant="h5" sx={{ fontWeight: "bold" }}>
             Gerenciar Disciplinas
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            CRUD completo
-          </Typography>
         </Box>
 
         <Button
-          variant="contained"
           startIcon={<Add />}
-          onClick={() => router.push("/disciplinas/nova")}
+          variant="contained"
+          onClick={() => {
+            setSelectedId(undefined);
+            setOpenModalEdit(true);
+          }}
         >
           Nova disciplina
         </Button>
       </Box>
 
       {/* TABLE */}
-      <Paper sx={{ height: 650, p: 2 }}>
+      <Paper sx={{ height: 650, p: 2, borderRadius: 2 }}>
         <DataGrid
           rows={rows}
           sx={{
@@ -135,6 +147,24 @@ export default function GerenciarDisciplinasPage() {
           }}
         />
       </Paper>
+      <DisciplineModal
+        open={openModalEdit}
+        disciplineId={selectedId}
+        onClose={(reload) => {
+          setOpenModalEdit(false);
+
+          if (reload) {
+            // atualizar listagem
+          }
+        }}
+      />
+
+      <DisciplineViewModal
+        open={openModalView}
+        disciplineId={selectedId}
+        onClose={() => {setOpenModalView(false);
+        }}
+      />
     </Box>
   );
 }

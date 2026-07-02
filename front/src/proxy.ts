@@ -49,7 +49,7 @@ function getUserRole(userId: string): Role | null {
 export function proxy(req: NextRequest) {
   const path = normalize(req.nextUrl.pathname);
 
-  // console.log("PROXY HIT:", path);
+  console.log("PROXY: ", path);
 
   // garante redirecionamento da rota publica
   if (isPublic(path)) {

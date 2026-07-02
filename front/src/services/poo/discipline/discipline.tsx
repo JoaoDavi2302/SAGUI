@@ -6,7 +6,7 @@ import {
   DisciplineEntity,
   DisciplinePageData,
   LoggedUser,
-  User,
+  UserEntity,
 } from "../shared/types";
 
 export abstract class Discipline extends RoleBase {
@@ -30,4 +30,20 @@ export abstract class Discipline extends RoleBase {
 
   /* Dados da pagina de detalhes da disciplina */
   abstract getDetails(disciplineId: string): DisciplineDetailsPage;
+
+  abstract listProfessors(): UserEntity[];
+
+  /* editar disciplina */
+  abstract updateDiscipline(
+    id: string,
+    data: Partial<DisciplineEntity>,
+  ): DisciplineEntity;
+
+  /* criar disciplina */
+  abstract createDiscipline(
+    data: Omit<DisciplineEntity, "id">,
+  ): DisciplineEntity;
+
+  /* remover disciplina */
+  abstract deleteDiscipline(id: string): boolean;
 }
