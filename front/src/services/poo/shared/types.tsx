@@ -100,8 +100,35 @@ export interface QuizEntity {
   id: string;
   module_id: string;
   name: string;
-  description: string;
+  description: string | null;
   passing_score: number;
+  max_attempts: number
+}
+
+export interface ModuleActivityCard {
+    moduleId: string;
+    moduleName: string;
+
+    disciplineId: string;
+    disciplineName: string;
+
+    courseId: string;
+    courseName: string;
+
+    quizzes: ActivityCard[];
+}
+
+export interface ActivityCard extends QuizEntity {
+  courseId: string;
+  courseName: string;
+
+  disciplineId: string;
+  disciplineName: string;
+
+  moduleId: string;
+  moduleName: string;
+
+  questionCount: number;
 }
 
 export interface EnrollmentEntity {

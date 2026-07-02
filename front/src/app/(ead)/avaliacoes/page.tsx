@@ -16,6 +16,12 @@ import {
 } from "@mui/material";
 
 import {
+  QuizOutlined,
+  ChevronRight,
+  MenuBookOutlined,
+} from "@mui/icons-material";
+
+import {
   DescriptionOutlined,
   InsertDriveFileOutlined,
   OpenInNew,
@@ -28,129 +34,62 @@ import {
   StyledInputBase,
 } from "@/components/components";
 
-import database from "@/components/mock.json";
+import { useRouter } from "next/navigation";
+import { ModuleActivityCard } from "@/services/poo/shared/types";
+import { DatabaseProvider } from "@/services/poo/databaseProvider";
+
 import { useUser } from "@/services/auth/AuthContext";
+import { ActivityProvider } from "@/services/poo/activity/activityProvider";
+
+const database = DatabaseProvider.getDatabase();
 
 export default function MateriaisPage() {
+  const router = useRouter();
+
+  const slugify = (text: string) =>
+    text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+
   const { user, effectiveRole } = useUser();
 
   const [search, setSearch] = useState("");
+  const handleOpen = (module: ModuleActivityCard) => {
+    router.push(
+      `/atividades/${slugify(module.moduleName)}?id=${module.moduleId}`,
+    );
+  };
   // chip
   // const [selectedModule, setSelectedModule] = useState<string>("all");
 
   const data = useMemo(() => {
-    const disciplines = database.disciplines ?? [];
-    const modules = database.modules ?? [];
-    const lessons = database.lessons ?? [];
-    const materials = database.materials ?? [];
-    const lessonMaterials = database.lesson_materials ?? [];
+    if (!user) return [];
 
-    let allowedDisciplines = disciplines;
-
-    if (effectiveRole === "ALUNO") {
-      const enrollment = database.enrollments.find(
-        (e: any) => e.student_id === user?.id,
-      );
-
-      allowedDisciplines = disciplines.filter(
-        (d: any) => d.course_id === enrollment?.course_id,
-      );
-    }
-
-    if (effectiveRole === "PROFESSOR") {
-      allowedDisciplines = disciplines.filter(
-        (d: any) => d.professor_id === user?.id,
-      );
-    }
-
-    const disciplineIds = allowedDisciplines.map((d: any) => d.id);
-
-    const availableModules = modules.filter((m: any) =>
-      disciplineIds.includes(m.discipline_id),
-    );
-
-    const moduleIds = availableModules.map((m: any) => m.id);
-
-    const availableLessons = lessons.filter((l: any) =>
-      moduleIds.includes(l.module_id),
-    );
-
-    const grouped = allowedDisciplines
-      .map((discipline: any) => {
-        const disciplineModules = availableModules.filter(
-          (m: any) => m.discipline_id === discipline.id,
-        );
-
-        const modules = disciplineModules
-          .map((module: any) => {
-            const moduleLessons = availableLessons.filter(
-              (l: any) => l.module_id === module.id,
-            );
-
-            const materialsList = lessonMaterials
-              .filter((lm: any) =>
-                moduleLessons.some((l: any) => l.id === lm.lesson_id),
-              )
-              .map((lm: any) => {
-                const lesson = moduleLessons.find(
-                  (l: any) => l.id === lm.lesson_id,
-                );
-
-                const material = materials.find(
-                  (m: any) => m.id === lm.material_id,
-                );
-
-                if (!material) return null;
-
-                return {
-                  ...material,
-                  lesson,
-                };
-              })
-              .filter(Boolean);
-
-            return {
-              module,
-              materials: materialsList,
-            };
-          })
-          .filter((m: any) => m.materials.length);
-
-        return {
-          discipline,
-          modules,
-        };
-      })
-      .filter((d: any) => d.modules.length);
-
-    return grouped;
+    return ActivityProvider.create(effectiveRole, database, user).listModules();
   }, [user, effectiveRole]);
 
-  const filtered = data
-    .map((discipline) => ({
-      ...discipline,
+  const filtered = data.filter((m) => {
+    const text = [m.moduleName, m.disciplineName, m.courseName]
+      .join(" ")
+      .toLowerCase();
 
-      modules: discipline.modules
-        .map((group: any) => ({
-          ...group,
+    return text.includes(search.toLowerCase());
+  });
 
-          materials: group.materials.filter((m: any) => {
-            const text = [
-              discipline.discipline?.name,
-              group.module?.name,
-              m.title,
-              m.description,
-              m.lesson?.name,
-            ]
-              .join(" ")
-              .toLowerCase();
+  const groups = useMemo(() => {
+    const map = new Map<string, typeof filtered>();
 
-            return text.includes(search.toLowerCase());
-          }),
-        }))
-        .filter((m: any) => m.materials.length),
-    }))
-    .filter((d: any) => d.modules.length);
+    filtered.forEach((a) => {
+      const arr = map.get(a.disciplineName) ?? [];
+      arr.push(a);
+      map.set(a.disciplineName, arr);
+    });
+
+    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  }, [filtered]);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -208,120 +147,143 @@ export default function MateriaisPage() {
         </Box>
       </Stack>
 
-      {/* substituir por atividades*/}
-      {filtered.map((discipline: any) => (
-        <Box key={discipline.discipline.id} sx={{ mb: 6 }}>
-          <Typography
-            sx={{
-              fontSize: 24,
-              fontWeight: 700,
-              mb: 3,
-            }}
-          >
-            {discipline.discipline.name}
-          </Typography>
-
-          {discipline.modules.map((group: any) => (
-            <Stack key={group.module.id} sx={{ mb: 5 }}>
-              <Typography
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 5 }}>
+        {groups.map(([discipline, activities]) => (
+          <Box key={discipline}>
+            {/* Cabeçalho */}
+            <Stack
+              direction="row"
+              spacing={1.5}
+              sx={{
+                mb: 3,
+                alignItems: "center",
+              }}
+            >
+              <Box
                 sx={{
-                  mb: 2,
-                  fontSize: 16,
-                  fontWeight: 600,
+                  width: 34,
+                  height: 34,
+                  borderRadius: 2,
+                  bgcolor: "primary.light",
                   display: "flex",
                   alignItems: "center",
-                  gap: 1,
+                  justifyContent: "center",
+                  color: "primary.main",
                 }}
               >
-                {group.module.name}
+                <MenuBookOutlined fontSize="small" />
+              </Box>
 
-                <Chip size="small" label={group.materials.length} />
+              <Typography
+                sx={{
+                  fontSize: 20,
+                  fontWeight: 700,
+                }}
+              >
+                {discipline}
               </Typography>
 
-              <Grid container spacing={2}>
-                {group.materials.map((material: any) => (
-                  <Grid
-                    key={material.id}
-                    size={{
-                      xs: 12,
-                      md: 4,
-                    }}
-                  >
-                    <Card
-                      sx={{
-                        borderRadius: 3,
-                        height: "100%",
-                      }}
+              <Chip
+                size="small"
+                label={`${activities.length} atividade${
+                  activities.length > 1 ? "s" : ""
+                }`}
+              />
+            </Stack>
+
+            <Stack spacing={2}>
+              {activities.map((module) => (
+                <Card
+                  key={module.moduleId}
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 3,
+                    transition: ".2s",
+                    "&:hover": {
+                      borderColor: "primary.main",
+                      boxShadow: 3,
+                    },
+                  }}
+                >
+                  <CardContent>
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      sx={{ alignItems: "center" }}
                     >
-                      <CardContent>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            gap: 2,
-                          }}
+                      <Box
+                        sx={{
+                          width: 52,
+                          height: 52,
+                          borderRadius: 3,
+                          bgcolor: "primary.50",
+                          color: "primary.main",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <QuizOutlined />
+                      </Box>
+
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        {/* <Typography sx={{fontWeight:700}} noWrap>
+                          {activity.title}
+                        </Typography> */}
+
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          noWrap
                         >
-                          <Box
-                            sx={{
-                              p: 1,
-                              bgcolor: "#e8f5e9",
-                              borderRadius: 2,
-                            }}
-                          >
-                            <DescriptionOutlined />
-                          </Box>
-
-                          <Box
-                            sx={{
-                              flex: 1,
-                            }}
-                          >
-                            <Typography
-                              sx={{
-                                fontWeight: 600,
-                              }}
-                            >
-                              {material.title}
-                            </Typography>
-
-                            <Typography variant="caption">
-                              {material.lesson?.name}
-                            </Typography>
-
-                            <Typography variant="body2" color="text.secondary">
-                              {material.description}
-                            </Typography>
-                          </Box>
-                        </Box>
-
+                          {module.moduleName}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {module.quizzes.length} atividade
+                          {module.quizzes.length > 1 ? "s" : ""}
+                        </Typography>
                         <Stack
                           direction="row"
                           spacing={1}
-                          sx={{
-                            mt: 2,
-                          }}
+                          useFlexGap
+                          sx={{ mt: 1, flexWrap: "wrap" }}
                         >
-                          <Button
-                            fullWidth
-                            startIcon={<OpenInNew />}
+                          <Chip
+                            size="small"
                             variant="outlined"
-                            href={material.url ?? "#"}
-                          >
-                            Abrir
-                          </Button>
+                            label={`${module.quizzes.length} quizzes`}
+                          />
 
-                          <Button>
-                            <DownloadOutlined />
-                          </Button>
+                          {/* <Chip
+                            size="small"
+                            variant="outlined"
+                            label={`Mín. ${activity.passing_score}%`}
+                          />
+
+                          <Chip
+                            size="small"
+                            variant="outlined"
+                            label={`${activity.max_attempts} tentativas`}
+                          /> */}
                         </Stack>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
+                      </Box>
+
+                      <Button
+                        variant="contained"
+                        endIcon={<ChevronRight />}
+                        onClick={() => handleOpen(module)}
+                      >
+                        Iniciar
+                      </Button>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              ))}
             </Stack>
-          ))}
-        </Box>
-      ))}
+          </Box>
+        ))}
+      </Box>
     </Box>
   );
 }

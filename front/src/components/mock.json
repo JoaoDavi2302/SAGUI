@@ -22526,1120 +22526,1280 @@
       "module_id": "3e557510-427c-4eac-a1b2-fc541dea2703",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "2e7aaa94-3999-4986-8667-353bf7fcbf32",
       "module_id": "51030d3e-2d5c-4eac-b7aa-7314b014d040",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "7fac4384-0a9f-4af4-a0e0-4a881e445237",
       "module_id": "945a6687-3c77-4f11-944a-6bcf7d1dae0e",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "3e5365d0-84d5-4fd8-8dad-49eccb5207d1",
       "module_id": "107deae4-8e6a-4b7b-a08c-b6a0f3d483fb",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "2beaf392-3293-4bdf-b96d-b62074476a0f",
       "module_id": "d410d06f-7557-4712-93c3-c1708e678ef1",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "e1b74953-a11c-4384-93b1-65e14a0301ab",
       "module_id": "644dc775-aad1-4198-bb6a-0d803460eff7",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "92266f51-6206-4ef8-b96f-d0b3e3aa0d99",
       "module_id": "61d99e22-609f-4ab5-ae3e-2701cd86ae5b",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "2614b9ed-2a59-40e6-bf55-b1a7755a0a18",
       "module_id": "0dcde57c-a413-48b7-85df-2ba2572e863e",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "5938ffed-bc6c-49ce-bcba-2009c877fc1d",
       "module_id": "2df344f4-5af9-4441-ab03-02ca9b1f6787",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "fae63378-0831-4e9f-8322-a7846747e823",
       "module_id": "79d3bb6a-70ce-4995-ba34-b489b2d7d0e9",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "60b452aa-8954-414a-b256-e22e4c6ca204",
       "module_id": "6f6ee784-332e-4b65-9e5a-125159d294f6",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "2b3882e8-a9e5-49a1-8b90-2fbb94762f8e",
       "module_id": "9948e6e5-7a55-4245-9674-d8bdba005751",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "7418cf3f-d9e4-4a90-8d45-10cba93cff5c",
       "module_id": "8900cc33-8795-43d5-963a-0f5c8601f901",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "4714c2bb-4570-413e-8d5b-a467bacc14aa",
       "module_id": "91fc49f8-c70f-40d0-90c4-07b522b619f2",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "763eb101-399c-4429-8e21-cacc83c8a383",
       "module_id": "5257a5be-eb50-4cc7-bee8-e57720e52043",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "61638932-d33c-4e49-86ba-7472eb889376",
       "module_id": "967b3059-d1c4-4fae-ae17-8082da145448",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "08cef671-ab31-4e5e-b936-43565d6e067d",
       "module_id": "ab2692e8-a4a2-4857-91e1-259b0b0d6fa4",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "4152b737-ea90-4398-ac4c-8f5147a0cabc",
       "module_id": "b9ac7ed3-5f5d-4066-b0c4-38470940586c",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "086e4a6e-2780-45b8-b119-0d9153bb609b",
       "module_id": "392977a6-6561-41bf-9069-5eb46fc589f9",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "37a86ed5-a1a2-4907-8c06-f9c9ee5b8ae9",
       "module_id": "20704d39-0b28-4e39-8606-fa51c1c034f5",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "e3cfc562-63ef-4328-b9f9-a15b5c75113e",
       "module_id": "05fd8339-f124-4770-8745-2006e49c3f74",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "23ad86c6-b2e6-4754-947b-908fe8d54c2e",
       "module_id": "948df813-b2ea-43af-b57b-848a80326b14",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "0e615e65-26c8-4923-a3f7-5b480f9ec52a",
       "module_id": "9b788786-43ba-4883-88a4-f238ceeab842",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "5f08f7fe-2727-46cc-8363-a96a1c9d8dbf",
       "module_id": "b41d322d-fe7a-40b3-b34a-0a23f74a52e9",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "b16411af-086a-4177-ab10-a6e8c4310601",
       "module_id": "6cab9b4c-1580-4d4c-b9ee-60f827961d02",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "421265ce-e797-4f6c-9627-5109d85b064f",
       "module_id": "e7b60e59-c71c-4cbb-9fce-d782d00d2802",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "5a3c0f9f-85e6-4af4-841e-767f39fa668e",
       "module_id": "bb9d369d-13db-45bc-9f6a-d42b82a4fd02",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "c4b169ae-9059-4bf1-9464-6a2a22a23a4e",
       "module_id": "c5236352-e89e-436b-aa8e-8a2797fa5234",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "b20cb30e-66f3-4a1f-a763-97411c1c88ee",
       "module_id": "c63004ed-9ac1-460c-be74-6279363d717b",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "0a669da0-d9d0-4302-9623-b8273e66e5a3",
       "module_id": "729be459-c821-406c-b673-ce2c4ad8a2b5",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "04f83c30-8e02-4892-8d56-748e3089144c",
       "module_id": "a5deb91b-88cf-4088-9804-3e3d8e9dc13b",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "39da8353-ed67-4a32-a24f-67cd726837c0",
       "module_id": "7a17e8dd-72f0-4e64-9d8d-3ece94792077",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "d9aea801-39b8-40a4-b31c-da4ec9fd8e03",
       "module_id": "69076984-34f4-499d-99b4-31a6b75209ca",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "edb96ede-6183-4980-b1be-3ac2c05a31f9",
       "module_id": "91941db4-00ba-403f-9e57-ecf0d58fa7fc",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "f737cf4f-3afe-459b-b21f-0249f9a37fec",
       "module_id": "99cd6b52-56ba-461d-8695-f6de32762a6f",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "23f6dfad-43ad-4933-b5ec-6bff560b96f0",
       "module_id": "16b9c19a-7603-4dfa-a308-13604e3b4a87",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "0d1c644a-154a-4233-802e-5887066ba5e6",
       "module_id": "8e9976c8-d619-4fc9-af17-360811f2faff",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "fca80f4b-f42b-4649-b385-306a8e2602cf",
       "module_id": "5d35870e-a31c-4617-8754-c5cb4c53c962",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "4a352cc0-2a60-4b30-8091-2f857ef39858",
       "module_id": "da837f03-a841-4055-88e0-c5f469f5876c",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "c024b660-7b32-4eea-b9de-607d345a748f",
       "module_id": "f6f49a5f-54bc-4116-9ba2-0a52509afd74",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "8921b9cc-0bd3-42a2-ba94-003603dba22c",
       "module_id": "8bb128f7-458c-4f91-8724-48385f4af0b3",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "232e607d-ad39-461f-beca-ac67c3d00d87",
       "module_id": "60ebf146-3478-4121-be88-2db433aac4bb",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "a51cafaa-8875-4655-b0f2-30850784bdf2",
       "module_id": "32f21864-be6b-4a51-b29a-ada8590c532d",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "17bf90b0-8367-4749-81c9-273120c30ddb",
       "module_id": "1eaaa676-1d2e-41bb-8235-c15caa6dfcf7",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "8e723e7c-8e18-4f8c-b167-fd4738eaa2c6",
       "module_id": "dd2674ee-0e51-4c03-b5f6-7d0bce7b2b28",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "5ad1d043-3d04-4b6a-823e-e2d336a8ac7e",
       "module_id": "8a0370a0-384a-44eb-acf4-0479d4c6d21a",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "d3495d9b-5507-452d-a734-916204269d4a",
       "module_id": "e3a562b2-c7aa-4169-ae3a-37ec7d41d525",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "a42342b3-d0a3-4fcf-aa1f-728778f3c1d2",
       "module_id": "9a538433-f7df-4a4e-8de9-b15ca1a5050f",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "ef1e08b2-7f20-4516-a3b3-cd564a68daa7",
       "module_id": "3beb1f98-df60-42fc-bf30-fd9060e8c218",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "b52fa7e1-d33e-4d8c-87d3-780e0290d625",
       "module_id": "b134e465-2d90-4942-b286-fadebb0108a0",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "32e00703-b0e4-4704-a260-2023092ee8ff",
       "module_id": "aa088fc9-e0a5-4bd1-961f-07bae891f917",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "44ed8837-13ba-4c9a-9810-8955c7deebf7",
       "module_id": "d69c2955-dc91-423a-822a-155442f3dad0",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "df9cea80-2628-4c29-b016-775c1792eb1b",
       "module_id": "7e572f6d-5328-4246-a2e2-34febdea100a",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "d4a61ba4-42d8-4d41-91be-5d575754e479",
       "module_id": "19d74fba-9561-465c-b744-da07f25fd9ba",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "6c51d95a-22bd-460d-8534-006eec5d5f66",
       "module_id": "c7f47abc-4abf-4709-b9be-fc8154fd0e42",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "ef707e4c-bd34-453b-bc58-0d0025ab9404",
       "module_id": "c30b8cd6-a132-42f9-9d3f-f62cfa2a7313",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "81c6d361-546c-459b-8d02-d81a6b0116fa",
       "module_id": "c62a4361-87ef-460e-8843-a50c7a5db9e4",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "7cdcddb4-a5e5-4976-9660-72475fbe3ab0",
       "module_id": "f67b075e-2b37-4f74-9628-570eb96bb539",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "f8304720-ecf5-4d92-85f3-fd8b7bcc2bb0",
       "module_id": "3e04628f-9a47-4842-80c5-fc128284ae68",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "63ab723a-4fd4-4ef9-a0f4-f490bfeb3a19",
       "module_id": "4f22ae29-9638-458f-b3bc-a7021a9e75d6",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "e5e3b6b8-50fa-4b7a-a94a-3808987f901b",
       "module_id": "896989c7-6c20-4182-b749-1b11cd48e00b",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "41c0c51d-9d16-4fc1-8ba7-6c56ffcd950f",
       "module_id": "bd1cb261-7826-4a8f-aaf3-2c4e10c10de0",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "fc0d5305-22af-4b69-939e-8e4566272c07",
       "module_id": "6a0fb885-664b-4668-bafb-758d010a8d77",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "cb684272-afd4-4c55-9a31-0511a2cbf319",
       "module_id": "e30e85e5-5b20-456a-a6dd-d27fa5b5cb6f",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "fd1e454a-64b9-493c-bbcc-a0dc1a83e574",
       "module_id": "b3b98745-abf6-44c0-870c-465bee76abbb",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "f5a24cc4-712c-4cf0-8299-f7dd7c51d3d4",
       "module_id": "c9ff9ab2-1352-441d-b5a2-42a3586c27ce",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "2320148a-8f69-42da-a20a-198c6a07a9af",
       "module_id": "fba3af18-2b68-4ac2-a180-d11847022306",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "cbc13a5a-6e66-4d4c-bf43-1e1d0d0e4cd9",
       "module_id": "ec7c6a6a-7db4-43a5-a1b1-639c47714e51",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "e6453f6f-3fbf-4214-9759-786534ebd1bc",
       "module_id": "5e00a0ae-d83a-41ac-ba26-f98b1b91822f",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "7925e6f5-a5ac-4c34-bb7e-9cd2af7e6da8",
       "module_id": "5d2f9c66-9fd9-4625-a8c4-5d8ce3b56c41",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "be991e17-1f50-4968-857b-d892480c4051",
       "module_id": "ef6f2bf9-c358-4032-81cb-7554b6926eea",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "a65877a5-2134-4f59-9018-0060755e2f25",
       "module_id": "1287aedc-553f-4e7d-8ae4-0aff057e0984",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "05d2574b-5149-430d-8d80-d3ecfbc5667f",
       "module_id": "826cc5da-211c-45b9-ad6a-11b27d4e5519",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "e560575b-6e85-4462-af5b-6221a64a479e",
       "module_id": "af21cf45-6892-4c20-97c1-f7ced06c5797",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "995cf480-bbcb-4cb1-ac9f-8e0439158f4b",
       "module_id": "d53904a9-9f97-411b-af55-af1e2f23d989",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "f0f3bf79-1e34-4efb-b2ca-9812636e9bfa",
       "module_id": "43803a3a-4689-46c5-8b64-8e200e7bce34",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "fd282538-9abb-435d-aec7-d44d545ffa2c",
       "module_id": "0fb72e70-a025-4189-8344-81fdd590cf9a",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "12aa6e98-b70e-41f8-8ba2-6b35ead2167a",
       "module_id": "1a87b881-69e1-4cf1-bf33-fc47b85e5eac",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "f1c3cb9c-84ae-425e-89a4-fc38cc2fcf1d",
       "module_id": "e4e22118-508d-4063-b555-f5a24062b1dd",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "02616788-d735-4f2d-932b-887f8e796679",
       "module_id": "5f155c65-f18e-4210-997b-11fd68cf9791",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "66c30fc4-b37a-43a4-841e-a0cbfaa27e79",
       "module_id": "8a97d4a9-2462-4787-97d9-44945888e2f1",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "f87e9ac3-8b0f-415b-bd53-f13d6e02d9d6",
       "module_id": "43ec456f-4475-4368-b5ff-754bdc5ba6a9",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "478431bf-19dd-4346-ac1b-9d58bdda5b56",
       "module_id": "567b180c-63e3-417c-9248-1967cc514896",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "09f863a4-a53a-4426-ab11-9cc7ff2cd7ea",
       "module_id": "ee4f5ae2-825e-4c56-88f4-dafbaffa7b50",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "29261ab7-4a32-46df-95de-a6f716360798",
       "module_id": "1e8a95b8-437d-4be5-90d8-42624e2d629a",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "55fb4bd7-0034-488b-ba85-3f3180176e76",
       "module_id": "d369733d-5f62-4b44-8db9-e05e32792d1a",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "69963545-9165-4f35-b2fa-ee8415027888",
       "module_id": "4790d78c-2667-4e05-93e1-eb11f1b0b728",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "507e7557-e530-4569-8340-f7908aca5cde",
       "module_id": "7d11e705-f7ef-418c-b9e9-c5f437c5de63",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "099fa182-e9b5-4fd5-bb1e-47b238423d38",
       "module_id": "a481dd6b-e97f-40d5-858b-a092a133f0b1",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "0e981a7d-64ba-4de0-a3a3-a36f0beb7c04",
       "module_id": "fee65604-19c5-42f7-9b21-c8614cd34a1b",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "842f8ed4-5b77-414c-a66c-702decda33de",
       "module_id": "df51e304-2586-41a8-aa78-c7bb90ce8e44",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "01613b4b-fee2-479e-9195-fa0a9ebd72ae",
       "module_id": "85cdd7be-995b-416b-a1f0-79c05227b83e",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "7bd8554a-29dd-48d8-a4c1-66c71ffba1e4",
       "module_id": "094c6dfc-d955-4d62-8423-de0f6adecaac",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "02ed05b5-7f94-4181-96bf-6aa9bbb221bd",
       "module_id": "c97c1351-3789-40f5-8b8e-9b4af0e62968",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "131de476-5c98-4571-b9cd-f6a17d09457f",
       "module_id": "c2ac5b92-1707-405c-80c7-d919d5fdf299",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "01c8ad14-f0b5-4c78-8e4f-434c50543b5d",
       "module_id": "0b482bc0-ce67-4530-b346-eb60ff2f33fa",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "9ed2b6f8-b54a-4b16-b91c-b9d45abda3b3",
       "module_id": "0c37c144-eb30-496a-a439-d393d0eb05f3",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "1d2d78ef-a3ea-4139-ad8b-97788eb70e91",
       "module_id": "83eed390-4f5d-4035-b9bd-cd0452b3d96d",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "af6af467-c5fd-4d54-89f3-f971cc1f133f",
       "module_id": "e275f720-2c53-4f2d-b442-790b604add54",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "5270f2cb-4529-4352-a2d6-faca33c99e41",
       "module_id": "f1b104a6-3e8c-4460-bb28-cba732046205",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "a86ea0be-6084-4381-b96e-05ae52761ec3",
       "module_id": "468914f3-c284-4c15-85a3-b4b5030340c5",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "f1ed0e0f-03c2-4d6e-b59c-2177b08efaed",
       "module_id": "78dab482-052c-42cf-8d9e-331a44acdaf7",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "58171e59-f37e-44c3-9bff-8565f3398ead",
       "module_id": "70e47b56-416f-4964-b444-bcf0b300db1f",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "ef243767-e8a1-49a3-ba39-72e8e9236c11",
       "module_id": "c2dd2662-7daf-4ee0-9005-072e9d6cfa4d",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "2a3f41f7-24ef-46a3-b081-67d8aa9cf90a",
       "module_id": "a172312a-de1d-4fcd-9229-84a72748a4bc",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "92d01873-37ac-495b-a297-563b1b967aa2",
       "module_id": "d5034d32-0254-4c0e-8b4b-4e8e1073d054",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "d9595257-f2f9-4229-bf41-3358afaa18b1",
       "module_id": "90b10199-7d3c-4eb9-8a36-7416e6445654",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "f6e9bf07-ba01-48e1-9e0f-59ea34cd6c05",
       "module_id": "06a326e7-bca8-4a8c-87f7-8c934c07dd0a",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "64fa9037-6597-47c7-a0d5-ca05d6b99b10",
       "module_id": "c339630e-3149-400b-a735-7363870455ab",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "d4b1bb46-5cbe-4bd6-90b1-e9328bb6b184",
       "module_id": "49cf6077-0c30-4f47-b855-b1657cda978b",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "0768cd11-5fa2-4bcb-a071-e8952877204d",
       "module_id": "bd89ba93-f09c-4e76-8a6e-ea7f0db5abd7",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "c90c455d-1fb0-4170-ad01-f7ae12b84d98",
       "module_id": "d725b145-7dc1-47b6-b157-407c4eb6a1f8",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "2804b2b2-cde4-4a2a-b474-bca0544d9d8a",
       "module_id": "f1c9c7af-b044-4e26-ae99-eb195e47ba41",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "0035888f-dc32-4219-b731-1669a2adb14c",
       "module_id": "0ba196e3-5ee4-4e56-bd5a-622015956d3a",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "e0b2ab48-3a85-4b6a-ac4f-8b25b6e741bf",
       "module_id": "081a0c2d-ff51-4aa9-a83a-2aeeb187653b",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "b7ecc472-1af2-41c5-a6cd-8dd1f8d84231",
       "module_id": "7921cead-cec2-4de5-adf8-bb01dbcac689",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "b60705e9-ee00-46b9-9425-93b060dbf557",
       "module_id": "4b0fb348-70c3-40ba-97c6-7864406c4a65",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "94c4f700-9b1b-46e1-82ea-91cd3b703180",
       "module_id": "31b6aa8c-c574-4f8f-aba4-dbea3a5c37a4",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "35fbd1f9-2f42-4b8c-b285-6bf4407c9b00",
       "module_id": "61b810b7-3b40-4313-acb0-7e60d406949d",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "cfefa979-b399-4752-82ee-ef64a98f7119",
       "module_id": "340eb23f-aa64-441a-b496-f25e8c2d4552",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "5b7863f7-f29a-4535-b500-ef7a1b3cdea9",
       "module_id": "612196c6-8342-4fea-b8cd-cbbfdda50dea",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "c5718af6-5ed3-4d39-95d0-1c7c6abb84ab",
       "module_id": "c7e50c12-cc8c-4f5a-9f75-584e7a2f3bbd",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "858a8e51-3e63-490f-8783-086b7c398ac7",
       "module_id": "a338236a-f990-401d-8457-e2311d0acd3f",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "8b3bb8a2-e937-45ed-930c-a2fd0b8173b1",
       "module_id": "9bd11a73-e268-4e79-b3c5-44fe281d1724",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "9eae83b8-6ccc-4aa9-83b1-e8bc49b11e61",
       "module_id": "b0b7f989-a090-4f76-a9b0-3976a789b00f",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "5130fb73-601d-42a6-985b-b5f6563dfca9",
       "module_id": "59deef45-6d76-4bdb-98e8-d27a24feb6f8",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "0e874631-fb99-4205-9db4-cd0938c20bc4",
       "module_id": "dec85541-1aca-4f0c-b10d-649393c70629",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "d67dc874-d4c7-49e4-b43f-7124ccaceec1",
       "module_id": "34dd919f-490c-4041-8ba7-507ff066a020",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "b8fe38ed-3b05-4d39-a2db-7a0aeb3094bc",
       "module_id": "228c20ca-a17f-4a3d-9bdb-2c3bcd676950",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "de7dc287-72be-405f-b02c-ff64c1aa14ff",
       "module_id": "31514e12-47a9-430b-9534-9735ab972dfa",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "4ebb3c32-d514-4724-a68f-3e4008f699c6",
       "module_id": "83ef0876-b6d7-4191-b8ee-86b7ebf83d13",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "0cbb5b28-a501-4fdd-b198-9ec38406a22b",
       "module_id": "1520a2fd-e582-4e49-88e5-416006ad7942",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "482c430a-ec5c-45b5-ad96-c7255fc383a6",
       "module_id": "89d8d8cb-7483-4721-a26c-e336a91cccca",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "4d202e60-0258-4bd9-bf2f-0c458f1f748f",
       "module_id": "14e68564-5fad-46b9-86bb-e6590f97af2d",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "768b2ae7-6f39-462a-8889-b3b280701d1f",
       "module_id": "eafe2dc4-c51e-4bb0-86e9-141863a41d7d",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "65eca87a-e72d-4b58-be05-c6b9120dd603",
       "module_id": "ce63e558-0e0e-4f6d-a663-7f3c8daecf00",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "838fe762-7409-4ee9-88d0-b2892e1d9933",
       "module_id": "56d17247-bb8d-41fa-9324-9da0afea014e",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "e113ff79-6c13-4555-a543-9319a51b4c23",
       "module_id": "c9051c9e-0fc3-4e11-a5d8-3edfd48d7c77",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "3927050f-7ce6-4fb6-8e63-00f9782d55b0",
       "module_id": "6267dec7-3ae5-40cc-be3a-eebd877434fc",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "0b0478ed-6a88-403a-b8c5-090377f29635",
       "module_id": "f3cb2647-5666-44a5-a28b-0e08359e4d27",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "ced66a1c-e247-41fb-9a94-718452ce9e21",
       "module_id": "bb826e53-67a1-4189-b25e-7fc374226624",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "d11df0a5-c165-4d86-b18f-9aeaf9579610",
       "module_id": "909ffab1-f589-4ed6-9d33-549129e35977",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "8b5f3346-6288-4126-a1ce-55e1a1279e62",
       "module_id": "231c38a4-3dde-41db-ab2f-f46d801c1ccd",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "278a774c-f02c-4c0b-a297-629f4b0b2965",
       "module_id": "c7c34c94-3eb3-4534-9b82-4e747778d85a",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "4f5918b0-e3f4-4462-ad61-7fccc4c4842f",
       "module_id": "417ebe7b-de0d-413a-a51f-5f7cb895a5f1",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "a0ec134c-5902-4e3d-bace-5195dec7f8ac",
       "module_id": "b79e41db-59ed-45be-9adf-27638bbe2a2c",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "3585f050-4186-4c46-8e01-dae59d56b833",
       "module_id": "49eabb5c-fc54-4dfe-9d51-f443eb21094c",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "3672dbf6-b05b-4700-a9d3-b5fabe975c1c",
       "module_id": "4a9033da-eed9-4d51-b8d1-dce5871ac6dc",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "9ad059f7-9609-4d51-8d92-de654148030c",
       "module_id": "625106ed-cba4-41b8-b1cf-ca5ba0dc20ef",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "bc9aa70d-9542-4126-8184-f847abb6544d",
       "module_id": "37ee00a9-7223-41e0-bdcc-9875b9326833",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "558d8fdc-8737-4f1d-bb47-3bdc58290c56",
       "module_id": "5dfd6b8d-3073-4167-9536-88cf71763ad0",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "6839ba81-353c-48e5-8b54-d41a76ae4b3a",
       "module_id": "306b8c32-6e4f-417b-b892-015e528ae558",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "258b5357-eed5-4d05-a471-56b00b8efc6e",
       "module_id": "498f1377-bb3d-44af-9400-d8e19b37a60c",
       "name": "Avaliação Módulo 1",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "2cfdf447-c4f3-4a5f-9dd1-7d4dff12d074",
       "module_id": "37e06ac2-85d6-41c4-bbdf-5db79be1ff5d",
       "name": "Avaliação Módulo 2",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "a774d3b7-291b-4ab6-a00c-1d7027815eb5",
       "module_id": "f7725774-eda7-468e-9ba7-f7a26196a259",
       "name": "Avaliação Módulo 3",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "89773901-2177-4d47-b210-58f5c6306572",
       "module_id": "a7bd8fc2-c2eb-4626-927c-7657827a3d1b",
       "name": "Avaliação Módulo 4",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "b86d42b8-efdd-483e-8110-ddd8bdac7c19",
       "module_id": "bf8dc648-913d-44c6-bb24-7e7eaec12559",
       "name": "Avaliação Módulo 5",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "f91608e8-29da-4a0f-bec7-822bd90cf12e",
       "module_id": "72778535-36e3-4ec1-a1a5-b7dbf4ba51ab",
       "name": "Avaliação Módulo 6",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "12a9ef6c-ae62-4fba-ad1a-6fcf85e5cad8",
       "module_id": "3f0f442c-ddba-4316-ac0e-b7680d0b8ddb",
       "name": "Avaliação Módulo 7",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     },
     {
       "id": "2db26c8e-8ad7-4e12-9fe9-af9467c1c469",
       "module_id": "2725cfeb-94f2-473d-9bbf-17a50c42913b",
       "name": "Avaliação Módulo 8",
       "description": "Avaliação automática",
-      "passing_score": 70
+      "passing_score": 70,
+  "max_attempts": 3
     }
   ],
   "questions": [

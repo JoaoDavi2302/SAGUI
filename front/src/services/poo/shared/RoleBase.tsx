@@ -70,6 +70,10 @@ export abstract class RoleBase {
     ];
   }
 
+  protected getAllCourseIds(): string[] {
+  return this.database.courses.map(c => c.id);
+}
+
   protected isStudentEnrolled(courseId: string): boolean {
     return this.getStudentCourseIds().includes(courseId);
   }
