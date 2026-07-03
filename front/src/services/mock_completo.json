@@ -1,0 +1,172 @@
+{
+  "usuarios": [
+    { "id": 1, "nome": "Ana Silva", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 2, "nome": "Bruno Souza", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 3, "nome": "Clara Lima", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 4, "nome": "Davi Costa", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 5, "nome": "Elena Rocha", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 6, "nome": "Fábio Melo", "perfil": "ALUNO", "ano_cadastro": 2024 },
+    { "id": 7, "nome": "Gabriela Dias", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 8, "nome": "Hugo Alves", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 9, "nome": "Isabela Pires", "perfil": "ALUNO", "ano_cadastro": 2024 },
+    { "id": 10, "nome": "João Victor", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 11, "nome": "Karina Mendes", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 12, "nome": "Lucas Oliveira", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 13, "nome": "Mariana Santos", "perfil": "ALUNO", "ano_cadastro": 2024 },
+    { "id": 14, "nome": "Nicolas Barros", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 15, "nome": "Olivia Cruz", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 16, "nome": "Pedro Henrique", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 17, "nome": "Queila Novaes", "perfil": "ALUNO", "ano_cadastro": 2024 },
+    { "id": 18, "nome": "Rafael Lima", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 19, "nome": "Sara Melo", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 20, "nome": "Thiago Silva", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 21, "nome": "Ursula Costa", "perfil": "ALUNO", "ano_cadastro": 2024 },
+    { "id": 22, "nome": "Victor Souza", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 23, "nome": "Waleska Dias", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 24, "nome": "Xavier Alves", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 25, "nome": "Yasmin Pires", "perfil": "ALUNO", "ano_cadastro": 2024 },
+    { "id": 26, "nome": "Zeca Victor", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 27, "nome": "Alice Mendes", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 28, "nome": "Beto Oliveira", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 29, "nome": "Carla Santos", "perfil": "ALUNO", "ano_cadastro": 2024 },
+    { "id": 30, "nome": "Daniel Barros", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 31, "nome": "Eduarda Cruz", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 32, "nome": "Felipe Henrique", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 33, "nome": "Gisele Novaes", "perfil": "ALUNO", "ano_cadastro": 2024 },
+    { "id": 34, "nome": "Heitor Lima", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 35, "nome": "Ingrid Melo", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 36, "nome": "Jorge Silva", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 37, "nome": "Kelly Costa", "perfil": "ALUNO", "ano_cadastro": 2024 },
+    { "id": 38, "nome": "Leandro Souza", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 39, "nome": "Marta Dias", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 40, "nome": "Nelson Alves", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 41, "nome": "Odete Pires", "perfil": "ALUNO", "ano_cadastro": 2024 },
+    { "id": 42, "nome": "Paulo Victor", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 43, "nome": "Quiteria Mendes", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 44, "nome": "Ricardo Oliveira", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 45, "nome": "Sandra Santos", "perfil": "ALUNO", "ano_cadastro": 2024 },
+    { "id": 46, "nome": "Tadeu Barros", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 47, "nome": "Ulisses Cruz", "perfil": "ALUNO", "ano_cadastro": 2025 },
+    { "id": 48, "nome": "Vanessa Henrique", "perfil": "ALUNO", "ano_cadastro": 2026 },
+    { "id": 49, "nome": "Wagner Novaes", "perfil": "ALUNO", "ano_cadastro": 2024 },
+    { "id": 50, "nome": "Xana Lima", "perfil": "ALUNO", "ano_cadastro": 2026 }
+  ],
+  "cursos": [
+    { "id": 1, "nome": "Ciência da Computação" },
+    { "id": 2, "nome": "Engenharia de Software" },
+    { "id": 3, "nome": "Sistemas de Informação" },
+    { "id": 4, "nome": "Redes de Computadores" }
+  ],
+  "matriculas": [
+    { "aluno_id": 1, "curso_id": 1 }, { "aluno_id": 2, "curso_id": 2 }, { "aluno_id": 3, "curso_id": 3 }, { "aluno_id": 4, "curso_id": 4 },
+    { "aluno_id": 5, "curso_id": 1 }, { "aluno_id": 6, "curso_id": 2 }, { "aluno_id": 7, "curso_id": 3 }, { "aluno_id": 8, "curso_id": 4 },
+    { "aluno_id": 9, "curso_id": 1 }, { "aluno_id": 10, "curso_id": 2 }, { "aluno_id": 11, "curso_id": 3 }, { "aluno_id": 12, "curso_id": 4 },
+    { "aluno_id": 13, "curso_id": 1 }, { "aluno_id": 14, "curso_id": 2 }, { "aluno_id": 15, "curso_id": 3 }, { "aluno_id": 16, "curso_id": 4 },
+    { "aluno_id": 17, "curso_id": 1 }, { "aluno_id": 18, "curso_id": 2 }, { "aluno_id": 19, "curso_id": 3 }, { "aluno_id": 20, "curso_id": 4 },
+    { "aluno_id": 21, "curso_id": 1 }, { "aluno_id": 22, "curso_id": 2 }, { "aluno_id": 23, "curso_id": 3 }, { "aluno_id": 4, "curso_id": 4 },
+    { "aluno_id": 25, "curso_id": 1 }, { "aluno_id": 26, "curso_id": 2 }, { "aluno_id": 27, "curso_id": 3 }, { "aluno_id": 28, "curso_id": 4 },
+    { "aluno_id": 29, "curso_id": 1 }, { "aluno_id": 30, "curso_id": 2 }, { "aluno_id": 31, "curso_id": 3 }, { "aluno_id": 32, "curso_id": 4 },
+    { "aluno_id": 33, "curso_id": 1 }, { "aluno_id": 34, "curso_id": 2 }, { "aluno_id": 35, "curso_id": 3 }, { "aluno_id": 36, "curso_id": 4 },
+    { "aluno_id": 37, "curso_id": 1 }, { "aluno_id": 38, "curso_id": 2 }, { "aluno_id": 39, "curso_id": 3 }, { "aluno_id": 40, "curso_id": 4 },
+    { "aluno_id": 41, "curso_id": 1 }, { "aluno_id": 42, "curso_id": 2 }, { "aluno_id": 43, "curso_id": 3 }, { "aluno_id": 44, "curso_id": 4 },
+    { "aluno_id": 45, "curso_id": 1 }, { "aluno_id": 46, "curso_id": 2 }, { "aluno_id": 47, "curso_id": 3 }, { "aluno_id": 48, "curso_id": 4 },
+    { "aluno_id": 49, "curso_id": 1 }, { "aluno_id": 50, "curso_id": 2 }
+  ],
+  "disciplinas": [
+  
+    { "id": 1, "nome": "Algoritmos", "curso_id": 1 },
+    { "id": 2, "nome": "Cálculo I", "curso_id": 1 },
+    { "id": 3, "nome": "Introdução à Computação", "curso_id": 1 },
+    
+    { "id": 4, "nome": "Engenharia de Requisitos", "curso_id": 2 },
+    { "id": 5, "nome": "Arquitetura de Software", "curso_id": 2 },
+    { "id": 6, "nome": "Testes de Software", "curso_id": 2 },
+    
+    
+    { "id": 7, "nome": "Gestão de Projetos", "curso_id": 3 },
+    { "id": 8, "nome": "Banco de Dados", "curso_id": 3 },
+    { "id": 9, "nome": "Análise de Sistemas", "curso_id": 3 },
+    
+   
+    { "id": 10, "nome": "Redes Locais", "curso_id": 4 },
+    { "id": 11, "nome": "Segurança de Redes", "curso_id": 4 },
+    { "id": 12, "nome": "Protocolos de Comunicação", "curso_id": 4 }
+],
+  "modulos": [
+   
+    { "id": 1, "disciplina_id": 1, "nome": "Módulo 1: Introdução" }, { "id": 2, "disciplina_id": 1, "nome": "Módulo 2: Ordenação" }, { "id": 3, "disciplina_id": 1, "nome": "Módulo 3: Busca" },
+    { "id": 4, "disciplina_id": 2, "nome": "Módulo 1: Limites" }, { "id": 5, "disciplina_id": 2, "nome": "Módulo 2: Derivadas" }, { "id": 6, "disciplina_id": 2, "nome": "Módulo 3: Integrais" },
+    { "id": 7, "disciplina_id": 3, "nome": "Módulo 1: Hardware" }, { "id": 8, "disciplina_id": 3, "nome": "Módulo 2: Software" }, { "id": 9, "disciplina_id": 3, "nome": "Módulo 3: Redes" },
+    
+   
+    { "id": 10, "disciplina_id": 4, "nome": "Módulo 1: Elicitação" }, { "id": 11, "disciplina_id": 4, "nome": "Módulo 2: Análise" }, { "id": 12, "disciplina_id": 4, "nome": "Módulo 3: Documentação" },
+    { "id": 13, "disciplina_id": 5, "nome": "Módulo 1: Padrões" }, { "id": 14, "disciplina_id": 5, "nome": "Módulo 2: Microserviços" }, { "id": 15, "disciplina_id": 5, "nome": "Módulo 3: Nuvem" },
+    { "id": 16, "disciplina_id": 6, "nome": "Módulo 1: Unitários" }, { "id": 17, "disciplina_id": 6, "nome": "Módulo 2: Integração" }, { "id": 18, "disciplina_id": 6, "nome": "Módulo 3: Aceitação" },
+    
+    
+    { "id": 19, "disciplina_id": 7, "nome": "Módulo 1: Iniciação" }, { "id": 20, "disciplina_id": 7, "nome": "Módulo 2: Planejamento" }, { "id": 21, "disciplina_id": 7, "nome": "Módulo 3: Execução" },
+    { "id": 22, "disciplina_id": 8, "nome": "Módulo 1: Modelagem ER" }, { "id": 23, "disciplina_id": 8, "nome": "Módulo 2: Normalização" }, { "id": 24, "disciplina_id": 8, "nome": "Módulo 3: Consultas SQL" },
+    { "id": 25, "disciplina_id": 9, "nome": "Módulo 1: Levantamento" }, { "id": 26, "disciplina_id": 9, "nome": "Módulo 2: Diagramas UML" }, { "id": 27, "disciplina_id": 9, "nome": "Módulo 3: Prototipagem" },
+    
+    
+    { "id": 28, "disciplina_id": 10, "nome": "Módulo 1: Cabeamento" }, { "id": 29, "disciplina_id": 10, "nome": "Módulo 2: Topologias" }, { "id": 30, "disciplina_id": 10, "nome": "Módulo 3: Switching" },
+    { "id": 31, "disciplina_id": 11, "nome": "Módulo 1: Criptografia" }, { "id": 32, "disciplina_id": 11, "nome": "Módulo 2: Firewalls" }, { "id": 33, "disciplina_id": 11, "nome": "Módulo 3: VPNs" },
+    { "id": 34, "disciplina_id": 12, "nome": "Módulo 1: Modelo OSI" }, { "id": 35, "disciplina_id": 12, "nome": "Módulo 2: TCP/IP" }, { "id": 36, "disciplina_id": 12, "nome": "Módulo 3: Roteamento" }
+],
+  "provas": [
+  
+    { "id": 1, "modulo_id": 1, "nome": "Prova: Introdução" }, { "id": 2, "modulo_id": 2, "nome": "Prova: Ordenação" }, { "id": 3, "modulo_id": 3, "nome": "Prova: Busca" },
+    { "id": 4, "modulo_id": 4, "nome": "Prova: Limites" }, { "id": 5, "modulo_id": 5, "nome": "Prova: Derivadas" }, { "id": 6, "modulo_id": 6, "nome": "Prova: Integrais" },
+    { "id": 7, "modulo_id": 7, "nome": "Prova: Hardware" }, { "id": 8, "modulo_id": 8, "nome": "Prova: Software" }, { "id": 9, "modulo_id": 9, "nome": "Prova: Redes" },
+    
+    
+    { "id": 10, "modulo_id": 10, "nome": "Prova: Elicitação" }, { "id": 11, "modulo_id": 11, "nome": "Prova: Análise" }, { "id": 12, "modulo_id": 12, "nome": "Prova: Documentação" },
+    { "id": 13, "modulo_id": 13, "nome": "Prova: Padrões" }, { "id": 14, "modulo_id": 14, "nome": "Prova: Microserviços" }, { "id": 15, "modulo_id": 15, "nome": "Prova: Nuvem" },
+    { "id": 16, "modulo_id": 16, "nome": "Prova: Unitários" }, { "id": 17, "modulo_id": 17, "nome": "Prova: Integração" }, { "id": 18, "modulo_id": 18, "nome": "Prova: Aceitação" },
+    
+   
+    { "id": 19, "modulo_id": 19, "nome": "Prova: Iniciação" }, { "id": 20, "modulo_id": 20, "nome": "Prova: Planejamento" }, { "id": 21, "modulo_id": 21, "nome": "Prova: Execução" },
+    { "id": 22, "modulo_id": 22, "nome": "Prova: Modelagem ER" }, { "id": 23, "modulo_id": 23, "nome": "Prova: Normalização" }, { "id": 24, "modulo_id": 24, "nome": "Prova: Consultas SQL" },
+    { "id": 25, "modulo_id": 25, "nome": "Prova: Levantamento" }, { "id": 26, "modulo_id": 26, "nome": "Prova: Diagramas UML" }, { "id": 27, "modulo_id": 27, "nome": "Prova: Prototipagem" },
+    
+   
+    { "id": 28, "modulo_id": 28, "nome": "Prova: Cabeamento" }, { "id": 29, "modulo_id": 29, "nome": "Prova: Topologias" }, { "id": 30, "modulo_id": 30, "nome": "Prova: Switching" },
+    { "id": 31, "modulo_id": 31, "nome": "Prova: Criptografia" }, { "id": 32, "modulo_id": 32, "nome": "Prova: Firewalls" }, { "id": 33, "modulo_id": 33, "nome": "Prova: VPNs" },
+    { "id": 34, "modulo_id": 34, "nome": "Prova: Modelo OSI" }, { "id": 35, "modulo_id": 35, "nome": "Prova: TCP/IP" }, { "id": 36, "modulo_id": 36, "nome": "Prova: Roteamento" }
+],
+  "notas": [
+
+    { "aluno_id": 1, "prova_id": 1, "valor": 8.5 }, { "aluno_id": 5, "prova_id": 1, "valor": 9.0 },
+    { "aluno_id": 9, "prova_id": 1, "valor": 7.5 }, { "aluno_id": 13, "prova_id": 1, "valor": 8.0 },
+    { "aluno_id": 17, "prova_id": 1, "valor": 9.5 }, { "aluno_id": 21, "prova_id": 1, "valor": 7.0 },
+    { "aluno_id": 25, "prova_id": 1, "valor": 8.5 }, { "aluno_id": 29, "prova_id": 1, "valor": 9.0 },
+    { "aluno_id": 33, "prova_id": 1, "valor": 7.5 }, { "aluno_id": 37, "prova_id": 1, "valor": 8.0 },
+    { "aluno_id": 41, "prova_id": 1, "valor": 9.5 }, { "aluno_id": 45, "prova_id": 1, "valor": 7.0 },
+    { "aluno_id": 49, "prova_id": 1, "valor": 8.5 },
+
+    
+    { "aluno_id": 2, "prova_id": 10, "valor": 7.5 }, { "aluno_id": 6, "prova_id": 10, "valor": 8.0 },
+    { "aluno_id": 10, "prova_id": 10, "valor": 9.0 }, { "aluno_id": 14, "prova_id": 10, "valor": 7.0 },
+    { "aluno_id": 18, "prova_id": 10, "valor": 8.5 }, { "aluno_id": 22, "prova_id": 10, "valor": 9.5 },
+    { "aluno_id": 26, "prova_id": 10, "valor": 7.5 }, { "aluno_id": 30, "prova_id": 10, "valor": 8.0 },
+    { "aluno_id": 34, "prova_id": 10, "valor": 9.0 }, { "aluno_id": 38, "prova_id": 10, "valor": 7.0 },
+    { "aluno_id": 42, "prova_id": 10, "valor": 8.5 }, { "aluno_id": 46, "prova_id": 10, "valor": 9.5 },
+    { "aluno_id": 50, "prova_id": 10, "valor": 8.0 },
+
+   
+    { "aluno_id": 3, "prova_id": 19, "valor": 9.0 }, { "aluno_id": 7, "prova_id": 19, "valor": 8.5 },
+    { "aluno_id": 11, "prova_id": 19, "valor": 7.0 }, { "aluno_id": 15, "prova_id": 19, "valor": 7.5 },
+    { "aluno_id": 19, "prova_id": 19, "valor": 9.5 }, { "aluno_id": 23, "prova_id": 19, "valor": 8.0 },
+    { "aluno_id": 27, "prova_id": 19, "valor": 9.0 }, { "aluno_id": 31, "prova_id": 19, "valor": 8.5 },
+    { "aluno_id": 35, "prova_id": 19, "valor": 7.0 }, { "aluno_id": 39, "prova_id": 19, "valor": 7.5 },
+    { "aluno_id": 43, "prova_id": 19, "valor": 9.5 }, { "aluno_id": 47, "prova_id": 19, "valor": 8.0 },
+
+  
+    { "aluno_id": 4, "prova_id": 28, "valor": 8.0 }, { "aluno_id": 8, "prova_id": 28, "valor": 9.5 },
+    { "aluno_id": 12, "prova_id": 28, "valor": 7.5 }, { "aluno_id": 16, "prova_id": 28, "valor": 9.0 },
+    { "aluno_id": 20, "prova_id": 28, "valor": 7.0 }, { "aluno_id": 24, "prova_id": 28, "valor": 8.5 },
+    { "aluno_id": 28, "prova_id": 28, "valor": 9.5 }, { "aluno_id": 32, "prova_id": 28, "valor": 7.5 },
+    { "aluno_id": 36, "prova_id": 28, "valor": 9.0 }, { "aluno_id": 40, "prova_id": 28, "valor": 7.0 },
+    { "aluno_id": 44, "prova_id": 28, "valor": 8.5 }, { "aluno_id": 48, "prova_id": 28, "valor": 9.5 }
+]
+}

@@ -1,0 +1,220 @@
+"use client";
+
+import * as React from "react";
+import Image from "next/image";
+import Logo from "../../public/Longa-logo.svg";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import {
+  Box,
+  CssBaseline,
+  Divider,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
+
+import { useTheme } from "@mui/material/styles";
+
+import DashboardHeader from "./dashboard-header";
+import Footer from "./footer";
+
+import type { SidebarItem, HeaderItem } from "./layout/types";
+import { useUser } from "@/services/auth/AuthContext";
+
+type Props = {
+  title: string;
+  avatarSrc?: string;
+  items: SidebarItem[];
+  settings?: HeaderItem[];
+  children: React.ReactNode;
+  drawerWidth?: number;
+};
+
+export default function DrawerLayout({
+  title,
+  avatarSrc,
+  items,
+  settings = [],
+  children,
+  drawerWidth = 260,
+}: Props) {
+  const pathname = usePathname();
+  const theme = useTheme();
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const [open, setOpen] = React.useState(false);
+
+  const { logout } = useUser();
+
+  const isActive = (href?: string) =>
+    !!href && (pathname === href || pathname.startsWith(href + "/"));
+
+  const drawerContent = (
+    <>
+      <Toolbar>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+            justifyContent: "center",
+          }}
+        >
+          <Image
+            src={Logo}
+            alt="logo"
+            style={{ width: "180px", marginTop: "-10px", alignSelf: "center" }}
+          />
+          {/* <Typography
+            variant="body2"
+            sx={{
+              fontSize: "12px",
+              fontWeight: "200",
+              fontFamily: "system-ui",
+              color: "#1f2937",
+            }}
+          >
+            Plataforma academica
+          </Typography> */}
+        </Box>
+      </Toolbar>
+
+      <Divider />
+
+      <List sx={{ px: 1 }}>
+        {items.map((item) => {
+          const isLink = "href" in item;
+
+          return (
+            <ListItem key={item.label} disablePadding>
+              <ListItemButton
+                component={isLink ? Link : "button"}
+                href={isLink ? item.href : undefined}
+                onClick={() => {
+                  if (!isLink) item.onClick?.();
+                  if (isMobile) setOpen(false);
+                }}
+                selected={isLink ? isActive(item.href) : false}
+                sx={{
+                  borderRadius: 2,
+                  mb: 0.5,
+                  ml: 1,
+                  height: "40px",
+                  color: "#1976d2",
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 36, color: "#1976d2" }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.label}
+                  slotProps={{
+                    primary: {
+                      sx: { fontSize: "14px" },
+                    },
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
+      </List>
+    </>
+  );
+
+  return (
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+
+      <DashboardHeader
+        title={title}
+        avatarSrc={avatarSrc}
+        settings={settings}
+        onMenuClick={() => setOpen(true)}
+        drawerWidth={drawerWidth}
+        isMobile={isMobile}
+      />
+
+      {/* DRAWER RESPONSIVO */}
+      <Drawer
+        variant={isMobile ? "temporary" : "permanent"}
+        open={isMobile ? open : true}
+        onClose={() => setOpen(false)}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            backgroundColor: "var(--background-drawer)",
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+
+      {/*
+
+      MAIS BONITINHO...
+      
+      <Drawer
+        variant={isMobile ? "temporary" : "permanent"}
+        open={isMobile ? open : true}
+        onClose={() => setOpen(false)}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            // ==========================================
+            // MODIFICAÇÕES DE DESIGN 
+            // ==========================================
+            backgroundColor: "#ffffff", // Altera a cor de fundo para branco puro
+            borderRight: "none",        // Remove a linha divisória vertical padrão do MUI
+            boxShadow: "4px 0px 24px rgba(24, 49, 83, 0.04)", // Sombra lateral ultra suave visível no protótipo
+            
+            // Aplica os cantos arredondados do lado direito se não estiver no celular
+            ...(!isMobile && {
+              borderTopRightRadius: "24px",
+              borderBottomRightRadius: "24px",
+              height: "calc(100vh - 16px)", // Descolado levemente do teto/chão para dar o efeito de card
+              margin: "8px 0 8px 8px",      // Afasta um pouco das bordas da tela
+            }),
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+
+      
+      
+      */}
+
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          width: "100%",
+          ml: isMobile ? 0 : `${drawerWidth}px`,
+        }}
+      >
+        <Toolbar />
+        <Box sx={{ p: 4 }}>{children}</Box>
+        <Divider sx={{ mt: 3 }} />
+        <Footer />
+      </Box>
+    </Box>
+  );
+}
