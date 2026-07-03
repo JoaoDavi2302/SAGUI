@@ -1,11 +1,11 @@
 import { Course } from "./Course";
 import { AdminCourse, ProfessorCourse, StudentCourse } from "./Roles";
-import { Database, LoggedUser, Role, User } from "../shared/types";
+import { Database, LoggedUser, Role } from "../shared/types";
 
 export class CourseProvider {
   static create(role: Role, database: Database, user: LoggedUser): Course {
     switch (role) {
-      case "ADMIN":
+      case "ADMINISTRADOR":
         return new AdminCourse(database, user);
 
       case "PROFESSOR":

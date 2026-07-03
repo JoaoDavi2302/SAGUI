@@ -1,35 +1,204 @@
-import database from "@/components/mock.json";
+import databaseJson from "@/components/mock.json";
 
-export type Database = typeof database;
+export const database = databaseJson as Database;
 
-export type Role = "ADMIN" | "PROFESSOR" | "ALUNO";
+export type Role = "ADMINISTRADOR" | "PROFESSOR" | "ALUNO";
+
+export interface Database {
+  usuarios: UserEntity[];
+  cursos: CourseEntity[];
+  disciplinas: DisciplineEntity[];
+  modulos: ModuleEntity[];
+  aulas: LessonEntity[];
+  anexos: AttachmentEntity[];
+  atividades: ActivityEntity[];
+  questoes: QuestionsEntity[];
+  alternativas: AlternativeEntity[];
+  matriculas: EnrollmentEntity[];
+  progresso_modulo: ModuleProgressEntity[];
+  // tentativas_atividade: AttemptEntity[];
+  // respostas_aluno: AnswerEntity[];
+  // tokens_recuperacao_senha: PasswordTokenEntity[];
+}
 
 export interface UserEntity {
-    id: string;
-    name: string;
-    email: string;
-    birth_date: string;
-    status: string;
-    password_hash: string;
-    photo_url: string | null;
+  id: number;
+  nome: string;
+  email: string;
+  senha_hash: string;
+  data_nascimento: string;
+  logradouro: string;
+  cidade: string;
+  estado: string;
+  perfil: Role;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
 }
 
 export interface LoggedUser {
-  id: string;
-  name: string;
+  id: number;
+  nome: string;
   email: string;
-  role: Role;
+  perfil: Role;
 }
 
 /* curso */
 export interface CourseEntity {
-  id: string;
-  description: string;
-  name: string;
-  area: string;
-  workload: number;
+  id: number;
+  nome: string;
+  descricao: string;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
 }
 
+/* disciplina */
+export interface DisciplineEntity {
+  id: number;
+  curso_id: number;
+  professor_id: number;
+
+  nome: string;
+  descricao: string;
+
+  ativo: boolean;
+
+  criado_em: string;
+  atualizado_em: string;
+}
+
+export interface EnrollmentEntity {
+  id: number;
+
+  aluno_id: number;
+
+  curso_id: number;
+
+  disciplina_id?: number | null;
+
+  status: string;
+
+  aprovado_por?: number | null;
+
+  aprovado_em?: string | null;
+
+  criado_em: string;
+}
+
+/* modulo de entidade */
+export interface ModuleEntity {
+  id: number;
+  disciplina_id: number;
+  nome: string;
+  descricao: string;
+  ordem: number;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
+}
+
+/* progressos de modulo da disciplina */
+export interface ModuleProgressEntity {
+  id: number;
+
+  aluno_id: number;
+
+  modulo_id: number;
+
+  percentual: number;
+
+  concluido: boolean;
+
+  atualizado_em: string;
+}
+
+/* atividades */
+export interface ActivityEntity {
+  id: number;
+  modulo_id: number;
+  titulo: string;
+  descricao: string;
+  max_tentativas: number;
+  nota_aprovacao: number;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
+}
+
+// questões
+export interface QuestionsEntity {
+  id: number;
+  atividade_id: number;
+  enunciado: string;
+  ordem: number;
+  tipo: string;
+  criado_em: string;
+}
+
+// alternativas
+export interface AlternativeEntity {
+  id: number;
+  questao_id: number;
+  texto: string;
+  correta: boolean;
+  ordem: number;
+}
+
+/* atividades */
+export interface LessonEntity {
+  id: number;
+  modulo_id: number;
+  titulo: string;
+  conteudo: string;
+  ordem: number;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
+}
+
+/* antigo material (anexos) */
+export interface AttachmentEntity {
+  id: number;
+
+  aula_id?: number | null;
+  atividade_id?: number | null;
+
+  nome: string;
+  url: string;
+  tipo: string;
+
+  criado_em: string;
+}
+
+// /* cards de disciplina */
+export interface DisciplineCard extends DisciplineEntity {
+  professorName: string;
+  modules: ModuleEntity[];
+  progress: DisciplineProgress;
+  courseName: string;
+}
+
+// // detalhes da aula disciplina
+export interface LessonCard extends LessonEntity {
+  completed: boolean;
+}
+
+export interface MaterialCard extends AttachmentEntity {
+  lessonId: number;
+  lessonName: string;
+
+  moduleId: number;
+  moduleName: string;
+
+  disciplineId: number;
+  disciplineName: string;
+
+  courseId: number;
+  courseName: string;
+}
+
+// // corrigir
 export interface CourseCard extends CourseEntity {
   image?: string;
 
@@ -38,114 +207,32 @@ export interface CourseCard extends CourseEntity {
   disciplinesCount?: number;
 }
 
-/* disciplina */
-export interface DisciplineEntity {
-  id: string;
-  course_id: string;
-  professor_id: string | null;
-  name: string;
-  description: string;
-  workload: number;
-  order_index: number;
-}
+// // ver se usado
+// export interface ModuleActivityCard {
+//   moduleId: string;
+//   moduleName: string;
 
-/* cards de disciplina */
-export interface DisciplineCard extends DisciplineEntity {
-  professorName: string;
-  modules: ModuleEntity[];
-  progress: DisciplineProgress;
-  courseName:string;
-}
+//   disciplineId: string;
+//   disciplineName: string;
 
-/* modulo de entidade */
-export interface ModuleEntity {
-  id: string;
-  discipline_id: string;
-  name: string;
-  description: string;
-  order_index: number;
-}
+//   courseId: string;
+//   courseName: string;
 
-/* lessons */
-export interface LessonEntity {
-  id: string;
-  module_id: string;
-  name: string;
-  content: string;
-  order_index: number;
-}
+//   quizzes: ActivityCard[];
+// }
 
-// detalhes da aula disciplina
-export interface LessonCard extends LessonEntity {
-  completed: boolean;
-}
-
-/* material */
-export interface MaterialEntity {
-  id: string;
-  title: string;
-  description: string;
-  type: string;
-  status: string;
-}
-
-export interface MaterialCard extends MaterialEntity {
-  courseId: string;
-  courseName: string;
-  disciplineId: string;
-  disciplineName: string;
-  moduleId: string;
-  moduleName: string;
-}
-
-/* quiz */
-export interface QuizEntity {
-  id: string;
-  module_id: string;
-  name: string;
-  description: string | null;
-  passing_score: number;
-  max_attempts: number
-}
-
-export interface ModuleActivityCard {
-    moduleId: string;
-    moduleName: string;
-
-    disciplineId: string;
-    disciplineName: string;
-
-    courseId: string;
-    courseName: string;
-
-    quizzes: ActivityCard[];
-}
-
-export interface ActivityCard extends QuizEntity {
-  courseId: string;
+// // corrigir
+export interface ActivityCard extends ActivityEntity {
+  courseId: number;
   courseName: string;
 
-  disciplineId: string;
+  disciplineId: number;
   disciplineName: string;
 
-  moduleId: string;
+  moduleId: number;
   moduleName: string;
 
   questionCount: number;
-}
-
-export interface EnrollmentEntity {
-  id: string;
-  student_id: string;
-  course_id: string;
-}
-
-/* progressos de modulo da disciplina */
-export interface ModuleProgressEntity {
-  id: string;
-  student_id: string;
-  module_id: string;
-  status: string;
 }
 
 /* progresso de disciplina */
@@ -155,7 +242,31 @@ export interface DisciplineProgress {
   percentage: number;
 }
 
-/* grupo disciplina */
+export interface ModuleCard extends ModuleEntity {
+  lessons: LessonCard[];
+  lessonsCount: number;
+  completedLessons: number;
+  percentage: number;
+}
+
+// // detalhes da disciplina
+export interface ModuleDetailsCard extends ModuleEntity {
+  lessons: LessonCard[];
+  progress: number;
+}
+
+export interface StudentProgressCard {
+  id: number;
+  name: string;
+  completedLessons: number;
+  totalLessons: number;
+  percentage: number;
+  // average: number; ainda não usado
+}
+
+// front
+
+/* grupo disciplina por curso */
 export interface DisciplineGroup {
   course: CourseEntity | null;
   subjects: DisciplineCard[];
@@ -169,33 +280,11 @@ export interface DisciplinePageData {
   moduleProgress: ModuleProgressEntity[];
 }
 
-export interface ModuleCard extends ModuleEntity {
-  lessons: LessonCard[];
-  lessonsCount: number;
-  completedLessons: number;
-  percentage: number;
-}
-
 // detalhes da disciplina
-export interface ModuleDetailsCard extends ModuleEntity {
-  lessons: LessonCard[];
-  progress: number;
-}
-
-
-export interface StudentProgressCard {
-  id: string;
-  name: string;
-  completedLessons: number;
-  totalLessons: number;
-  percentage: number;
-  average: number;
-}
-
 export interface DisciplineDetailsPage {
   discipline: DisciplineCard;
   modules: ModuleDetailsCard[];
   students: StudentProgressCard[];
-  materials:MaterialCard[];
-  quizzes:ActivityCard[];
+  materials: MaterialCard[];
+  activities: ActivityCard[];
 }

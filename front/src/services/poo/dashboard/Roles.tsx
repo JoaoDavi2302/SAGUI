@@ -1,12 +1,15 @@
-import { AssignmentOutlined, EmojiEventsOutlined, MenuBookOutlined, SchoolOutlined, ShowChartOutlined } from "@mui/icons-material";
+import {
+  AssignmentOutlined,
+  EmojiEventsOutlined,
+  ShowChartOutlined,
+} from "@mui/icons-material";
 import { Dashboard } from "./dashboard";
 import { DashboardData } from "./dashboard";
-import { AppDatabase } from './types/database';
 
 export class StudentDashboard extends Dashboard {
   getData(): DashboardData {
-    const enrollment = this.database.enrollments.find(
-      (e: any) => e.student_id === this.user.id
+    const enrollment = this.database.matriculas.find(
+      (e: any) => e.aluno_id === this.user?.id,
     );
 
     if (!enrollment) {
@@ -21,114 +24,73 @@ export class StudentDashboard extends Dashboard {
       };
     }
 
-    const course = this.database.courses.find(
-      (c: any) => c.id === enrollment.course_id
+    const course = this.database.cursos.find(
+      (c: any) => c.id === enrollment.curso_id,
     );
 
-    const disciplines = this.database.disciplines.filter(
-      (d: any) => d.course_id === course.id
+    const disciplines = this.database.disciplinas.filter(
+      (d: any) => d.curso_id === course?.id,
     );
 
-    const disciplineIds = disciplines.map((d: any) => d.id);
-
-    const modules = this.database.modules.filter((m: any) =>
-      disciplineIds.includes(m.discipline_id)
+    const modules = this.database.modulos.filter((m: any) =>
+      disciplines.some((d: any) => d.id === m.disciplina_id),
     );
 
-    const moduleProgress = this.database.module_progress.filter(
-      (p: any) => p.student_id === this.user.id
+    const moduleProgress = this.database.progresso_modulo.filter(
+      (p: any) => p.aluno_id === this.user?.id,
     );
 
     const completedModules = moduleProgress.filter(
       (p: any) =>
-        p.status === "COMPLETED" &&
-        modules.find((m: any) => m.id === p.module_id)
+        p.concluido &&
+        modules.some((m: any) => m.id === p.modulo_id),
     ).length;
 
-    const lessons = this.database.lessons.filter((l: any) =>
-      modules.some((m: any) => m.id === l.module_id)
+    const quizzes = this.database.atividades.filter((q: any) =>
+      modules.some((m: any) => m.id === q.modulo_id),
     );
 
-    const lessonProgress = this.database.lesson_progress.filter(
-      (lp: any) => lp.student_id === this.user.id
-    );
+    const progressQuizzes = `${quizzes.length}/${quizzes.length}`;
 
-    const completedLessons = lessonProgress.filter(
-      (lp: any) =>
-        lp.completed &&
-        lessons.some((l: any) => l.id === lp.lesson_id)
-    ).length;
-
-    // progresso das aulas
-    const progressLessons = `${completedLessons}/${lessons.length}`;
-
-    const quizzes = this.database.quizzes.filter((q: any) =>
-      modules.some((m: any) => m.id === q.module_id)
-    );
-
-
-    const quizIds = quizzes.map((q: any) => q.id);
-
-    const quizAttempts = this.database.quiz_attempts.filter(
-      (qa: any) =>
-        qa.student_id === this.user.id &&
-        quizIds.includes(qa.quiz_id)
-    );
-
-    // progresso das atividades concluidas
-    const completedQuizzes = new Set(
-      quizAttempts
-        .filter((qa: any) => qa.is_approved)
-        .map((qa: any) => qa.quiz_id)
-    ).size;
-
-    const progressQuizzes = `${completedQuizzes}/${quizzes.length}`;
-
-
-    // media de acerto das atividades realizadas (não necessáriamente as que acertou o necessário para passar)
-    const mediaQuizzes =
-      quizAttempts.length > 0
-        ? (
-          quizAttempts.reduce(
-            (sum: number, q: any) => sum + Number(q.score ?? 0),
-            0
-          ) / quizAttempts.length
-        ).toFixed(1)
-        : "0";
-
-    // não usado
-    // media de acerto de atividades de modulos concluidos
     const moduleScores = moduleProgress.filter(
-      (p: any) => p.final_score != null
+      (p: any) => p.nota != null,
     );
 
     const mediaQuizzesModule =
       moduleScores.length > 0
         ? (
-          moduleScores.reduce(
-            (sum: number, p: any) => sum + p.final_score,
-            0
-          ) / moduleScores.length
-        ).toFixed(1)
+            moduleScores.reduce(
+              (sum: number, p: any) => sum + Number(p.nota),
+              0,
+            ) / moduleScores.length
+          ).toFixed(1)
         : "0";
 
-    // progresso do curso
     const progressPercent =
       modules.length > 0
         ? Math.round((completedModules / modules.length) * 100)
         : 0;
 
-
-    // progresso de aula, atividade, media geral e conclusão de curso 
     return {
       stats: [
-        { icon:<MenuBookOutlined sx={{ color: "#1976d2" }} /> , label: "Aulas", value: progressLessons },
-        { icon:<AssignmentOutlined sx={{ color: "#1976d2" }} /> ,label: "Atividades", value: progressQuizzes },
-        { icon:<ShowChartOutlined sx={{ color: "#1976d2" }} /> ,label: "Média de atividades", value: mediaQuizzes },
-        { icon:<EmojiEventsOutlined sx={{ color: "#1976d2" }} /> ,label: "Conclusão de curso", value: `${progressPercent}%` },
+        {
+          icon: <AssignmentOutlined sx={{ color: "#1976d2" }} />,
+          label: "Atividades",
+          value: progressQuizzes,
+        },
+        {
+          icon: <ShowChartOutlined sx={{ color: "#1976d2" }} />,
+          label: "Média de atividades",
+          value: mediaQuizzesModule,
+        },
+        {
+          icon: <EmojiEventsOutlined sx={{ color: "#1976d2" }} />,
+          label: "Conclusão de curso",
+          value: `${progressPercent}%`,
+        },
       ],
 
-      courses: [course],
+      courses: course ? [course] : [],
       subjects: disciplines,
       modules,
 
@@ -141,26 +103,27 @@ export class StudentDashboard extends Dashboard {
 
 export class ProfessorDashboard extends Dashboard {
   getData(): DashboardData {
-    const disciplines = this.database.disciplines.filter(
-      (d: any) => d.professor_id === this.user.id
+    const disciplines = this.database.disciplinas.filter(
+      (d: any) => d.professor_id === this.user?.id,
     );
 
     const disciplineIds = disciplines.map((d: any) => d.id);
 
-    const courseIds = [...new Set(disciplines.map((d: any) => d.course_id))];
+    const courseIds = [...new Set(disciplines.map((d: any) => d.curso_id))];
 
-    const courses = this.database.courses.filter((c: any) =>
-      courseIds.includes(c.id)
+    const courses = this.database.cursos.filter((c: any) =>
+      courseIds.includes(c.id),
     );
 
-    const modules = this.database.modules.filter((m: any) =>
-      disciplineIds.includes(m.discipline_id)
+    const modules = this.database.modulos.filter((m: any) =>
+      disciplineIds.includes(m.disciplina_id),
     );
 
     return {
       stats: [
         { label: "Cursos", value: courses.length },
         { label: "Disciplinas", value: disciplines.length },
+        { label: "Módulos", value: modules.length },
       ],
 
       courses,
@@ -169,32 +132,28 @@ export class ProfessorDashboard extends Dashboard {
     };
   }
 }
+
 export class AdminDashboard extends Dashboard {
-  // Use o tipo definido no seu database.tsx
-  protected database: AppDatabase; 
-
-  constructor(user: any, database: AppDatabase) {
-    super(user, database);
-    this.database = database;
-  }
-
   getData(): DashboardData {
-    // Agora o TypeScript sabe exatamente o que tem dentro de this.database
-    const { courses, disciplines, modules, lessons, users, student_performance } = this.database;
+    const courses = this.database.cursos;
+    const disciplines = this.database.disciplinas;
+    const modules = this.database.modulos;
+    const lessons = this.database.aulas;
+    const users = this.database.usuarios;
 
     return {
       stats: [
         { label: "Cursos", value: courses.length },
         { label: "Disciplinas", value: disciplines.length },
         { label: "Módulos", value: modules.length },
-        { icon: <MenuBookOutlined sx={{ color: "#1976d2" }} />, label: "Aulas", value: lessons.length },
+        { label: "Aulas", value: lessons.length },
         { label: "Usuários", value: users.length },
       ],
+
       courses,
       subjects: disciplines,
       modules,
       lessons,
-      student_performance // Passado corretamente
     };
   }
 }

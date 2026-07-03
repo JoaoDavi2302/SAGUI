@@ -18,7 +18,7 @@ export class ActivityProvider {
     user: LoggedUser,
   ): Activity {
     switch (role) {
-      case "ADMIN":
+      case "ADMINISTRADOR":
         return new AdminActivity(database, user);
 
       case "PROFESSOR":

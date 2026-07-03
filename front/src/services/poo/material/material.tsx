@@ -3,7 +3,7 @@ import { RoleBase } from "../shared/RoleBase";
 import {
   Database,
   LoggedUser,
-  MaterialEntity,
+  AttachmentEntity,
   MaterialCard,
 } from "../shared/types";
 
@@ -17,10 +17,10 @@ export abstract class Material extends RoleBase {
 
   abstract listMaterials(): MaterialCard[];
 
-  abstract getMaterial(id: string): MaterialEntity | null;
+  abstract getMaterial(id: number): AttachmentEntity | null;
 
   abstract updateMaterial(
-    id: string,
-    data: Partial<MaterialEntity>,
-  ): MaterialEntity | null;
+    id: number,
+    data: Partial<AttachmentEntity>,
+  ): AttachmentEntity | null;
 }

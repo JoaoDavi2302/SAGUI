@@ -1,4 +1,3 @@
-// centraliza e compartilha dados da aplicação (banco) entre componentes React.
 "use client";
 
 import {
@@ -9,43 +8,42 @@ import {
   ReactNode,
 } from "react";
 
-import database from "@/components/mock.json";
+import databaseJson from "@/components/mock.json";
+import type { Database } from "@/services/poo/shared/types";
+
+const database = databaseJson as Database;
+
 import { useUser } from "./AuthContext";
 
 import {
-  Course,
-  Discipline,
-  Lesson,
-  Material,
-  Module,
-  Quiz,
-  User,
-} from "@/services/poo/dashboard/types/database";
+  CourseEntity,
+  DisciplineEntity,
+  LessonEntity,
+  AttachmentEntity,
+  ModuleEntity,
+  ActivityEntity,
+  UserEntity,
+} from "@/services/poo/shared/types";
 
 interface DataContextType {
   loading: boolean;
 
-  courses: Course[];
-  disciplines: Discipline[];
-  modules: Module[];
-  lessons: Lesson[];
-  materials: Material[];
-  quizzes: Quiz[];
+  courses: CourseEntity[];
+  disciplines: DisciplineEntity[];
+  modules: ModuleEntity[];
+  lessons: LessonEntity[];
+  attachments: AttachmentEntity[];
+  activities: ActivityEntity[];
 
-  professor?: User;
-  student?: User;
-  admin?: User;
+  professor?: UserEntity;
+  student?: UserEntity;
+  admin?: UserEntity;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
 
-export function DataProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function DataProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
-
   const [loading, setLoading] = useState(true);
 
   const [data, setData] = useState<DataContextType>({
@@ -55,115 +53,46 @@ export function DataProvider({
     disciplines: [],
     modules: [],
     lessons: [],
-    materials: [],
-    quizzes: [],
+    attachments: [],
+    activities: [],
   });
 
   useEffect(() => {
     if (!user) {
-      setLoading(false);
-
       setData({
         loading: false,
-
         courses: [],
         disciplines: [],
         modules: [],
         lessons: [],
-        materials: [],
-        quizzes: [],
+        attachments: [],
+        activities: [],
       });
 
+      setLoading(false);
       return;
     }
-
-    // MOCK JSON
 
     setData({
       loading: false,
 
-      courses: database.courses,
+      courses: database.cursos,
+      disciplines: database.disciplinas,
+      modules: database.modulos,
+      lessons: database.aulas,
+      attachments: database.anexos,
+      activities: database.atividades,
 
-      disciplines: database.disciplines,
-
-      modules: database.modules,
-
-      lessons: database.lessons,
-
-      materials: database.materials,
-
-      quizzes: database.quizzes,
-
-      professor: database.users.find(
-        (u) =>
-          database.user_roles.some(
-            (r) =>
-              r.user_id === u.id &&
-              database.roles.find((role) => role.id === r.role_id)?.name ===
-                "PROFESSOR"
-          )
-      ),
-
-      student: database.users.find(
-        (u) =>
-          database.user_roles.some(
-            (r) =>
-              r.user_id === u.id &&
-              database.roles.find((role) => role.id === r.role_id)?.name ===
-                "ALUNO"
-          )
-      ),
-
-      admin: database.users.find(
-        (u) =>
-          database.user_roles.some(
-            (r) =>
-              r.user_id === u.id &&
-              database.roles.find((role) => role.id === r.role_id)?.name ===
-                "ADMIN"
-          )
-      ),
+      professor: database.usuarios.find((u) => u.perfil === "PROFESSOR"),
+      student: database.usuarios.find((u) => u.perfil === "ALUNO"),
+      admin: database.usuarios.find((u) => u.perfil === "ADMINISTRADOR"),
     });
 
     setLoading(false);
-
-    // API
-
-    /*
-    async function loadData() {
-      setLoading(true);
-
-      try {
-        const res = await fetch("/api/data", {
-          credentials: "include",
-        });
-
-        if (!res.ok)
-          throw new Error("Erro ao carregar dados");
-
-        const data = await res.json();
-
-        setData({
-          loading: false,
-          ...data,
-        });
-
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadData();
-    */
   }, [user]);
 
   return (
-    <DataContext.Provider
-      value={{
-        ...data,
-        loading,
-      }}
-    >
+    <DataContext.Provider value={{ ...data, loading }}>
       {children}
     </DataContext.Provider>
   );

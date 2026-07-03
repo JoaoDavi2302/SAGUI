@@ -1,11 +1,11 @@
 // politicas de acesso as rotas baseado em roles
-export type Role = "ADMIN" | "PROFESSOR" | "ALUNO";
+export type Role = "ADMINISTRADOR" | "PROFESSOR" | "ALUNO";
 
 export const routerPolicy: Record<string, Role[]> = {
-  "/dashboard": ["ADMIN"],
-  "/cursos": ["ADMIN", "PROFESSOR", "ALUNO"],
-  "/disciplinas": ["ADMIN", "PROFESSOR", "ALUNO"],
-  "/materiais": ["ADMIN", "PROFESSOR", "ALUNO"],
-  "/avaliacoes": ["ADMIN", "PROFESSOR", "ALUNO"],
-  "/perfil": ["ADMIN", "PROFESSOR", "ALUNO"],
+  "/dashboard": ["ADMINISTRADOR"],
+  "/cursos": ["ADMINISTRADOR", "PROFESSOR", "ALUNO"],
+  "/disciplinas": ["ADMINISTRADOR", "PROFESSOR", "ALUNO"],
+  "/materiais": ["ADMINISTRADOR", "PROFESSOR", "ALUNO"],
+  "/avaliacoes": ["ADMINISTRADOR", "PROFESSOR", "ALUNO"],
+  "/perfil": ["ADMINISTRADOR", "PROFESSOR", "ALUNO"],
 };

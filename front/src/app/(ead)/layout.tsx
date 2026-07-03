@@ -21,7 +21,7 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
     return [
       { icon: <HomeOutlined />, label: "Início", href: "/" },
 
-      // ...(effectiveRole === "ADMIN" || effectiveRole === "PROFESSOR"
+      // ...(effectiveRole === "ADMINISTRADOR" || effectiveRole === "PROFESSOR"
       //   ? [
             {
               icon: <SchoolOutlined />,
@@ -52,7 +52,7 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
   const settings: HeaderItem[] = useMemo(
     () => [
       { label: "Perfil", href: "/perfil" },
-      ...(effectiveRole === "ADMIN"
+      ...(effectiveRole === "ADMINISTRADOR"
         ? [{ label: "Dashboard", href: "/dashboard" }]
         : []),
       { label: "Sair", action: "logout" },

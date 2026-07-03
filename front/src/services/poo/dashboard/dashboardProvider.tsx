@@ -22,7 +22,7 @@ export class DashboardProvider {
           database
         );
 
-        case "ADMIN":
+        case "ADMINISTRADOR":
         return new AdminDashboard(
           user,
           database

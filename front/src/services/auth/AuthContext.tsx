@@ -10,20 +10,20 @@ import {
 } from "react";
 
 import database from "../../components/mock.json";
-
-export type Role = "ADMIN" | "PROFESSOR" | "ALUNO";
+import { LoggedUser } from "@/services/poo/shared/types";
+import { Role } from "@/services/poo/shared/types";
 
 interface User {
-  id: string;
-  name: string;
+  id: number;
+  nome: string;
   email: string;
-  password_hash: string;
-  status: string;
+  senha_hash: string;
+  ativo: boolean;
 }
 
-interface LoggedUser extends User {
-  role: Role;
-}
+// interface LoggedUser extends User {
+//   role: Role;
+// }
 
 interface AuthContextType {
   user: LoggedUser | null;
@@ -41,13 +41,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<LoggedUser | null>(null);
 
-  function getRole(userId: string): Role {
-    const userRole = database.user_roles.find((r) => r.user_id === userId);
+  function getRole(userId: number): Role {
+    const user = database.usuarios.find((u) => u.id === userId);
 
-    const role = database.roles.find((r) => r.id === userRole?.role_id)
-      ?.name as Role;
-
-    return role;
+    return (user?.perfil ?? "ALUNO") as Role;
   }
 
   useEffect(() => {
@@ -58,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .find((c) => c.startsWith("token="))
       ?.split("=")[1];
 
-    const id = localStorage.getItem("userId");
+    const id = Number(localStorage.getItem("userId"));
 
     console.log("COOKIE TOKEN:", token);
     console.log("LOCAL USERID:", id);
@@ -70,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const dbUser = database.users.find((u) => u.id === id);
+    const dbUser = database.usuarios.find((u) => u.id === id);
 
     console.log("DB USER:", dbUser);
 
@@ -83,9 +80,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const role = getRole(dbUser.id);
 
-    console.log("ROLE:", role);
-
-    setUser({ ...dbUser, role });
+    setUser({
+      id: dbUser.id,
+      nome: dbUser.nome,
+      email: dbUser.email,
+      perfil: role,
+    });
 
     console.log("SESSÃO RESTAURADA");
     setLoading(false);
@@ -95,8 +95,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log("LOGIN");
 
     // busca compatibilidade de dados do banco com dados de entrada
-    const foundUser = database.users.find(
-      (u) => u.email === email && u.password_hash === password,
+    const foundUser = database.usuarios.find(
+      (u) => u.email === email && u.senha_hash === password,
     );
 
     // busca se usuario existe
@@ -108,13 +108,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const role = getRole(foundUser.id);
 
     // guardar dados do usuario para acesso rapido
-    localStorage.setItem("userId", foundUser.id);
+    localStorage.setItem("userId", String(foundUser.id));
     document.cookie = `token=${foundUser.id}; path=/; max-age=86400`;
     document.cookie = `role=${role}; path=/; max-age=86400`;
 
-    const loggedUser = {
-      ...foundUser,
-      role,
+    const loggedUser: LoggedUser = {
+      id: foundUser.id,
+      nome: foundUser.nome,
+      email: foundUser.email,
+      perfil: role,
     };
 
     //teste de login
@@ -142,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = "/login";
   }
 
-  const effectiveRole = user?.role ?? "ALUNO";
+  const effectiveRole = user?.perfil ?? "ALUNO";
 
   return (
     <AuthContext.Provider

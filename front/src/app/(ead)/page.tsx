@@ -12,10 +12,17 @@ import {
 } from "@mui/material";
 
 import { useUser } from "@/services/auth/AuthContext";
-import database from "@/components/mock.json";
+// import database from "@/components/mock.json";
 import { DashboardProvider } from "@/services/poo/dashboard/dashboardProvider";
-import { AccessTimeOutlined, ArrowRightAltOutlined, SchoolOutlined } from "@mui/icons-material";
+import {
+  AccessTimeOutlined,
+  ArrowRightAltOutlined,
+  SchoolOutlined,
+} from "@mui/icons-material";
 import Link from "next/link";
+import { DatabaseProvider } from "@/services/poo/databaseProvider";
+
+const database = DatabaseProvider.getDatabase();
 
 export default function Home() {
   // usuario logado e role do usuario
@@ -35,9 +42,9 @@ export default function Home() {
   const coursesMap = useMemo(
     () =>
       Object.fromEntries(
-        data.courses.map((course: any) => [course.id, course])
+        data.courses.map((course: any) => [course.id, course]),
       ),
-    [data.courses]
+    [data.courses],
   );
 
   // modulos da disciplina agrupados
@@ -48,7 +55,7 @@ export default function Home() {
         acc[module.discipline_id].push(module);
         return acc;
       },
-      {}
+      {},
     );
 
     Object.values(grouped).forEach((modules: any[]) => {
@@ -66,7 +73,7 @@ export default function Home() {
       <Typography sx={{ fontSize: 12 }}>Inicio</Typography>
 
       <Typography sx={{ fontWeight: 700, fontSize: 24 }}>
-        Olá, {user?.name}
+        Olá, {user?.nome}
       </Typography>
 
       <Typography sx={{ mb: 3, fontSize: 14, color: "gray" }}>
@@ -81,7 +88,7 @@ export default function Home() {
               sx={{
                 p: 1.5,
                 borderRadius: 2,
-                boxShadow:"none",
+                boxShadow: "none",
                 bgcolor: "rgba(0,0,0,0.03)",
                 display: "flex",
                 flexDirection: "column",
@@ -126,15 +133,16 @@ export default function Home() {
         {data.courses.map((course: any) => (
           <Grid size={{ xs: 12, md: 6 }} key={course.id}>
             <Card sx={{ borderRadius: 3, border: "1px solid #e0e0e0" }}>
-              <CardMedia
+              {/* não tem */}
+              {/* <CardMedia
                 component="img"
                 image={course.image}
-                alt={course.name}
-              />
+                alt={course.nome}
+              /> */}
 
               <CardContent sx={{ px: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  {course.name}
+                  {course.nome}
                 </Typography>
 
                 <Typography
@@ -147,15 +155,16 @@ export default function Home() {
                     overflow: "hidden",
                   }}
                 >
-                  {course.description}
+                  {course.descricao}
                 </Typography>
 
-                <Box sx={{ mt: 2, display: "flex", gap: 1, color: "gray" }}>
+                {/* Não tem carga horaria */}
+                {/* <Box sx={{ mt: 2, display: "flex", gap: 1, color: "gray" }}>
                   <AccessTimeOutlined fontSize="small" />
                   <Typography variant="caption">
                     Carga horária: {course.workload}h
                   </Typography>
-                </Box>
+                </Box> */}
               </CardContent>
             </Card>
           </Grid>
@@ -168,7 +177,10 @@ export default function Home() {
           Minhas Disciplinas
         </Typography>
 
-        <Link href="/disciplinas" style={{ color: "#1976d2", fontSize: "14px" }}>
+        <Link
+          href="/disciplinas"
+          style={{ color: "#1976d2", fontSize: "14px" }}
+        >
           Ver todos
           <ArrowRightAltOutlined />
         </Link>
@@ -183,7 +195,7 @@ export default function Home() {
           const completedModules = moduleProgress.filter(
             (p: any) =>
               p.status === "COMPLETED" &&
-              modules.some((m: any) => m.id === p.module_id)
+              modules.some((m: any) => m.id === p.module_id),
           ).length;
 
           // tranformar em percentual para barra de progresso
@@ -206,11 +218,11 @@ export default function Home() {
               >
                 <CardContent sx={{ px: 3 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                    {subject.name}
+                    {subject.nome}
                   </Typography>
 
                   <Typography variant="body2" color="primary">
-                    {course?.name}
+                    {course?.nome}
                   </Typography>
 
                   <Typography
@@ -224,7 +236,7 @@ export default function Home() {
                       overflow: "hidden",
                     }}
                   >
-                    {subject.description}
+                    {subject.descricao}
                   </Typography>
 
                   <Box
@@ -234,12 +246,13 @@ export default function Home() {
                       justifyContent: "space-between",
                     }}
                   >
-                    <Box sx={{ display: "flex", gap: 0.5, color: "gray" }}>
+                    {/* Não tem carga horaria */}
+                    {/* <Box sx={{ display: "flex", gap: 0.5, color: "gray" }}>
                       <AccessTimeOutlined fontSize="small" />
                       <Typography variant="caption">
                         {subject.workload}h
                       </Typography>
-                    </Box>
+                    </Box> */}
 
                     <Typography
                       variant="caption"

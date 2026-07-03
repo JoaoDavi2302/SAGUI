@@ -1,17 +1,24 @@
 // dados do banco
 export interface User {
-  id: string;
-  name: string;
+  id: number;
+  nome: string;
   email: string;
-  birth_date: string;
-  status: string;
+  senha_hash: string;
+  data_nascimento: string;
+  logradouro: string;
+  cidade: string;
+  estado: string;
+  peril: string;
+  ativo: string;
 }
 
 export interface Course {
-  id: string;
-  name: string;
-  area: string;
-  workload: number;
+  id: number;
+  nome: string;
+  descricao: string;
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string
 }
 
 export interface Discipline {

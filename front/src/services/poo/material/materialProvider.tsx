@@ -18,7 +18,7 @@ export class MaterialProvider {
     user: LoggedUser,
   ): Material {
     switch (role) {
-      case "ADMIN":
+      case "ADMINISTRADOR":
         return new AdminMaterial(database, user);
 
       case "PROFESSOR":

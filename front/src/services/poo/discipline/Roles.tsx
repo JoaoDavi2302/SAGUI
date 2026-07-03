@@ -6,6 +6,7 @@ import {
   DisciplinePageData,
   DisciplineDetailsPage,
   UserEntity,
+  ModuleDetailsCard,
 } from "../shared/types";
 
 /* aluno */
@@ -13,24 +14,24 @@ export class StudentDiscipline extends Discipline {
   listDisciplines(): DisciplineEntity[] {
     const courseIds = this.getStudentCourseIds();
 
-    return this.disciplines().filter((d) => courseIds.includes(d.course_id));
+    return this.disciplines().filter((d) => courseIds.includes(d.curso_id));
   }
 
-  getDiscipline(id: string): DisciplineEntity | null {
+  getDiscipline(id: number): DisciplineEntity | null {
     const discipline = this.getDisciplineById(id);
 
     if (!discipline) {
       return null;
     }
 
-    return this.isStudentEnrolled(discipline.course_id) ? discipline : null;
+    return this.isStudentEnrolled(discipline.curso_id) ? discipline : null;
   }
 
   listProfessors(): UserEntity[] {
     return this.getProfessors();
   }
 
-  getByCourse(courseId: string): DisciplineEntity[] {
+  getByCourse(courseId: number): DisciplineEntity[] {
     if (!this.isStudentEnrolled(courseId)) {
       return [];
     }
@@ -42,68 +43,80 @@ export class StudentDiscipline extends Discipline {
     const groups: DisciplineGroup[] = [];
 
     this.getStudentCourseIds().forEach((courseId) => {
-      const course = this.getCourseById(courseId);
-
       groups.push({
-        course,
+        course: this.getCourseById(courseId),
 
-        subjects: this.getDisciplinesByCourse(courseId).map((d) =>
-          this.buildDisciplineCard(d),
+        subjects: this.getDisciplinesByCourse(courseId).map((discipline) =>
+          this.buildDisciplineCard(discipline),
         ),
       });
     });
 
     return {
       grouped: groups,
+
       modules: this.modules(),
+
       lessons: this.lessons(),
+
       moduleProgress: this.moduleProgress(),
     };
   }
 
-  protected getLessonsByDiscipline(disciplineId: string) {
-    const modules = this.getModulesByDiscipline(disciplineId);
-
-    return modules.flatMap((m) => this.getLessonsByModule(m.id));
+  protected getLessonsByDiscipline(disciplineId: number) {
+    return this.getModulesByDiscipline(disciplineId).flatMap((module) =>
+      this.getLessonsByModule(module.id),
+    );
   }
 
-  getDetails(id: string): DisciplineDetailsPage {
-    const discipline = this.buildDisciplineCard(this.getDisciplineById(id)!);
+  getDetails(id: number): DisciplineDetailsPage {
+    const disciplineEntity = this.getDisciplineById(id);
+
+    if (!disciplineEntity) {
+      throw new Error("Disciplina não encontrada.");
+    }
+
+    const discipline = this.buildDisciplineCard(disciplineEntity);
 
     const modules = this.getModulesByDiscipline(id)
-      .map((m) => this.buildModuleDetailsSafe(m.id))
-      .filter((m): m is NonNullable<typeof m> => m !== null);
+      .map((module) => this.buildModuleDetailsSafe(module.id))
+      .filter((module): module is ModuleDetailsCard => module !== null);
 
     const lessons = this.getLessonsByDiscipline(id);
 
-    const students = this.getStudentsByDiscipline(id).map((s: any) =>
-      this.buildStudentProgress(s.id, lessons),
+    const students = this.getStudentsByDiscipline(id).map((student) =>
+      this.buildStudentProgress(student.id, lessons),
     );
 
-    const moduleIds = this.getModulesByDiscipline(id).map((m) => m.id);
+    const moduleIds = this.getModulesByDiscipline(id).map(
+      (module) => module.id,
+    );
 
-    const materials = (this.database.materials ?? [])
-      .filter((m: any) => moduleIds.includes(m.module_id || m.moduleId))
-      .map((m: any) => this.buildMaterialCard(m, id));
+    const lessonIds = this.lessons()
+      .filter((lesson) => moduleIds.includes(lesson.modulo_id))
+      .map((lesson) => lesson.id);
 
-    const quizzes = this.database.quizzes
-      .filter((q: any) =>
-        this.getModulesByDiscipline(id).some((mod) => mod.id === q.module_id),
+    const materials = this.attachments()
+      .filter(
+        (attachment) =>
+          attachment.aula_id != null && lessonIds.includes(attachment.aula_id),
       )
-      .map((q: any) => this.buildActivityCard(q));
+      .map((attachment) => this.buildAttachmentCard(attachment, id));
+
+    const activities = this.getActivitiesByDiscipline(id);
 
     return {
       discipline,
       modules,
       students,
       materials,
-      quizzes,
+      activities,
     };
   }
 
   // Ações bloqueadas: atualizar
   updateDiscipline(
-    id: string,
+    id: number,
     data: Partial<DisciplineEntity>,
   ): DisciplineEntity {
     throw new Error("Permissão negada.");
@@ -115,7 +128,7 @@ export class StudentDiscipline extends Discipline {
   }
 
   // Ações bloqueadas: deletar
-  deleteDiscipline(id: string): boolean {
+  deleteDiscipline(id: number): boolean {
     throw new Error("Permissão negada.");
   }
 }
@@ -126,7 +139,7 @@ export class ProfessorDiscipline extends Discipline {
     return this.disciplines().filter((d) => d.professor_id === this.user.id);
   }
 
-  getDiscipline(id: string): DisciplineEntity | null {
+  getDiscipline(id: number): DisciplineEntity | null {
     const discipline = this.getDisciplineById(id);
 
     if (!discipline) {
@@ -140,7 +153,7 @@ export class ProfessorDiscipline extends Discipline {
     return this.getProfessors();
   }
 
-  getByCourse(courseId: string): DisciplineEntity[] {
+  getByCourse(courseId: number): DisciplineEntity[] {
     return this.getDisciplinesByCourse(courseId).filter(
       (d) => d.professor_id === this.user.id,
     );
@@ -169,13 +182,13 @@ export class ProfessorDiscipline extends Discipline {
     };
   }
 
-  protected getLessonsByDiscipline(disciplineId: string) {
+  protected getLessonsByDiscipline(disciplineId: number) {
     const modules = this.getModulesByDiscipline(disciplineId);
 
     return modules.flatMap((m) => this.getLessonsByModule(m.id));
   }
 
-  getDetails(id: string): DisciplineDetailsPage {
+  getDetails(id: number): DisciplineDetailsPage {
     const discipline = this.buildDisciplineCard(this.getDisciplineById(id)!);
 
     const modules = this.getModulesByDiscipline(id)
@@ -190,28 +203,31 @@ export class ProfessorDiscipline extends Discipline {
 
     const moduleIds = this.getModulesByDiscipline(id).map((m) => m.id);
 
-    const materials = (this.database.materials ?? [])
-      .filter((m: any) => moduleIds.includes(m.module_id || m.moduleId))
-      .map((m: any) => this.buildMaterialCard(m, id));
+    const lessonIds = this.lessons()
+      .filter((lesson) => moduleIds.includes(lesson.modulo_id))
+      .map((lesson) => lesson.id);
 
-    const quizzes = this.database.quizzes
-      .filter((q: any) =>
-        this.getModulesByDiscipline(id).some((mod) => mod.id === q.module_id),
+    const materials = this.attachments()
+      .filter(
+        (attachment) =>
+          attachment.aula_id != null && lessonIds.includes(attachment.aula_id),
       )
-      .map((q: any) => this.buildActivityCard(q));
+      .map((attachment) => this.buildAttachmentCard(attachment, id));
+
+    const activities = this.getActivitiesByDiscipline(id);
 
     return {
       discipline,
       modules,
       students,
       materials,
-      quizzes,
+      activities,
     };
   }
 
   // pode atualizar dados da disciplina
   updateDiscipline(
-    id: string,
+    id: number,
     data: Partial<DisciplineEntity>,
   ): DisciplineEntity {
     const discipline = this.getDiscipline(id);
@@ -224,8 +240,18 @@ export class ProfessorDiscipline extends Discipline {
   }
 
   // ação bloqueada: criar disciplina
-  createDiscipline(): DisciplineEntity {
-    throw new Error("Professor não pode criar disciplinas.");
+  createDiscipline(data: Omit<DisciplineEntity, "id">): DisciplineEntity {
+    const id =
+      Math.max(...this.disciplines().map((discipline) => discipline.id)) + 1;
+
+    const discipline = {
+      id,
+      ...data,
+    };
+
+    this.database.disciplinas.push(discipline);
+
+    return discipline;
   }
 
   // ação bloqueada: deletar disciplina
@@ -244,11 +270,11 @@ export class AdminDiscipline extends Discipline {
     return this.getProfessors();
   }
 
-  getDiscipline(id: string): DisciplineEntity | null {
+  getDiscipline(id: number): DisciplineEntity | null {
     return this.getDisciplineById(id);
   }
 
-  getByCourse(courseId: string): DisciplineEntity[] {
+  getByCourse(courseId: number): DisciplineEntity[] {
     return this.getDisciplinesByCourse(courseId);
   }
 
@@ -272,13 +298,13 @@ export class AdminDiscipline extends Discipline {
     };
   }
 
-  protected getLessonsByDiscipline(disciplineId: string) {
+  protected getLessonsByDiscipline(disciplineId: number) {
     const modules = this.getModulesByDiscipline(disciplineId);
     return modules.flatMap((m) => this.getLessonsByModule(m.id));
   }
 
   // detalhes da disciplina para criar card
-  getDetails(id: string): DisciplineDetailsPage {
+  getDetails(id: number): DisciplineDetailsPage {
     const disciplineEntity = this.getDisciplineById(id);
 
     if (!disciplineEntity) {
@@ -300,32 +326,31 @@ export class AdminDiscipline extends Discipline {
 
     const moduleIds = this.getModulesByDiscipline(id).map((m) => m.id);
 
-    const materials = (this.database.materials ?? [])
-      .filter((m: any) => moduleIds.includes(m.module_id || m.moduleId))
-      .map((m: any) => this.buildMaterialCard(m, id));
+    const lessonIds = this.lessons()
+      .filter((lesson) => moduleIds.includes(lesson.modulo_id))
+      .map((lesson) => lesson.id);
 
-    console.log("MATERIALS RAW", this.database.materials);
-    console.log("MODULE IDS", moduleIds);
-    console.log("RESULT", materials);
-
-    const quizzes = this.database.quizzes
-      .filter((q: any) =>
-        this.getModulesByDiscipline(id).some((mod) => mod.id === q.module_id),
+    const materials = this.attachments()
+      .filter(
+        (attachment) =>
+          attachment.aula_id != null && lessonIds.includes(attachment.aula_id),
       )
-      .map((q: any) => this.buildActivityCard(q));
+      .map((attachment) => this.buildAttachmentCard(attachment, id));
+
+    const activities = this.getActivitiesByDiscipline(id);
 
     return {
       discipline,
       modules,
       students,
       materials,
-      quizzes,
+      activities,
     };
   }
 
   // pode atualizar disciplina
   updateDiscipline(
-    id: string,
+    id: number,
     data: Partial<DisciplineEntity>,
   ): DisciplineEntity {
     const discipline = this.getDisciplineById(id);
@@ -339,23 +364,30 @@ export class AdminDiscipline extends Discipline {
 
   // pode criar disciplina
   createDiscipline(data: Omit<DisciplineEntity, "id">): DisciplineEntity {
-    const discipline: DisciplineEntity = {
-      id: crypto.randomUUID(),
+    const id =
+      Math.max(...this.disciplines().map((discipline) => discipline.id)) + 1;
+
+    const discipline = {
+      id,
       ...data,
     };
 
-    this.database.disciplines.push(discipline);
+    this.database.disciplinas.push(discipline);
 
     return discipline;
   }
 
   // pode deletar disciplina
-  deleteDiscipline(id: string): boolean {
-    const index = this.database.disciplines.findIndex((d) => d.id === id);
+  deleteDiscipline(id: number): boolean {
+    const index = this.database.disciplinas.findIndex(
+      (discipline) => discipline.id === id,
+    );
 
-    if (index === -1) return false;
+    if (index < 0) {
+      return false;
+    }
 
-    this.database.disciplines.splice(index, 1);
+    this.database.disciplinas.splice(index, 1);
 
     return true;
   }

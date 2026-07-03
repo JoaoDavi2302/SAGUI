@@ -12,7 +12,7 @@ export abstract class Course extends RoleBase{
 
   abstract listCourses(): CourseEntity[];
 
-  abstract getCourse(id: string): CourseEntity | null;
+  abstract getCourse(id: number): CourseEntity | null;
 
-  abstract getDisciplines(courseId: string): any[];
+  abstract getDisciplines(courseId: number): any[];
 }

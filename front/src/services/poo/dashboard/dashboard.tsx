@@ -1,34 +1,33 @@
 import { Course } from "../course/Course";
-import { User } from "../shared/types"; // Importe a interface User correta
-import { Discipline, Lesson, Module, StudentPerformance, UserRole } from "./types/database"; // Ajuste conforme seu arquivo de tipos
+import { UserEntity } from "../shared/types"; // Importe a interface User correta
+import { Discipline, Lesson, Module, StudentPerformance } from "./types/database"; // Ajuste conforme seu arquivo de tipos
 
 // Adicione uma interface para os dados estatísticos se necessário
-export interface Stats {
-  totalStudents: number;
-  activeTeachers: number;
-  registeredCourses: number;
-  disciplinesCount: number;
+export interface StatCard {
+  icon?: React.ReactNode;
+  label: string;
+  value: number | string;
 }
 
-// para homepage de dashboard e (ead)
+// Para dashboard e (ead)
 export interface DashboardData {
-  stats: Stats; 
+  stats: StatCard[];
   courses: Course[];
   subjects: Discipline[];
   modules: Module[];
   lessons?: Lesson[];
-  module_progress?: any[]; // Ou uma interface específica para progresso
+  module_progress?: any[];
   progressPercent?: number;
   completedModules?: number;
   student_performance?: StudentPerformance[];
-  users?: User[];
+  users?: UserEntity[];
 }
 
 export abstract class Dashboard {
-  protected user: User | null;
+  protected user: UserEntity | null;
   protected database: any; // Se possível, substitua 'any' pelo tipo do seu banco de dados
 
-  constructor(user: User | null, database: any) {
+  constructor(user: UserEntity | null, database: any) {
     this.user = user;
     this.database = database;
   }

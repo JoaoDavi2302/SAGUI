@@ -6,12 +6,12 @@ import {
   StudentDiscipline,
 } from "./Roles";
 
-import { Database, LoggedUser, Role, User } from "../shared/types";
+import { Database, LoggedUser, Role } from "../shared/types";
 
 export class DisciplineProvider {
   static create(role: Role, database: Database, user: LoggedUser): Discipline {
     switch (role) {
-      case "ADMIN":
+      case "ADMINISTRADOR":
         return new AdminDiscipline(database, user);
 
       case "PROFESSOR":

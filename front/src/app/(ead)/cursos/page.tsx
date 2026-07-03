@@ -56,7 +56,7 @@ export default function CoursesPage() {
 
   // link
   const handleOpen = (course: CourseCard) => {
-    const slug = slugify(course.name);
+    const slug = slugify(course.nome);
 
     router.push(`/cursos/${slug}?id=${course.id}`);
   };
@@ -94,7 +94,7 @@ export default function CoursesPage() {
         {effectiveRole === "ALUNO" && "Seus cursos matriculados e disponíveis"}
         {effectiveRole === "PROFESSOR" &&
           "Cursos onde você leciona disciplinas"}
-        {effectiveRole === "ADMIN" && "Todos os cursos do sistema"}
+        {effectiveRole === "ADMINISTRADOR" && "Todos os cursos do sistema"}
       </Typography>
 
       {/* TABS ALUNO */}

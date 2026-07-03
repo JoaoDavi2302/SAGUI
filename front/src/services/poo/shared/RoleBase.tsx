@@ -1,15 +1,23 @@
 // helpers
 import {
   ActivityCard,
+  ActivityEntity,
+  AttachmentEntity,
   CourseEntity,
   Database,
+  DisciplineCard,
   DisciplineEntity,
   DisciplineProgress,
+  EnrollmentEntity,
+  LessonCard,
   LessonEntity,
   LoggedUser,
   MaterialCard,
+  ModuleCard,
+  ModuleDetailsCard,
   ModuleEntity,
   ModuleProgressEntity,
+  StudentProgressCard,
   UserEntity,
 } from "./types";
 
@@ -20,414 +28,437 @@ export abstract class RoleBase {
   ) {}
 
   /* acessar tabelas */
+  protected users() {
+    return this.database.usuarios;
+  }
+
   protected courses(): CourseEntity[] {
-    return this.database.courses;
+    return this.database.cursos;
   }
 
   protected disciplines(): DisciplineEntity[] {
-    return this.database.disciplines;
+    return this.database.disciplinas;
   }
 
   protected modules(): ModuleEntity[] {
-    return this.database.modules;
+    return this.database.modulos;
   }
 
   protected lessons(): LessonEntity[] {
-    return this.database.lessons;
+    return this.database.aulas;
   }
 
-  protected enrollments() {
-    return this.database.enrollments;
+  protected activities(): ActivityEntity[] {
+    return this.database.atividades;
   }
 
-  protected users() {
-    return this.database.users;
+  protected attachments(): AttachmentEntity[] {
+    return this.database.anexos;
   }
 
-  protected userRoles() {
-    return this.database.user_roles;
+  protected enrollments(): EnrollmentEntity[] {
+    return this.database.matriculas;
   }
 
   protected moduleProgress(): ModuleProgressEntity[] {
-    return this.database.module_progress ?? [];
+    return this.database.progresso_modulo;
   }
 
+  // não existe ainda
+  // protected attempts() {
+  //   return this.database.tentativas_atividade;
+  // }
+
+  protected questions() {
+    return this.database.questoes;
+  }
+
+  protected alternatives() {
+    return this.database.alternativas;
+  }
+
+  // fim de acesso a tabelas
+
   /* cursos */
-  protected getCourseById(courseId: string): CourseEntity | null {
+  protected getCourseById(courseId: number): CourseEntity | null {
     return this.courses().find((c) => c.id === courseId) ?? null;
   }
 
-  protected getStudentCourseIds(): string[] {
+  protected getStudentCourseIds(): number[] {
     return this.enrollments()
-      .filter((e: any) => e.student_id === this.user.id)
-      .map((e: any) => e.course_id);
+      .filter((e) => e.aluno_id === this.user.id)
+      .map((e) => e.curso_id);
   }
 
-  protected getProfessorCourseIds(): string[] {
+  protected getProfessorCourseIds(): number[] {
     return [
       ...new Set(
         this.disciplines()
           .filter((d) => d.professor_id === this.user.id)
-          .map((d) => d.course_id),
+          .map((d) => d.curso_id),
       ),
     ];
   }
 
-  protected getAllCourseIds(): string[] {
-    return this.database.courses.map((c) => c.id);
+  protected getAllCourseIds(): number[] {
+    return this.courses().map((c) => c.id);
   }
 
-  protected isStudentEnrolled(courseId: string): boolean {
+  protected isStudentEnrolled(courseId: number): boolean {
     return this.getStudentCourseIds().includes(courseId);
   }
+  // fim de cursos
 
   /* disciplinas */
-  protected getDisciplineById(disciplineId: string): DisciplineEntity | null {
+  protected getDisciplineById(disciplineId: number): DisciplineEntity | null {
     return this.disciplines().find((d) => d.id === disciplineId) ?? null;
   }
 
-  protected getDisciplinesByCourse(courseId: string): DisciplineEntity[] {
+  protected getDisciplinesByCourse(courseId: number): DisciplineEntity[] {
     return this.disciplines()
-      .filter((d) => d.course_id === courseId)
-      .sort((a, b) => a.order_index - b.order_index);
+      .filter((d) => d.curso_id === courseId)
+      .sort((a, b) => a.nome.localeCompare(b.nome));
   }
+  // fim de disciplinas
 
+  // professor
   protected getProfessorName(discipline: DisciplineEntity): string {
-    const professor = this.users().find(
-      (u: any) => u.id === discipline.professor_id,
+    return (
+      this.users().find((u) => u.id === discipline.professor_id)?.nome ?? ""
     );
-
-    return professor?.name ?? "";
   }
 
   protected getProfessors(): UserEntity[] {
-    const professorRole = this.database.roles.find(
-      (r) => r.name === "PROFESSOR",
-    );
-
-    if (!professorRole) return [];
-
-    const professorIds = this.database.user_roles
-      .filter((ur) => ur.role_id === professorRole.id)
-      .map((ur) => ur.user_id);
-
-    return this.database.users.filter((u) => professorIds.includes(u.id));
+    return this.users().filter((user) => user.perfil === "PROFESSOR");
   }
+  // fim professor
 
   /* modulos */
-  protected getModulesByDiscipline(disciplineId: string): ModuleEntity[] {
+  protected getModulesByDiscipline(disciplineId: number): ModuleEntity[] {
     return this.modules()
-      .filter((m) => m.discipline_id === disciplineId)
-      .sort((a, b) => a.order_index - b.order_index);
+      .filter((m) => m.disciplina_id === disciplineId)
+      .sort((a, b) => a.ordem - b.ordem);
   }
 
-  protected getModuleById(moduleId: string): ModuleEntity | null {
+  protected getModuleById(moduleId: number): ModuleEntity | null {
     return this.modules().find((m) => m.id === moduleId) ?? null;
   }
+  // fim modulo
 
   /* aulas */
-  protected getLessonsByModule(moduleId: string): LessonEntity[] {
+  protected getLessonsByModule(moduleId: number): LessonEntity[] {
     return this.lessons()
-      .filter((l) => l.module_id === moduleId)
-      .sort((a, b) => a.order_index - b.order_index);
+      .filter((l) => l.modulo_id === moduleId)
+      .sort((a, b) => a.ordem - b.ordem);
   }
 
-  protected getLessonsCount(moduleId: string): number {
+  protected getLessonsCount(moduleId: number): number {
     return this.getLessonsByModule(moduleId).length;
   }
 
   /* progresso de modulo */
-  protected isModuleCompleted(moduleId: string): boolean {
+  protected isModuleCompleted(moduleId: number): boolean {
     return this.moduleProgress().some(
       (p) =>
-        p.student_id === this.user.id &&
-        p.module_id === moduleId &&
-        p.status === "COMPLETED",
+        p.aluno_id === this.user.id && p.modulo_id === moduleId && p.concluido,
     );
   }
 
   /* progresso de disciplina */
-  protected getDisciplineProgress(disciplineId: string): DisciplineProgress {
+  protected getDisciplineProgress(disciplineId: number): DisciplineProgress {
     const modules = this.getModulesByDiscipline(disciplineId);
 
-    if (modules.length === 0) {
-      return {
-        completedModules: 0,
-        totalModules: 0,
-        percentage: 0,
-      };
-    }
-
-    const completedModules = modules.filter((m) =>
+    const completed = modules.filter((m) =>
       this.isModuleCompleted(m.id),
     ).length;
 
     return {
-      completedModules,
+      completedModules: completed,
       totalModules: modules.length,
-      percentage: Math.round((completedModules / modules.length) * 100),
-    };
-  }
-
-  /* card de aulas */
-  protected buildLessonCard(lesson: LessonEntity) {
-    const completed = this.isLessonDone(this.user.id, lesson.id);
-
-    return {
-      ...lesson,
-      completed,
-    };
-  }
-
-  /* card de modulo */
-  protected buildModuleCard(module: ModuleEntity) {
-    const lessons = this.getLessonsByModule(module.id);
-
-    const completedLessons = lessons.filter(
-      (l) => this.buildLessonCard(l).completed,
-    ).length;
-
-    const totalLessons = lessons.length;
-
-    return {
-      ...module,
-
-      lessons: lessons.map((l) => this.buildLessonCard(l)),
-
-      lessonsCount: totalLessons,
-
-      completedLessons,
-
-      percentage: totalLessons
-        ? Math.round((completedLessons / totalLessons) * 100)
+      percentage: modules.length
+        ? Math.round((completed * 100) / modules.length)
         : 0,
     };
   }
 
-  /* progresso do aluno em disciplina */
-  protected buildStudentProgress(studentId: string, lessons: LessonEntity[]) {
-    const completed = lessons.filter((l) =>
-      this.isLessonDone(studentId, l.id),
+  // CONTINUA
+
+  protected isLessonDone(studentId: number, lessonId: number): boolean {
+    const lesson = this.lessons().find((lesson) => lesson.id === lessonId);
+
+    if (!lesson) {
+      return false;
+    }
+
+    return this.moduleProgress().some(
+      (progress) =>
+        progress.aluno_id === studentId &&
+        progress.modulo_id === lesson.modulo_id &&
+        progress.concluido,
+    );
+  }
+
+  /* card de aulas */
+  protected buildLessonCard(lesson: LessonEntity): LessonCard {
+    return {
+      ...lesson,
+      completed: this.isLessonDone(this.user.id, lesson.id),
+    };
+  }
+
+  /* card de modulo */
+  protected buildModuleCard(module: ModuleEntity): ModuleCard {
+    const lessons = this.getLessonsByModule(module.id);
+
+    const lessonCards = lessons.map((lesson) => this.buildLessonCard(lesson));
+
+    const completedLessons = lessonCards.filter(
+      (lesson) => lesson.completed,
     ).length;
 
-    const total = lessons.length;
+    return {
+      ...module,
 
-    const attempts =
-      this.database.quiz_attempts?.filter((q) => q.student_id === studentId) ??
-      [];
+      lessons: lessonCards,
 
-    const avg =
-      attempts.length > 0
-        ? attempts.reduce((a, b) => a + (b.score ?? 0), 0) / attempts.length
-        : 0;
+      lessonsCount: lessons.length,
+
+      completedLessons,
+
+      percentage:
+        lessons.length === 0
+          ? 0
+          : Math.round((completedLessons * 100) / lessons.length),
+    };
+  }
+
+  /* progresso do aluno em disciplina */
+  // tentativas_atividade
+  protected buildStudentProgress(
+    studentId: number,
+    lessons: LessonEntity[],
+  ): StudentProgressCard {
+    const completed = lessons.filter((lesson) =>
+      this.isLessonDone(studentId, lesson.id),
+    ).length;
+
+    // ESPERAR CRIAR
+    // const attempts = this.attempts().filter(
+    //   (attempt) => attempt.aluno_id === studentId,
+    // );
+
+    // const average =
+    //   attempts.length === 0
+    //     ? 0
+    //     : attempts.reduce((sum, attempt) => sum + attempt.nota, 0) /
+    //       attempts.length;
 
     return {
       id: studentId,
-      name: this.users().find((u) => u.id === studentId)?.name ?? "",
+
+      name: this.users().find((user) => user.id === studentId)?.nome ?? "",
 
       completedLessons: completed,
-      totalLessons: total,
 
-      percentage: total ? Math.round((completed / total) * 100) : 0,
+      totalLessons: lessons.length,
 
-      average: Number(avg.toFixed(1)), //fix number
+      percentage:
+        lessons.length === 0
+          ? 0
+          : Math.round((completed * 100) / lessons.length),
+
+      // average: Number(average.toFixed(1)),
     };
   }
 
   /* card de pagina de disciplina */
-  protected buildDisciplineCard(discipline: DisciplineEntity) {
+  protected buildDisciplineCard(discipline: DisciplineEntity): DisciplineCard {
     const modules = this.getModulesByDiscipline(discipline.id);
 
     return {
       ...discipline,
 
       professorName: this.getProfessorName(discipline),
-      modules: modules.map((m) => this.buildModuleCard(m)),
+
+      modules: modules.map((module) => this.buildModuleCard(module)),
+
       progress: this.getDisciplineProgress(discipline.id),
-      courseName: this.getCourseById(discipline.course_id)?.name ?? "",
+
+      courseName: this.getCourseById(discipline.curso_id)?.nome ?? "",
     };
   }
 
-  protected buildMaterialCard(material: any, disciplineId: string) {
+  // antigo buildMaterialCard
+  protected buildAttachmentCard(
+    attachment: AttachmentEntity,
+    disciplineId: number,
+  ): MaterialCard {
     const discipline = this.getDisciplineById(disciplineId);
-    const course = discipline ? this.getCourseById(discipline.course_id) : null;
+
+    const course = discipline ? this.getCourseById(discipline.curso_id) : null;
+
+    const lesson =
+      attachment.aula_id != null
+        ? this.lessons().find((lesson) => lesson.id === attachment.aula_id)
+        : null;
+
+    const module = lesson ? this.getModuleById(lesson.modulo_id) : null;
 
     return {
-      ...material,
+      ...attachment,
 
-      courseId: course?.id ?? "",
-      courseName: course?.name ?? "",
+      courseId: course?.id ?? 0,
+      courseName: course?.nome ?? "",
 
-      disciplineId: discipline?.id ?? "",
-      disciplineName: discipline?.name ?? "",
+      disciplineId: discipline?.id ?? 0,
+      disciplineName: discipline?.nome ?? "",
 
-      moduleId: material.module_id ?? "",
-      moduleName: this.getModuleById(material.module_id)?.name ?? "",
+      moduleId: module?.id ?? 0,
+      moduleName: module?.nome ?? "",
+
+      lessonId: lesson?.id ?? 0,
+      lessonName: lesson?.titulo ?? "",
     };
   }
 
-  protected buildActivityCard(quiz: any) {
-    const module = this.getModuleById(quiz.module_id);
+  protected buildActivityCard(activity: ActivityEntity): ActivityCard {
+    const module = this.getModuleById(activity.modulo_id);
+
     const discipline = module
-      ? this.getDisciplineById(module.discipline_id)
+      ? this.getDisciplineById(module.disciplina_id)
       : null;
-    const course = discipline ? this.getCourseById(discipline.course_id) : null;
+
+    const course = discipline ? this.getCourseById(discipline.curso_id) : null;
 
     return {
-      ...quiz,
+      ...activity,
 
-      courseId: course?.id ?? "",
-      courseName: course?.name ?? "",
+      courseId: course?.id ?? 0,
+      courseName: course?.nome ?? "",
 
-      disciplineId: discipline?.id ?? "",
-      disciplineName: discipline?.name ?? "",
+      disciplineId: discipline?.id ?? 0,
+      disciplineName: discipline?.nome ?? "",
 
-      moduleId: module?.id ?? "",
-      moduleName: module?.name ?? "",
+      moduleId: module?.id ?? 0,
+      moduleName: module?.nome ?? "",
 
-      questionCount:
-        this.database.questions?.filter((q: any) => q.quiz_id === quiz.id)
-          .length ?? 0,
+      questionCount: this.questions().filter(
+        (question) => question.atividade_id === activity.id,
+      ).length,
     };
   }
+
+  // AQUI --------------------------------
 
   //disciplina id
-  protected getStudentsByDiscipline(disciplineId: string) {
+  protected getStudentsByDiscipline(disciplineId: number): UserEntity[] {
     const discipline = this.getDisciplineById(disciplineId);
-    if (!discipline) return [];
 
-    const enrollments = this.enrollments().filter(
-      (e) => e.course_id === discipline.course_id,
-    );
+    if (!discipline) {
+      return [];
+    }
 
-    const ids = [...new Set(enrollments.map((e) => e.student_id))];
+    const studentIds = [
+      ...new Set(
+        this.enrollments()
+          .filter((enrollment) => enrollment.curso_id === discipline.curso_id)
+          .map((enrollment) => enrollment.aluno_id),
+      ),
+    ];
 
-    return this.users().filter((u) => ids.includes(u.id));
+    return this.users().filter((user) => studentIds.includes(user.id));
   }
 
-  protected isLessonDone(studentId: string, lessonId: string) {
-    return (this.database.lesson_progress ?? []).some(
-      (p) =>
-        p.student_id === studentId &&
-        p.lesson_id === lessonId &&
-        p.completed === true,
-    );
-  }
-
-  protected buildModuleDetails(moduleId: string) {
+  protected buildModuleDetails(moduleId: number): ModuleDetailsCard | null {
     const module = this.getModuleById(moduleId);
-    if (!module) return null;
 
-    const lessons = this.getLessonsByModule(moduleId).map((l) => ({
-      ...l,
+    if (!module) {
+      return null;
+    }
+
+    const lessons = this.getLessonsByModule(moduleId).map((lesson) => ({
+      ...lesson,
       completed: false,
     }));
 
-    const completed = lessons.filter((l) => l.completed).length;
-
     return {
       ...module,
+
       lessons,
-      progress: lessons.length
-        ? Math.round((completed / lessons.length) * 100)
-        : 0,
+
+      progress: 0,
     };
   }
 
-  protected buildModuleDetailsSafe(moduleId: string) {
+  protected buildModuleDetailsSafe(moduleId: number): ModuleDetailsCard | null {
     const module = this.getModuleById(moduleId);
-    if (!module) return null;
 
-    const lessons = this.getLessonsByModule(moduleId).map((l) => ({
-      ...l,
-      completed: this.isLessonDone(this.user.id, l.id),
+    if (!module) {
+      return null;
+    }
+
+    const lessons = this.getLessonsByModule(moduleId).map((lesson) => ({
+      ...lesson,
+      completed: this.isLessonDone(this.user.id, lesson.id),
     }));
 
-    const completed = lessons.filter((l) => l.completed).length;
+    const completed = lessons.filter((lesson) => lesson.completed).length;
 
     return {
       ...module,
+
       lessons,
-      progress: lessons.length
-        ? Math.round((completed / lessons.length) * 100)
-        : 0,
+
+      progress:
+        lessons.length === 0
+          ? 0
+          : Math.round((completed * 100) / lessons.length),
     };
   }
 
   // para admin
-  protected getAllStudents(): any[] {
-    const studentRoleId = this.database.roles.find(
-      (r) => r.name === "ALUNO",
-    )?.id;
-
-    if (!studentRoleId) return [];
-
-    const studentIds = this.userRoles()
-      .filter((ur) => ur.role_id === studentRoleId)
-      .map((ur) => ur.user_id);
-
-    return this.users().filter((u) => studentIds.includes(u.id));
+  protected getAllStudents(): UserEntity[] {
+    return this.users().filter((user) => user.perfil === "ALUNO");
   }
 
-  protected getMaterialsByDiscipline(disciplineId: string): MaterialCard[] {
+  // não usado
+  // protected getMaterialsByDiscipline(disciplineId: string): MaterialCard[] {
+  //   const modules = this.getModulesByDiscipline(disciplineId);
+
+  //   return (this.database.materials ?? [])
+  //     .filter((m: any) => modules.some((mod) => mod.id === m.module_id))
+  //     .map((m: any) => {
+  //       const module = this.getModuleById(m.module_id);
+  //       const discipline = module
+  //         ? this.getDisciplineById(module.discipline_id)
+  //         : null;
+  //       const course = discipline
+  //         ? this.getCourseById(discipline.course_id)
+  //         : null;
+
+  //       return {
+  //         ...m,
+
+  //         courseId: course?.id ?? "",
+  //         courseName: course?.name ?? "",
+
+  //         disciplineId: discipline?.id ?? "",
+  //         disciplineName: discipline?.name ?? "",
+
+  //         moduleId: module?.id ?? "",
+  //         moduleName: module?.name ?? "",
+  //       };
+  //     });
+  // }
+
+  // antigo getQuizzesByDiscipline
+  protected getActivitiesByDiscipline(disciplineId: number): ActivityCard[] {
     const modules = this.getModulesByDiscipline(disciplineId);
 
-    return (this.database.materials ?? [])
-      .filter((m: any) => modules.some((mod) => mod.id === m.module_id))
-      .map((m: any) => {
-        const module = this.getModuleById(m.module_id);
-        const discipline = module
-          ? this.getDisciplineById(module.discipline_id)
-          : null;
-        const course = discipline
-          ? this.getCourseById(discipline.course_id)
-          : null;
-
-        return {
-          ...m,
-
-          courseId: course?.id ?? "",
-          courseName: course?.name ?? "",
-
-          disciplineId: discipline?.id ?? "",
-          disciplineName: discipline?.name ?? "",
-
-          moduleId: module?.id ?? "",
-          moduleName: module?.name ?? "",
-        };
-      });
-  }
-
-  protected getQuizzesByDiscipline(disciplineId: string): ActivityCard[] {
-    const modules = this.getModulesByDiscipline(disciplineId);
-
-    return (this.database.quizzes ?? [])
-      .filter((q: any) => modules.some((m) => m.id === q.module_id))
-      .map((q: any) => {
-        const module = this.getModuleById(q.module_id);
-        const discipline = module
-          ? this.getDisciplineById(module.discipline_id)
-          : null;
-        const course = discipline
-          ? this.getCourseById(discipline.course_id)
-          : null;
-
-        return {
-          ...q,
-
-          courseId: course?.id ?? "",
-          courseName: course?.name ?? "",
-
-          disciplineId: discipline?.id ?? "",
-          disciplineName: discipline?.name ?? "",
-
-          moduleId: module?.id ?? "",
-          moduleName: module?.name ?? "",
-
-          questionCount:
-            this.database.questions?.filter((x: any) => x.quiz_id === q.id)
-              .length ?? 0,
-        };
-      });
+    return this.activities()
+      .filter((activity) =>
+        modules.some((module) => module.id === activity.modulo_id),
+      )
+      .map((activity) => this.buildActivityCard(activity));
   }
 }
