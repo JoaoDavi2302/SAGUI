@@ -110,8 +110,8 @@ export abstract class RoleBase {
   // fim de cursos
 
   /* disciplinas */
-  protected getDisciplineById(disciplineId: number): DisciplineEntity | null {
-    return this.disciplines().find((d) => d.id === disciplineId) ?? null;
+  protected getDisciplineById(id: number) {
+    return this.database.disciplinas.find((d) => d.id === id) ?? null;
   }
 
   protected getDisciplinesByCourse(courseId: number): DisciplineEntity[] {

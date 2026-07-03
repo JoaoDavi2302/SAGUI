@@ -84,16 +84,16 @@ export class StudentMaterial extends Material {
 /* professor */
 export class ProfessorMaterial extends Material {
   listMaterials(): MaterialCard[] {
-    return this.database.materials
-      .map((material: any) => buildMaterialCard(this.database, material))
-      .filter(
-        (material): material is MaterialCard =>
-          material !== null &&
-          this.database.disciplines.some(
-            (d: any) =>
-              d.id === material.disciplineId && d.professor_id === this.user.id,
-          ),
-      );
+    // return this.database.materials
+    //   .map((material: any) => buildMaterialCard(this.database, material))
+    //   .filter(
+    //     (material): material is MaterialCard =>
+    //       material !== null &&
+    //       this.database.disciplinas.some(
+    //         (d: any) =>
+    //           d.id === material.disciplineId && d.professor_id === this.user.id,
+    //       ),
+    //   );
   }
 
   getMaterial(id: string) {
@@ -104,7 +104,7 @@ export class ProfessorMaterial extends Material {
 
     if (!material) return null;
 
-    const allowed = this.database.disciplines.some(
+    const allowed = this.database.disciplinas.some(
       (d: any) =>
         d.id === material.disciplineId && d.professor_id === this.user.id,
     );

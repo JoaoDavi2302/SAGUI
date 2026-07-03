@@ -36,11 +36,12 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
         label: "Disciplinas",
         href: "/disciplinas",
       },
-      {
-        icon: <Inventory2Outlined />,
-        label: "Materiais",
-        href: "/materiais",
-      },
+      // desabilitado enquanto não há dados
+      // {
+      //   icon: <Inventory2Outlined />,
+      //   label: "Materiais",
+      //   href: "/materiais",
+      // },
       {
         icon: <AssignmentOutlined />,
         label: "Avaliações",

@@ -207,21 +207,19 @@ export interface CourseCard extends CourseEntity {
   disciplinesCount?: number;
 }
 
-// // ver se usado
-// export interface ModuleActivityCard {
-//   moduleId: string;
-//   moduleName: string;
+export interface ModuleActivityCard {
+  moduleId: number;
+  moduleName: string;
 
-//   disciplineId: string;
-//   disciplineName: string;
+  disciplineId: number;
+  disciplineName: string;
 
-//   courseId: string;
-//   courseName: string;
+  courseId: number;
+  courseName: string;
 
-//   quizzes: ActivityCard[];
-// }
+  quizzes: ActivityCard[];
+}
 
-// // corrigir
 export interface ActivityCard extends ActivityEntity {
   courseId: number;
   courseName: string;

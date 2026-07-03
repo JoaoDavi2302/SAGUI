@@ -3,7 +3,7 @@ import { RoleBase } from "../shared/RoleBase";
 import {
   ActivityCard,
   ModuleActivityCard,
-  QuizEntity,
+  ActivityEntity,
   Database,
   LoggedUser,
 } from "../shared/types";
@@ -18,12 +18,12 @@ export abstract class Activity extends RoleBase {
 
   abstract listModules(): ModuleActivityCard[];
 
-  abstract listActivities(moduleId: string): ActivityCard[];
+  abstract listActivities(moduleId: number): ActivityCard[];
 
-  abstract getActivity(id: string): QuizEntity | null;
+  abstract getActivity(id: number): ActivityEntity | null;
 
   abstract updateActivity(
-    id: string,
-    data: Partial<QuizEntity>,
-  ): QuizEntity | null;
+    id: number,
+    data: Partial<ActivityEntity>,
+  ): ActivityEntity | null;
 }

@@ -142,9 +142,14 @@ export class ProfessorDiscipline extends Discipline {
   getDiscipline(id: number): DisciplineEntity | null {
     const discipline = this.getDisciplineById(id);
 
+    console.log("user", this.user.id);
+    console.log("disciplina", discipline);
+
     if (!discipline) {
       return null;
     }
+
+    console.log("professor da disciplina", discipline.professor_id);
 
     return discipline.professor_id === this.user.id ? discipline : null;
   }
@@ -189,7 +194,13 @@ export class ProfessorDiscipline extends Discipline {
   }
 
   getDetails(id: number): DisciplineDetailsPage {
-    const discipline = this.buildDisciplineCard(this.getDisciplineById(id)!);
+    const entity = this.getDiscipline(id);
+
+    if (!entity) {
+      throw new Error(`Disciplina ${id} não encontrada.`);
+    }
+
+    const discipline = this.buildDisciplineCard(entity);
 
     const modules = this.getModulesByDiscipline(id)
       .map((m) => this.buildModuleDetailsSafe(m.id))

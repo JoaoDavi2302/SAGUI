@@ -96,3 +96,10 @@ Exemplo:
 [] dashboard aulas
 [] dashboard editar/adicionar aulas
 
+cursos ok
+homepage ok
+disciplinas ok
+acessar aula ok
+atividades ok (melhorar detalhes da atividade)
+materiais pendente informações do backend (corrigir poo quando houver)
+

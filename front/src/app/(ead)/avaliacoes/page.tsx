@@ -58,8 +58,10 @@ export default function MateriaisPage() {
 
   const [search, setSearch] = useState("");
   const handleOpen = (module: ModuleActivityCard) => {
+    if (!module?.moduleId) return;
+
     router.push(
-      `/atividades/${slugify(module.moduleName)}?id=${module.moduleId}`,
+      `/avaliacoes/${slugify(module.moduleName)}?id=${module.moduleId}`,
     );
   };
   // chip
@@ -72,7 +74,11 @@ export default function MateriaisPage() {
   }, [user, effectiveRole]);
 
   const filtered = data.filter((m) => {
-    const text = [m.moduleName, m.disciplineName, m.courseName]
+    const text = [
+      m.moduleName ?? "",
+      m.disciplineName ?? "",
+      m.courseName ?? "",
+    ]
       .join(" ")
       .toLowerCase();
 
@@ -240,7 +246,7 @@ export default function MateriaisPage() {
                           {module.moduleName}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          {module.quizzes.length} atividade
+                          {module.quizzes.length ?? 0} atividade
                           {module.quizzes.length > 1 ? "s" : ""}
                         </Typography>
                         <Stack

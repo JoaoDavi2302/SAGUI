@@ -11,7 +11,7 @@ function getProfessorName(db: any, discipline: any) {
 }
 
 function getCourseDisciplines(db: any, courseId: number) {
-  return db.disciplines.filter((d: any) => d.course_id === courseId);
+  return db.disciplinas.filter((d: any) => d.curso_id === courseId);
 }
 
 /* aluno */
@@ -52,7 +52,7 @@ export class ProfessorCourse extends Course {
   }
   getCourse(id: number) {
     const hasAccess = this.database.disciplinas.some(
-      (d: any) => d.course_id === id && d.professor_id === this.user.id,
+      (d: any) => d.curso_id === id && d.professor_id === this.user.id,
     );
 
     if (!hasAccess) return null;
@@ -62,7 +62,7 @@ export class ProfessorCourse extends Course {
 
   getDisciplines(courseId: number) {
     return this.database.disciplinas.filter(
-      (d: any) => d.course_id === courseId && d.professor_id === this.user.id,
+      (d: any) => d.curso_id === courseId && d.professor_id === this.user.id,
     );
   }
 }
@@ -84,7 +84,7 @@ export class AdminCourse extends Course {
 
   getDisciplines(courseId: number) {
     return this.database.disciplinas.filter(
-      (d: any) => d.course_id === courseId,
+      (d: any) => d.curso_id === courseId,
     );
   }
 }

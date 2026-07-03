@@ -130,13 +130,13 @@ export default function CoursesPage() {
                     mb: 1,
                   }}
                 >
-                  <Typography sx={{ fontWeight: 700 }}>{c.name}</Typography>
+                  <Typography sx={{ fontWeight: 700 }}>{c.nome}</Typography>
 
                   <Chip size="small" label={getLabel(c)} color={getColor(c)} />
                 </Box>
 
                 <Typography variant="body2" color="text.secondary">
-                  Área: {c.area}
+                 {c.descricao}
                 </Typography>
 
                 <Typography variant="body2" color="text.secondary">

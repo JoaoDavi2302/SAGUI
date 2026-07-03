@@ -51,7 +51,7 @@ export default function DisciplinasPage() {
 
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({});
 
-  const toggle = (id: string) => {
+  const toggle = (id: number) => {
     setOpenMap((prev) => ({
       ...prev,
       [id]: !prev[id],
@@ -78,15 +78,15 @@ export default function DisciplinasPage() {
   }, [provider]);
 
   const openDiscipline = (discipline: DisciplineCard) => {
-    const slug = slugify(discipline.name);
+    const slug = slugify(discipline.nome);
 
     router.push(`/disciplinas/${slug}?id=${discipline.id}`);
   };
 
-  const openModule = (moduleId: string) => {
+  const openModule = (moduleId: number) => {
     const firstLesson = data.lessons
-      .filter((lesson) => lesson.module_id === moduleId)
-      .sort((a, b) => a.order_index - b.order_index)[0];
+      .filter((lesson) => lesson.modulo_id === moduleId)
+      .sort((a, b) => a.ordem - b.ordem)[0];
 
     if (!firstLesson) return;
 
@@ -124,7 +124,7 @@ export default function DisciplinasPage() {
                   color: "gray",
                 }}
               >
-                {group.course.name}
+                {group.course.nome}
               </Typography>
 
               <Divider sx={{ my: 2 }} />
@@ -194,10 +194,10 @@ export default function DisciplinasPage() {
                                 fontWeight: "bold",
                               }}
                             >
-                              {subject.name}
+                              {subject.nome}
                             </Typography>
 
-                            <Box
+                            {/* <Box
                               sx={{
                                 display: "flex",
                                 gap: 1,
@@ -209,7 +209,7 @@ export default function DisciplinasPage() {
                               <Typography variant="caption">
                                 {subject.workload}h
                               </Typography>
-                            </Box>
+                            </Box> */}
                           </Box>
                         </Box>
 
@@ -224,7 +224,7 @@ export default function DisciplinasPage() {
                             overflow: "hidden",
                           }}
                         >
-                          {subject.description}
+                          {subject.descricao}
                         </Typography>
                       </Box>
 
@@ -308,14 +308,14 @@ export default function DisciplinasPage() {
                                 subject.progress.completedModules > 0
                                   ? data.moduleProgress.some(
                                       (p) =>
-                                        p.student_id === user?.id &&
-                                        p.module_id === module.id &&
-                                        p.status === "COMPLETED",
+                                        p.aluno_id === user?.id &&
+                                        p.modulo_id === module.id &&
+                                        p.concluido === true,
                                     )
                                   : false;
 
                               const lessonsCount = data.lessons.filter(
-                                (lesson) => lesson.module_id === module.id,
+                                (lesson) => lesson.modulo_id === module.id,
                               ).length;
 
                               return (
@@ -351,7 +351,7 @@ export default function DisciplinasPage() {
                                   )}
 
                                   <Typography variant="body2">
-                                    {module.name}
+                                    {module.nome}
                                   </Typography>
 
                                   <Typography

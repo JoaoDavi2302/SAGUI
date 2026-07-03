@@ -34,8 +34,9 @@ import { useMemo, useState } from "react";
 import { useUser } from "@/services/auth/AuthContext";
 
 import { DisciplineProvider } from "@/services/poo/discipline/disciplineProvider";
-import database from "@/components/mock.json";
+import { DatabaseProvider } from "@/services/poo/databaseProvider";
 
+const database = DatabaseProvider.getDatabase();
 const Stat = ({ icon: Icon, label, value }: any) => (
   <Box
     sx={{
@@ -67,7 +68,7 @@ const slugify = (text: string) =>
 
 export default function DisciplineDetailsPage() {
   const searchParams = useSearchParams();
-  const disciplineId = searchParams.get("id");
+  const disciplineId = Number(searchParams.get("id"));
 
   const router = useRouter();
   const { user, effectiveRole } = useUser();
@@ -96,14 +97,14 @@ export default function DisciplineDetailsPage() {
   };
 
   const openDiscipline = (subject: any) => {
-    const slug = slugify(subject.name);
+    const slug = slugify(subject.nome);
     router.push(`/disciplinas/${slug}?id=${subject.id}`);
   };
 
-  const openModule = (moduleId: string) => {
+  const openModule = (moduleId: number) => {
     const firstLesson = modules
-      .flatMap((m: any) => m.lessons ?? [])
-      .find((l: any) => l.module_id === moduleId);
+      .flatMap((m) => m.lessons ?? [])
+      .find((l) => l.modulo_id === moduleId);
 
     if (!firstLesson) return;
     router.push(`/aulas/${firstLesson.id}`);
@@ -131,10 +132,10 @@ export default function DisciplineDetailsPage() {
 
             <Box>
               <Typography sx={{ fontSize: 20, fontWeight: 700 }}>
-                {discipline.name}
+                {discipline.nome}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {discipline.description}
+                {discipline.descricao}
               </Typography>
             </Box>
           </Box>
@@ -206,11 +207,11 @@ export default function DisciplineDetailsPage() {
                     <Box
                       sx={{ display: "flex", justifyContent: "space-between" }}
                     >
-                      <Typography sx={{ fontWeight: 600 }}>{m.name}</Typography>
+                      <Typography sx={{ fontWeight: 600 }}>{m.nome}</Typography>
 
-                      {isStudent && (
+                      {/* {isStudent && (
                         <Chip size="small" label={`${m.progress}%`} />
-                      )}
+                      )} */}
                     </Box>
 
                     {isStudent && (
@@ -226,7 +227,7 @@ export default function DisciplineDetailsPage() {
                         variant="body2"
                         sx={{ color: "text.secondary" }}
                       >
-                        {m.description}
+                        {m.descricao}
                       </Typography>
                     )}
                   </Box>
@@ -262,7 +263,7 @@ export default function DisciplineDetailsPage() {
                           <PlayCircle sx={{ fontSize: 18, color: "#1976d2" }} />
                         )}
 
-                        <Typography sx={{ fontSize: 14 }}>{l.name}</Typography>
+                        <Typography sx={{ fontSize: 14 }}>{l.titulo}</Typography>
                       </Box>
                     );
                   })}
