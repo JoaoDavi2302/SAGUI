@@ -21,8 +21,8 @@ export default function GerenciarDisciplinasPage() {
 
   const provider = useMemo(() => {
     if (!user) return null;
-    return DisciplineProvider.create(effectiveRole, database, user);
-  }, [effectiveRole, user]);
+    return DisciplineProvider.create("ADMINISTRADOR", database, user);
+  }, [user]);
 
   const data = useMemo(() => {
     if (!provider) return { grouped: [] };
@@ -31,7 +31,7 @@ export default function GerenciarDisciplinasPage() {
 
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [openModalView, setOpenModalView] = useState(false);
-  const [selectedId, setSelectedId] = useState<string>();
+  const [selectedId, setSelectedId] = useState<number>();
 
   const rows = useMemo(() => {
     return data.grouped.flatMap((g) =>
@@ -43,7 +43,7 @@ export default function GerenciarDisciplinasPage() {
   }, [data.grouped]);
 
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Disciplina", flex: 1 },
+    { field: "nome", headerName: "Disciplina", flex: 1 },
     {
       field: "workload",
       headerName: "Carga horária",
@@ -69,10 +69,13 @@ export default function GerenciarDisciplinasPage() {
       sortable: false,
       renderCell: (params) => (
         <Box sx={{ display: "flex", gap: 1 }}>
-          <IconButton size="small" onClick={() => {
+          <IconButton
+            size="small"
+            onClick={() => {
               setSelectedId(params.row.id);
               setOpenModalView(true);
-            }}>
+            }}
+          >
             <Visibility fontSize="small" />
           </IconButton>
 
@@ -162,7 +165,8 @@ export default function GerenciarDisciplinasPage() {
       <DisciplineViewModal
         open={openModalView}
         disciplineId={selectedId}
-        onClose={() => {setOpenModalView(false);
+        onClose={() => {
+          setOpenModalView(false);
         }}
       />
     </Box>

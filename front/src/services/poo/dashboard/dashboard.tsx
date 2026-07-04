@@ -1,6 +1,5 @@
 import { Course } from "../course/Course";
-import { UserEntity } from "../shared/types"; // Importe a interface User correta
-import { Discipline, Lesson, Module, StudentPerformance } from "./types/database"; // Ajuste conforme seu arquivo de tipos
+import { CourseEntity, DisciplineEntity, LessonEntity, ModuleEntity, UserEntity } from "../shared/types"; // Importe a interface User correta
 
 // Adicione uma interface para os dados estatísticos se necessário
 export interface StatCard {
@@ -9,13 +8,20 @@ export interface StatCard {
   value: number | string;
 }
 
+export interface StudentPerformance {
+  student_id: string;
+  discipline_id: string;
+  progress_percent: number;
+  grade: number;
+}
+
 // Para dashboard e (ead)
 export interface DashboardData {
   stats: StatCard[];
-  courses: Course[];
-  subjects: Discipline[];
-  modules: Module[];
-  lessons?: Lesson[];
+  courses: CourseEntity[];
+  subjects: DisciplineEntity[];
+  modules: ModuleEntity[];
+  lessons?: LessonEntity[];
   module_progress?: any[];
   progressPercent?: number;
   completedModules?: number;

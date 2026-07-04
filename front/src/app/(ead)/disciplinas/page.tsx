@@ -128,6 +128,10 @@ export default function DisciplinasPage() {
               </Typography>
 
               <Divider sx={{ my: 2 }} />
+
+              <Typography>
+                {group.course.descricao}
+              </Typography>
             </>
           )}
 
