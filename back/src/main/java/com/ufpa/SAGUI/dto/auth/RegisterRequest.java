@@ -1,7 +1,10 @@
 package com.ufpa.SAGUI.dto.auth;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 
 public record RegisterRequest(
@@ -15,5 +18,12 @@ public record RegisterRequest(
     String email,
 
     @NotBlank(message = "Senha é Obrigatória")
-    String password        
+    @Size(min = 6, message = "Senha deve ter mais de 6 caracteres")
+    String password,
+
+    @Past(message = "Data de nascimento inválida")
+    LocalDate birthDate,
+
+    @Size(max = 300, message = "Endereço deve ter no máximo 300 caracteres")
+    String address
 ) {}

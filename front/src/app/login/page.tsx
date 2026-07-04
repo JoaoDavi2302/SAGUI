@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "../../services/auth/AuthContext";
-
-// USO DO UI/BUTTON
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
+import { getPostLoginPath } from "../../services/auth/types";
+import { NetworkError } from "../../services/api/client";
+import { Button } from "../../components/ui/Button";
 
 import {
   Box,
@@ -22,11 +22,6 @@ import {
 } from "@mui/material";
 
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
-import { Inter } from "next/font/google";
-
-const inter = Inter({
-  subsets: ["latin"],
-});
 
 export default function LoginPage() {
   const { login } = useUser();
@@ -45,17 +40,20 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const success = await login(email, password);
+      const role = await login(email, password);
 
-      if (!success) {
+      if (!role) {
         setError("Email ou senha inválidos");
         return;
       }
 
-      // teste de login, redirecionando
-      console.log("LOGIN SUCCESS");
-
-      router.replace("/");
+      router.replace(getPostLoginPath(role));
+    } catch (err) {
+      if (err instanceof NetworkError) {
+        setError(err.message);
+        return;
+      }
+      setError("Ocorreu um erro inesperado. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -106,8 +104,6 @@ export default function LoginPage() {
         }}
       >
         <CardContent>
-          {/* HEADER */}
-          {/* FORM */}
           <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
             <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
               Email
@@ -120,6 +116,7 @@ export default function LoginPage() {
               size="small"
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
+              required
               sx={{ mt: 0.5 }}
             />
 
@@ -134,6 +131,7 @@ export default function LoginPage() {
               size="small"
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
+              required
               slotProps={{
                 input: {
                   endAdornment:
@@ -181,43 +179,19 @@ export default function LoginPage() {
               )}
             </Button>
 
-            {/* extra UX */}
-            <Stack
+            <Typography
               sx={{
-                direction: "row",
-                justifyContent: "space-between",
                 mt: 2,
+                textAlign: "center",
+                fontSize: 14,
+                color: "#556255",
               }}
             >
-              <Typography variant="caption" sx={{ cursor: "pointer" }}>
-                Esqueci minha senha
-              </Typography>
-
-              <Typography variant="caption" sx={{ cursor: "pointer" }}>
-                Criar conta
-              </Typography>
-
-              {/* Exemplo de uso do Button*/}
-
-              {/* 
-              exemplos detipos específicos que o  botão aceitará
-              Variant = 'contained' | 'outlined' | 'text' | 'soft'; // adicionado 'soft'
-              Color = 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'; */
-              }
-
-              <Button variant="contained" color="primary" isLoading={loading}>
-                Exemplo/Teste
-              </Button>
-              <Button variant="outlined" color="error" isLoading={loading}>
-                Exemplo/Teste
-              </Button>
-
-
-              <Input 
-                label="Teste" 
-                placeholder="Testando...."
-              />
-            </Stack>
+              Não tem conta?{" "}
+              <Link href="/cadastro" style={{ color: "#1976d2", fontWeight: 600 }}>
+                Cadastre-se
+              </Link>
+            </Typography>
           </Box>
         </CardContent>
       </Card>

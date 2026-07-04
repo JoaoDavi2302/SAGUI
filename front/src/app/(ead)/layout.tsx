@@ -1,5 +1,6 @@
 "use client";
 
+import { RouteGuard } from "@/components/auth/RouteGuard";
 import DrawerLayout from "@/components/drawer";
 import { HeaderItem } from "@/components/layout/types";
 import { useUser } from "@/services/auth/AuthContext";
@@ -10,32 +11,44 @@ import {
   MenuBookOutlined,
   SchoolOutlined,
 } from "@mui/icons-material";
-import React, { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useMemo } from "react";
 
 export default function EadLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, effectiveRole } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/login");
+      return;
+    }
+
+    if (!loading && effectiveRole === "ADMIN") {
+      router.replace("/dashboard");
+    }
+  }, [loading, user, effectiveRole, router]);
 
   const menuItems = useMemo(() => {
-    if (!user) return [];
+    if (!user || effectiveRole === "ADMIN") return [];
 
-    return [
-      { icon: <HomeOutlined />, label: "Início", href: "/" },
+    const items = [{ icon: <HomeOutlined />, label: "Início", href: "/" }];
 
-      ...(effectiveRole === "ADMIN" || effectiveRole === "PROFESSOR"
-        ? [
-            {
-              icon: <SchoolOutlined />,
-              label: "Cursos",
-              href: "/cursos",
-            },
-          ]
-        : []),
+    items.push({
+      icon: <SchoolOutlined />,
+      label: "Cursos",
+      href: "/cursos",
+    });
 
-      {
+    if (effectiveRole === "PROFESSOR") {
+      items.push({
         icon: <MenuBookOutlined />,
         label: "Disciplinas",
         href: "/disciplinas",
-      },
+      });
+    }
+
+    items.push(
       {
         icon: <Inventory2Outlined />,
         label: "Materiais",
@@ -46,18 +59,17 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
         label: "Avaliações",
         href: "/avaliacoes",
       },
-    ];
+    );
+
+    return items;
   }, [user, effectiveRole]);
 
   const settings: HeaderItem[] = useMemo(
     () => [
       { label: "Perfil", href: "/perfil" },
-      ...(effectiveRole === "ADMIN"
-        ? [{ label: "Dashboard", href: "/dashboard" }]
-        : []),
       { label: "Sair", action: "logout" },
     ],
-    [effectiveRole],
+    [],
   );
 
   if (loading) {
@@ -65,18 +77,20 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
     return <div>Carregando...</div>;
   }
 
-  if (!user) {
+  if (!user || effectiveRole === "ADMIN") {
     return null;
   }
 
   return (
-    <DrawerLayout
-      title=""
-      avatarSrc="/avatar.png"
-      items={menuItems}
-      settings={settings}
-    >
-      {children}
-    </DrawerLayout>
+    <RouteGuard>
+      <DrawerLayout
+        title=""
+        avatarSrc="/avatar.png"
+        items={menuItems}
+        settings={settings}
+      >
+        {children}
+      </DrawerLayout>
+    </RouteGuard>
   );
 }

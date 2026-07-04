@@ -11,14 +11,14 @@ import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
-    Chip,
-    Tabs,
-    Tab,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
+  Chip,
+  Tabs,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
 } from "@mui/material";
 
 import {
@@ -28,12 +28,15 @@ import {
     CheckCircle,
     Circle,
     ExpandMore,
+    Add,
 } from "@mui/icons-material";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import database from "@/components/mock.json";
+import { useCatalogDatabase } from "@/services/auth/dataContext";
 import { useMemo, useState } from "react";
 import { useUser } from "@/services/auth/AuthContext";
+import { Button } from "@/components/ui/Button";
+import { CreateModuleModal } from "@/components/catalog/CreateModuleModal";
 
 const Stat = ({ icon: Icon, label, value }: any) => (
     <Box sx={{
@@ -61,19 +64,29 @@ export default function DisciplinePage() {
     };
 
     const { user, effectiveRole } = useUser();
+    const { database, loading, error, refresh } = useCatalogDatabase();
     const isStudent = effectiveRole === "ALUNO";
 
     const [tabIndex, setTabIndex] = useState(0);
+    const [moduleModalOpen, setModuleModalOpen] = useState(false);
 
-    // DISCIPLINA
     const discipline = database.disciplines.find(
-        (d: any) => String(d.id) === String(disciplineId)
+        (d) => String(d.id) === String(disciplineId)
     );
 
-    // MÓDULOS
     const modules = database.modules.filter(
-        (m: any) => String(m.discipline_id) === String(disciplineId)
+        (m) => String(m.discipline_id) === String(disciplineId)
     );
+
+    const canCreateModule =
+        effectiveRole === "PROFESSOR" &&
+        user?.id != null &&
+        String(discipline?.professor_id) === String(user.id);
+
+    const nextOrderIndex =
+        modules.length > 0
+            ? Math.max(...modules.map((m) => m.order_index ?? 0)) + 1
+            : 1;
 
     // ALUNOS (SEM DUPLICAÇÃO)
     const students = useMemo(() => {
@@ -138,6 +151,22 @@ export default function DisciplinePage() {
 
         return { completedLessons, percent, avg };
     };
+
+    if (loading) {
+        return (
+            <Box sx={{ p: 3, display: "flex", justifyContent: "center" }}>
+                <Typography>Carregando...</Typography>
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box sx={{ p: 3 }}>
+                <Typography color="error">{error}</Typography>
+            </Box>
+        );
+    }
 
     if (!discipline) {
         return (
@@ -218,9 +247,29 @@ export default function DisciplinePage() {
             {/* aba: detalhes do curso */}
             {(isStudent || tabIndex === 0) && (
                 <Box>
-                    <Typography sx={{ fontWeight: 700, mb: 2 }}>
-                        Conteúdo programático
-                    </Typography>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            mb: 2,
+                        }}
+                    >
+                        <Typography sx={{ fontWeight: 700 }}>
+                            Conteúdo programático
+                        </Typography>
+
+                        {canCreateModule && disciplineId && (
+                            <Button
+                                variant="contained"
+                                size="small"
+                                startIcon={<Add />}
+                                onClick={() => setModuleModalOpen(true)}
+                            >
+                                Novo módulo
+                            </Button>
+                        )}
+                    </Box>
 
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                         {modules.map((m: any) => {
@@ -285,7 +334,7 @@ export default function DisciplinePage() {
                                             </Typography>
                                         )}
                                         {moduleLessons.map((l: any) => {
-                                            const done = isDone(user?.id, l.id);
+                                            const done = user?.id ? isDone(user.id, l.id) : false;
 
                                             return (
                                                 <Box
@@ -371,6 +420,16 @@ export default function DisciplinePage() {
                         </Table>
                     </CardContent>
                 </Card>
+            )}
+
+            {canCreateModule && disciplineId && (
+                <CreateModuleModal
+                    open={moduleModalOpen}
+                    onClose={() => setModuleModalOpen(false)}
+                    onSuccess={refresh}
+                    disciplineId={disciplineId}
+                    nextOrderIndex={nextOrderIndex}
+                />
             )}
 
         </Box>

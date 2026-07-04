@@ -2,9 +2,9 @@
 
 import DrawerLayout from "@/components/drawer";
 import { useUser } from "@/services/auth/AuthContext";
+import { DashboardOutlined, PeopleOutlined } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import React from "react";
 
 export default function DashboardLayout({
   children,
@@ -36,10 +36,10 @@ export default function DashboardLayout({
       title="Sagui Admin"
       avatarSrc="/avatar.png"
       items={[
-        { label: "Dashboard", href: "/dashboard" },
+        { icon: <DashboardOutlined />, label: "Painel", href: "/dashboard" },
+        { icon: <PeopleOutlined />, label: "Usuários", href: "/dashboard/usuarios" },
       ]}
       settings={[
-        { label: "Site", href: "/" },
         { label: "Perfil", href: "/perfil" },
         { label: "Sair", action: "logout" },
       ]}

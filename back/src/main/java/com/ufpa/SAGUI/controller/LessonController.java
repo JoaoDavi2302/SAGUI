@@ -41,6 +41,23 @@ public class LessonController {
         return ResponseEntity.ok(lessonService.findByModule(moduleId, status, pageable));
     }
 
+    @PostMapping
+    @PreAuthorize("hasRole('Professor')")
+    public ResponseEntity<LessonResponse> createLesson(@RequestBody @Valid LessonRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(lessonService.createLesson(request));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('Professor')")
+    public ResponseEntity<LessonResponse> updateLesson(@PathVariable UUID id, @RequestBody @Valid LessonRequest request) {
+        return ResponseEntity.ok(lessonService.updateLesson(id, request));
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('Professor')")
+    public ResponseEntity<Void> changeStatus(@PathVariable UUID id, @RequestParam EntityStatus status) {
+        lessonService.changeStatus(id, status);
+        return ResponseEntity.noContent().build();
     @PutMapping("/{id}/complete")
     @PreAuthorize("hasRole('Aluno')")
     public ResponseEntity<LessonCompletionResponse> completeLesson(@PathVariable UUID id) {
