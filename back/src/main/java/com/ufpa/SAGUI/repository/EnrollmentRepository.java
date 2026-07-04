@@ -1,5 +1,6 @@
 package com.ufpa.SAGUI.repository;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,7 +13,9 @@ import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.models.Enrollment;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, UUID> {
-    boolean existsByStudent_IdAndDiscipline_IdAndStatusNot(UUID studentId, UUID disciplineId, EntityStatus status);
+
+    boolean existsByStudent_IdAndDiscipline_IdAndEnrollmentStatusInAndStatus(
+            UUID studentId, UUID disciplineId, Collection<EnrollmentStatus> enrollmentStatuses, EntityStatus status);
 
     boolean existsByStudent_IdAndDiscipline_IdAndEnrollmentStatus(
             UUID studentId, UUID disciplineId, EnrollmentStatus enrollmentStatus);

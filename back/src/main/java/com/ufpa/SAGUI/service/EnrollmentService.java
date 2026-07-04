@@ -1,5 +1,6 @@
 package com.ufpa.SAGUI.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
@@ -42,12 +43,16 @@ public class EnrollmentService {
         Discipline discipline = disciplineRepository.findById(request.getDisciplineId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada"));
 
-        boolean alreadyEnrolled = enrollmentRepository.existsByStudent_IdAndDiscipline_IdAndStatusNot(
-                student.getId(), discipline.getId(), EntityStatus.Inactive);
+        boolean alreadyEnrolled = enrollmentRepository
+                .existsByStudent_IdAndDiscipline_IdAndEnrollmentStatusInAndStatus(
+                        student.getId(),
+                        discipline.getId(),
+                        List.of(EnrollmentStatus.PENDING, EnrollmentStatus.APPROVED),
+                        EntityStatus.Active);
 
         if (alreadyEnrolled) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "O aluno já possui uma matrícula ativa ou pendente nesta disciplina.");
+                    "O aluno já possui uma matrícula pendente ou aprovada nesta disciplina.");
         }
 
         Enrollment.EnrollmentBuilder enrollmentBuilder = Enrollment.builder()
