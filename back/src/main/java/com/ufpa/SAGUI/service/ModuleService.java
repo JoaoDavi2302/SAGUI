@@ -31,6 +31,7 @@ public class ModuleService {
     private final ModuleRepository moduleRepository;
     private final DisciplineRepository disciplineRepository;
     private final UserRepository userRepository;
+    private final EnrollmentService enrollmentService;
 
     public ModuleResponse create(ModuleRequest dto) {
         Discipline discipline = getDisciplineEntity(dto.disciplineId());
@@ -71,6 +72,10 @@ public class ModuleService {
 
     @Transactional(readOnly = true)
     public Page<ModuleResponse> findAll(UUID disciplineId, EntityStatus status, Pageable pageable) {
+        if (disciplineId != null) {
+            enrollmentService.validateContentAccessForCurrentUser(disciplineId);
+        }
+
         if (disciplineId != null && status != null) {
             return moduleRepository.findAllByDiscipline_IdAndStatus(disciplineId, status, pageable)
                     .map(ModuleResponse::from);
@@ -89,7 +94,9 @@ public class ModuleService {
 
     @Transactional(readOnly = true)
     public ModuleResponse findById(UUID id) {
-        return ModuleResponse.from(getModuleEntity(id));
+        Module module = getModuleEntity(id);
+        enrollmentService.validateContentAccessForCurrentUser(module.getDiscipline().getId());
+        return ModuleResponse.from(module);
     }
 
     private Module getModuleEntity(UUID id) {

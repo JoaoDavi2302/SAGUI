@@ -1,12 +1,13 @@
 package com.ufpa.SAGUI.exception;
 
 import java.lang.module.ResolutionException;
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -61,8 +62,8 @@ public class GlobalExceptionHandle {
                 ));
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse>handleAcessDenied(AccessDeniedException ex, HttpServletRequest request){
+    @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
+    public ResponseEntity<ErrorResponse>handleAcessDenied(RuntimeException ex, HttpServletRequest request){
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ErrorResponse.of(
@@ -85,14 +86,27 @@ public class GlobalExceptionHandle {
             ));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.of(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Bad Request",
+                        ex.getMessage(),
+                        request.getRequestURI()
+                ));
+    }
+
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponse>handleResponseStatus(ResponseStatusException ex, HttpServletRequest request){
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
         return ResponseEntity
             .status(ex.getStatusCode())
             .body(ErrorResponse.of(
                 ex.getStatusCode().value(), 
-                "Unauthorized", 
-                ex.getMessage(), 
+                status.getReasonPhrase(), 
+                ex.getReason(), 
                 request.getRequestURI()
             ));
     }
@@ -100,6 +114,10 @@ public class GlobalExceptionHandle {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse>handleRuntime(RuntimeException ex, HttpServletRequest request){
+        if (ex instanceof AccessDeniedException || ex instanceof AuthorizationDeniedException) {
+            return handleAcessDenied(ex, request);
+        }
+
         if(ex.getMessage() != null && ex.getMessage().contains("Sessão Expirada")){
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
