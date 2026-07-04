@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.ufpa.SAGUI.dto.lesson.LessonResponse;
 import com.ufpa.SAGUI.enums.EntityStatus;
+import com.ufpa.SAGUI.models.Module;
 import com.ufpa.SAGUI.repository.LessonRepository;
 import com.ufpa.SAGUI.repository.ModuleRepository;
 
@@ -23,10 +24,13 @@ public class LessonService {
 
     private final LessonRepository lessonRepository;
     private final ModuleRepository moduleRepository;
+    private final EnrollmentService enrollmentService;
 
     @Transactional(readOnly = true)
     public Page<LessonResponse> findByModule(UUID moduleId, EntityStatus status, Pageable pageable) {
-        ensureModuleExists(moduleId);
+        Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modulo nao encontrado"));
+        enrollmentService.validateContentAccessForCurrentUser(module.getDiscipline().getId());
 
         if (status != null) {
             return lessonRepository.findAllByModule_IdAndStatus(moduleId, status, pageable)
@@ -34,11 +38,5 @@ public class LessonService {
         }
 
         return lessonRepository.findAllByModule_Id(moduleId, pageable).map(LessonResponse::from);
-    }
-
-    private void ensureModuleExists(UUID moduleId) {
-        if (!moduleRepository.existsById(moduleId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Modulo nao encontrado");
-        }
     }
 }

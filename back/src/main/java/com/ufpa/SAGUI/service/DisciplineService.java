@@ -30,6 +30,7 @@ public class DisciplineService {
     private final DisciplineRepository disciplineRepository;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final EnrollmentService enrollmentService;
 
     public DisciplineResponse create(DisciplineRequest dto) {
         Course course = courseRepository.findById(dto.courseId())
@@ -95,6 +96,7 @@ public class DisciplineService {
 
     @Transactional(readOnly = true)
     public DisciplineResponse findById(UUID id) {
+        enrollmentService.validateContentAccessForCurrentUser(id);
         return DisciplineResponse.from(getDisciplineEntity(id));
     }
 }
