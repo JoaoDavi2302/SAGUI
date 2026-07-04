@@ -6,12 +6,14 @@ import {
   Card,
   CardContent,
   Grid,
-  Chip,
   Tabs,
   Tab,
   Divider,
   Button,
+  LinearProgress,
+  Chip,
 } from "@mui/material";
+import { SchoolOutlined, CheckCircleOutlineOutlined } from "@mui/icons-material"; // Ícone adicionado
 
 import { useMemo, useState } from "react";
 import { useUser } from "@/services/auth/AuthContext";
@@ -46,33 +48,12 @@ export default function CoursesPage() {
     return provider.listCourses();
   }, [provider]);
 
-  const enrolled =
-    effectiveRole === "ALUNO"
-      ? courses.filter((c: any) => c.enrolled)
-      : courses;
+  const enrolled = effectiveRole === "ALUNO" ? courses.filter((c: any) => c.enrolled) : courses;
+  const available = effectiveRole === "ALUNO" ? courses.filter((c: any) => c.available) : [];
 
-  const available =
-    effectiveRole === "ALUNO" ? courses.filter((c: any) => c.available) : [];
-
-  // link
   const handleOpen = (course: CourseCard) => {
     const slug = slugify(course.nome);
-
     router.push(`/cursos/${slug}?id=${course.id}`);
-  };
-
-  const getLabel = (c: any) => {
-    if (effectiveRole === "ALUNO") {
-      return c.enrolled ? "Matriculado" : "Disponível";
-    }
-    return "Ativo";
-  };
-
-  const getColor = (c: any) => {
-    if (effectiveRole === "ALUNO") {
-      return c.enrolled ? "success" : "default";
-    }
-    return "primary";
   };
 
   if (!provider) {
@@ -85,81 +66,90 @@ export default function CoursesPage() {
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* HEADER */}
       <Typography sx={{ fontSize: 24, fontWeight: 700, mb: 1 }}>
         Cursos
       </Typography>
 
       <Typography sx={{ color: "text.secondary", mb: 3 }}>
         {effectiveRole === "ALUNO" && "Seus cursos matriculados e disponíveis"}
-        {effectiveRole === "PROFESSOR" &&
-          "Cursos onde você leciona disciplinas"}
+        {effectiveRole === "PROFESSOR" && "Cursos onde você leciona disciplinas"}
         {effectiveRole === "ADMINISTRADOR" && "Todos os cursos do sistema"}
       </Typography>
 
-      {/* TABS ALUNO */}
       {effectiveRole === "ALUNO" && (
-        <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3 }}>
-          <Tab label="Matriculados" />
-          <Tab label="Disponíveis" />
+        <Tabs 
+          value={tab} 
+          onChange={(_, v) => setTab(v)} 
+          sx={{ 
+            mb: 4, 
+            borderBottom: 1, 
+            borderColor: 'divider',
+            "& .MuiTab-root": { textTransform: "none", fontWeight: 600, fontSize: "16px" } 
+          }}
+        >
+          <Tab label={`Matriculados (${enrolled.length})`} />
+          <Tab label={`Disponíveis (${available.length})`} />
         </Tabs>
       )}
 
-      {/* LISTA */}
-      <Grid container spacing={2}>
-        {(effectiveRole === "ALUNO"
-          ? tab === 0
-            ? enrolled
-            : available
-          : courses
-        ).map((c: any) => (
-          <Grid key={c.id} size={{ xs: 12, md: 4 }}>
+      <Grid container spacing={3} sx={{ mb: 6 }}> {/* MODIFICAÇÃO (Etapa 4): mb: 6 para respiro */}
+        {(effectiveRole === "ALUNO" ? (tab === 0 ? enrolled : available) : courses).map((c: any) => (
+          <Grid key={c.id} size={{ xs: 12, sm: 6, md: 4 }}>
             <Card
               sx={{
                 borderRadius: 3,
                 cursor: "pointer",
-                "&:hover": { boxShadow: 4 },
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                boxShadow: "none",
+                border: "1px solid #e0e0e0",
+                "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.1)" },
               }}
               onClick={() => handleOpen(c)}
             >
-              <CardContent>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 1,
-                  }}
-                >
-                  <Typography sx={{ fontWeight: 700 }}>{c.nome}</Typography>
+              <Box sx={{ height: 120, bgcolor: "#f5f5f5", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <SchoolOutlined sx={{ fontSize: 40, color: '#bdbdbd' }} />
+              </Box>
 
-                  <Chip size="small" label={getLabel(c)} color={getColor(c)} />
+              <CardContent sx={{ px: 3, flexGrow: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Chip label="Tecnologia" size="small" sx={{ bgcolor: '#e3f2fd', color: '#1976d2', fontWeight: 600, fontSize: '10px' }} />
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>{c.workload}h</Typography>
                 </Box>
 
-                <Typography variant="body2" color="text.secondary">
-                 {c.descricao}
+                <Typography sx={{ fontWeight: 700, fontSize: '16px' }}>{c.nome}</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                  {c.descricao}
                 </Typography>
 
-                <Typography variant="body2" color="text.secondary">
-                  Carga horária: {c.workload}h
-                </Typography>
-
-                <Divider sx={{ my: 2 }} />
-
-                <Typography variant="caption" color="text.secondary">
-                  Disciplinas: {c.disciplinesCount ?? 0}
-                </Typography>
-
-                {/* ACTION ALUNO */}
-                {effectiveRole === "ALUNO" && !c.enrolled && (
-                  <Button variant="contained" size="small" sx={{ mt: 1 }}>
-                    Matricular-se
-                  </Button>
+                {c.enrolled && (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 600, color: "#1976d2" }}>45% concluído</Typography>
+                    <LinearProgress variant="determinate" value={45} sx={{ mt: 0.5, height: 6, borderRadius: 5 }} />
+                  </Box>
                 )}
               </CardContent>
+
+              <Divider />
+              <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="caption" color="text.secondary">Disciplinas: {c.disciplinesCount ?? 0}</Typography>
+                {effectiveRole === "ALUNO" && !c.enrolled && (
+                  <Button variant="outlined" size="small">Matricular-se</Button>
+                )}
+              </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
+
+      {/* MODIFICAÇÃO (Etapa 4): Rodapé de encerramento de conteúdo */}
+      <Box sx={{ py: 3, borderTop: "1px solid #e0e0e0", textAlign: 'center' }}>
+        <Typography variant="body2" sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+          <CheckCircleOutlineOutlined fontSize="small" />
+          Você visualizou todos os cursos disponíveis.
+        </Typography>
+      </Box>
     </Box>
   );
 }
