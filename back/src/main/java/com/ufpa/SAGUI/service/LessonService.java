@@ -12,8 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.ufpa.SAGUI.dto.lesson.LessonCompletionResponse;
+import com.ufpa.SAGUI.dto.lesson.LessonRequest;
 import com.ufpa.SAGUI.dto.lesson.LessonResponse;
 import com.ufpa.SAGUI.enums.EntityStatus;
+import com.ufpa.SAGUI.models.Discipline;
 import com.ufpa.SAGUI.models.Lesson;
 import com.ufpa.SAGUI.models.LessonProgress;
 import com.ufpa.SAGUI.models.Module;
@@ -38,8 +40,7 @@ public class LessonService {
 
     @Transactional(readOnly = true)
     public Page<LessonResponse> findByModule(UUID moduleId, EntityStatus status, Pageable pageable) {
-        Module module = moduleRepository.findById(moduleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modulo nao encontrado"));
+        Module module = getModuleEntity(moduleId);
         enrollmentService.validateContentAccessForCurrentUser(module.getDiscipline().getId());
         progressService.validateSequentialAccessForCurrentUser(moduleId);
 
@@ -51,27 +52,29 @@ public class LessonService {
         return lessonRepository.findAllByModule_Id(moduleId, pageable).map(LessonResponse::from);
     }
 
+    @Transactional
     public LessonResponse createLesson(LessonRequest dto) {
         Module module = getModuleEntity(dto.moduleId());
-        validateResponsibleProfessor(module);
+        validateResponsibleProfessor(module.getDiscipline());
 
         Lesson lesson = Lesson.builder()
-            .name(dto.name())
-            .description(dto.description())
-            .orderIndex(dto.orderIndex())
-            .module(module)
-            .build();
+                .name(dto.name())
+                .description(dto.description())
+                .orderIndex(dto.orderIndex())
+                .module(module)
+                .build();
 
         lesson.setStatus(EntityStatus.Active);
         return LessonResponse.from(lessonRepository.save(lesson));
     }
 
+    @Transactional
     public LessonResponse updateLesson(UUID id, LessonRequest dto) {
         Lesson lesson = getLessonEntity(id);
-        validateResponsibleProfessor(lesson.getModule());
+        validateResponsibleProfessor(lesson.getModule().getDiscipline());
 
         Module module = getModuleEntity(dto.moduleId());
-        validateResponsibleProfessor(module);
+        validateResponsibleProfessor(module.getDiscipline());
 
         lesson.setName(dto.name());
         lesson.setDescription(dto.description());
@@ -80,16 +83,14 @@ public class LessonService {
         return LessonResponse.from(lessonRepository.save(lesson));
     }
 
+    @Transactional
     public void changeStatus(UUID id, EntityStatus status) {
         Lesson lesson = getLessonEntity(id);
+        validateResponsibleProfessor(lesson.getModule().getDiscipline());
         lesson.setStatus(status);
         lessonRepository.save(lesson);
     }
 
-    private void ensureModuleExists(UUID moduleId) {
-        if (!moduleRepository.existsById(moduleId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Modulo nao encontrado");
-    
     @Transactional
     public LessonCompletionResponse completeLessonForCurrentUser(UUID lessonId) {
         User student = findAuthenticatedUser();
@@ -125,6 +126,25 @@ public class LessonService {
                 .completed(true)
                 .moduleProgress(progressService.getModuleProgress(student.getId(), module.getId()))
                 .build();
+    }
+
+    private Lesson getLessonEntity(UUID id) {
+        return lessonRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aula não encontrada"));
+    }
+
+    private Module getModuleEntity(UUID id) {
+        return moduleRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modulo nao encontrado"));
+    }
+
+    private void validateResponsibleProfessor(Discipline discipline) {
+        User authenticatedUser = findAuthenticatedUser();
+        User responsibleProfessor = discipline.getResponsibleProfessor();
+
+        if (responsibleProfessor == null || !responsibleProfessor.getId().equals(authenticatedUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Professor nao autorizado para esta disciplina");
+        }
     }
 
     private User findAuthenticatedUser() {
