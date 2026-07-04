@@ -1,13 +1,13 @@
 package com.ufpa.SAGUI.service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,10 +17,12 @@ import com.ufpa.SAGUI.dto.progress.ModuleProgressResponse;
 import com.ufpa.SAGUI.enums.EnrollmentStatus;
 import com.ufpa.SAGUI.models.Enrollment;
 import com.ufpa.SAGUI.models.Module;
-import com.ufpa.SAGUI.models.ModuleProgress;
+import com.ufpa.SAGUI.models.User;
 import com.ufpa.SAGUI.repository.EnrollmentRepository;
-import com.ufpa.SAGUI.repository.ModuleProgressRepository;
+import com.ufpa.SAGUI.repository.LessonProgressRepository;
+import com.ufpa.SAGUI.repository.LessonRepository;
 import com.ufpa.SAGUI.repository.ModuleRepository;
+import com.ufpa.SAGUI.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,21 +31,20 @@ import lombok.RequiredArgsConstructor;
 public class ProgressService {
 
     private final ModuleRepository moduleRepository;
-    private final ModuleProgressRepository moduleProgressRepository;
+    private final LessonRepository lessonRepository;
+    private final LessonProgressRepository lessonProgressRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final UserRepository userRepository;
 
     // ==========================================================
     // M4-07: Progressão sequencial entre módulos
     // ==========================================================
 
-    /**
-     * Valida se o aluno pode acessar o módulo informado.
-     * Regra: o módulo só é liberado se o módulo anterior da mesma
-     * disciplina (pelo orderIndex) estiver concluído. O primeiro
-     * módulo da disciplina é sempre liberado.
-     *
-     * Lança 403 (Forbidden) se o acesso não for permitido.
-     */
+    @Transactional(readOnly = true)
+    public void validateSequentialAccessForCurrentUser(UUID moduleId) {
+        validateSequentialAccess(getCurrentStudentId(), moduleId);
+    }
+
     @Transactional(readOnly = true)
     public void validateSequentialAccess(UUID studentId, UUID moduleId) {
         Module module = moduleRepository.findById(moduleId)
@@ -72,15 +73,17 @@ public class ProgressService {
             return true;
         }
 
-        return moduleProgressRepository
-                .findByEnrollment_IdAndModule_Id(enrollment.getId(), previousModule.get().getId())
-                .map(ModuleProgress::isCompleted)
-                .orElse(false);
+        return isModuleCompletedByLessons(enrollment.getStudent().getId(), previousModule.get().getId());
     }
 
     // ==========================================================
-    // M4-08: Progresso do aluno no módulo
+    // M4-08: Progresso do aluno no módulo (calculado pelas aulas)
     // ==========================================================
+
+    @Transactional(readOnly = true)
+    public ModuleProgressResponse getModuleProgressForCurrentUser(UUID moduleId) {
+        return getModuleProgress(getCurrentStudentId(), moduleId);
+    }
 
     @Transactional(readOnly = true)
     public ModuleProgressResponse getModuleProgress(UUID studentId, UUID moduleId) {
@@ -90,15 +93,17 @@ public class ProgressService {
 
         Enrollment enrollment = getApprovedEnrollment(studentId, module.getDiscipline().getId());
 
-        Optional<ModuleProgress> progress = moduleProgressRepository
-                .findByEnrollment_IdAndModule_Id(enrollment.getId(), moduleId);
-
-        return buildModuleResponse(module, progress.orElse(null), isModuleUnlocked(enrollment, module));
+        return buildModuleResponse(module, studentId, isModuleUnlocked(enrollment, module));
     }
 
     // ==========================================================
     // M4-09: Progresso consolidado do aluno na disciplina
     // ==========================================================
+
+    @Transactional(readOnly = true)
+    public DisciplineProgressResponse getDisciplineProgressForCurrentUser(UUID disciplineId) {
+        return getDisciplineProgress(getCurrentStudentId(), disciplineId);
+    }
 
     @Transactional(readOnly = true)
     public DisciplineProgressResponse getDisciplineProgress(UUID studentId, UUID disciplineId) {
@@ -111,16 +116,10 @@ public class ProgressService {
                     "A disciplina não possui módulos cadastrados.");
         }
 
-        // Busca todos os progressos da matrícula de uma vez e indexa por módulo
-        Map<UUID, ModuleProgress> progressByModuleId = moduleProgressRepository
-                .findByEnrollment_Id(enrollment.getId())
-                .stream()
-                .collect(Collectors.toMap(mp -> mp.getModule().getId(), Function.identity()));
-
         List<ModuleProgressResponse> moduleResponses = modules.stream()
                 .map(module -> buildModuleResponse(
                         module,
-                        progressByModuleId.get(module.getId()),
+                        studentId,
                         isModuleUnlocked(enrollment, module)))
                 .collect(Collectors.toList());
 
@@ -150,6 +149,46 @@ public class ProgressService {
     // Auxiliares
     // ==========================================================
 
+    private int calculateLessonProgressPercentage(UUID studentId, UUID moduleId) {
+        long totalLessons = lessonRepository.countByModule_Id(moduleId);
+        if (totalLessons == 0) {
+            return 0;
+        }
+
+        long completedLessons = lessonProgressRepository
+                .countByStudent_IdAndLesson_Module_IdAndCompletedTrue(studentId, moduleId);
+
+        return (int) Math.round((completedLessons * 100.0) / totalLessons);
+    }
+
+    private boolean isModuleCompletedByLessons(UUID studentId, UUID moduleId) {
+        long totalLessons = lessonRepository.countByModule_Id(moduleId);
+        if (totalLessons == 0) {
+            return false;
+        }
+
+        long completedLessons = lessonProgressRepository
+                .countByStudent_IdAndLesson_Module_IdAndCompletedTrue(studentId, moduleId);
+
+        return completedLessons == totalLessons;
+    }
+
+    private UUID getCurrentStudentId() {
+        return findAuthenticatedUser().getId();
+    }
+
+    private User findAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não autenticado");
+        }
+
+        return userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "Usuário autenticado não encontrado"));
+    }
+
     private Enrollment getApprovedEnrollment(UUID studentId, UUID disciplineId) {
         return enrollmentRepository
                 .findByStudent_IdAndDiscipline_IdAndEnrollmentStatus(
@@ -158,13 +197,13 @@ public class ProgressService {
                         "Acesso negado: o aluno não possui uma matrícula aprovada nesta disciplina."));
     }
 
-    private ModuleProgressResponse buildModuleResponse(Module module, ModuleProgress progress, boolean unlocked) {
+    private ModuleProgressResponse buildModuleResponse(Module module, UUID studentId, boolean unlocked) {
         return ModuleProgressResponse.builder()
                 .moduleId(module.getId())
                 .moduleName(module.getName())
                 .orderIndex(module.getOrderIndex())
-                .progressPercentage(progress != null ? progress.getProgressPercentage() : 0)
-                .completed(progress != null && progress.isCompleted())
+                .progressPercentage(calculateLessonProgressPercentage(studentId, module.getId()))
+                .completed(isModuleCompletedByLessons(studentId, module.getId()))
                 .unlocked(unlocked)
                 .build();
     }
