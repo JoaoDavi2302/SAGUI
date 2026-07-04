@@ -100,3 +100,4 @@ Estamos num Sprint focado de 3 dias para levantar as principais telas do SAGUI.
 - **Pedagógico Admin (Lucas):** Módulos, Aulas, Matrículas.
 - **Aluno (Yuri):** Visão de consumo, progresso e atividades.
 - **Professor (Henrique):** Visão de criação de conteúdo e edição de disciplinas.
+- **Dashboard visual (Juan):** Visão das propriedades das caraterísticas de cada perfil.
