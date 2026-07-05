@@ -95,7 +95,28 @@
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
-    }
+    },
+    { "id": 4,
+      "nome": "Ciência de Dados", 
+      "descricao": "Análise e processamento de dados.", 
+      "ativo": true,
+      "criado_em": "2026-07-01T12:00:00Z",
+      "atualizado_em": "2026-07-01T12:00:00Z" 
+    },
+    { "id": 5, 
+      "nome": "Marketing Digital", 
+      "descricao": "Estratégias de presença digital.", 
+      "ativo": true 
+    },
+    { "id": 6, 
+    "nome": "Gestão de Pessoas", 
+    "descricao": "Liderança e capital humano.", 
+    "ativo": true 
+  },
+    { "id": 7, 
+    "nome": "Segurança da Informação", 
+    "descricao": "Proteção de dados corporativos.", 
+    "ativo": true }
   ],
   "disciplinas": [
     {
@@ -279,7 +300,15 @@
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
-    }
+    },
+    { "id": 37, "disciplina_id": 7, "nome": "Módulo 1: Estatística", "descricao": "Dados e variáveis", "ordem": 1, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 38, "disciplina_id": 7, "nome": "Módulo 2: Probabilidade", "descricao": "Cálculo de chances", "ordem": 2, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 39, "disciplina_id": 8, "nome": "Módulo 1: SEO", "descricao": "Otimização de busca", "ordem": 1, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 40, "disciplina_id": 8, "nome": "Módulo 2: Redes Sociais", "descricao": "Estratégia de conteúdo", "ordem": 2, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 41, "disciplina_id": 9, "nome": "Módulo 1: Recrutamento", "descricao": "Seleção de talentos", "ordem": 1, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 42, "disciplina_id": 9, "nome": "Módulo 2: Cultura", "descricao": "Clima organizacional", "ordem": 2, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 43, "disciplina_id": 10, "nome": "Módulo 1: Criptografia", "descricao": "Segurança de dados", "ordem": 1, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 44, "disciplina_id": 10, "nome": "Módulo 2: Compliance", "descricao": "Normas e leis", "ordem": 2, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" }
   ],
   "aulas": [
     {
