@@ -32,48 +32,36 @@ import YouTube from "react-youtube";
 import { Slider, IconButton } from "@mui/material";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useCatalogDatabase } from "@/services/auth/dataContext";
+import database from "@/components/mock.json";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useUser } from "@/services/auth/AuthContext";
-
-function getYouTubeId(text?: string) {
-  if (!text) return null;
-
-  const urlMatch = text.match(/https?:\/\/[^\s]+/);
-  const url = urlMatch?.[0];
-
-  if (!url) return null;
-
-  const match = url.match(/v=([^&]+)/);
-  return match ? match[1] : null;
-}
 
 export default function LessonPage() {
   const params = useParams();
   const router = useRouter();
   const { effectiveRole } = useUser();
-  const { database, loading, error } = useCatalogDatabase();
   const searchParams = useSearchParams();
+  const [answers, setAnswers] = useState<Record<number, number>>({});
 
-  const lessonId = params.id as string;
+  const lessonId = Number(params.id);
   const activityId = searchParams.get("atividade");
 
-  const lesson = database.lessons.find((l) => l.id === lessonId);
-  const module = lesson
-    ? database.modules.find((m) => m.id === lesson.module_id)
-    : undefined;
-  const discipline = module
-    ? database.disciplines.find((d) => d.id === module.discipline_id)
-    : undefined;
+  const getYouTubeId = (text?: string) => {
+    if (!text) return null;
 
-  const moduleLessons = useMemo(() => {
-    if (!lesson) return [];
-    return database.lessons
-      .filter((l) => l.module_id === lesson.module_id)
-      .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
-  }, [database.lessons, lesson]);
+    const urlMatch = text.match(/https?:\/\/[^\s]+/);
+    const url = urlMatch?.[0];
 
-  const videoId = getYouTubeId(lesson?.content);
+    if (!url) return null;
+
+    const match = url.match(/v=([^&]+)/);
+    return match ? match[1] : null;
+  };
+
+  // aulas
+  const lesson = database.aulas.find((l: any) => l.id === lessonId);
+
+  const videoId = getYouTubeId(lesson?.conteudo);
 
   const playerRef = useRef<any>(null);
 
@@ -127,72 +115,6 @@ export default function LessonPage() {
     setProgress(value);
   };
 
-  const siblings = moduleLessons;
-  const currentIndex = siblings.findIndex((l) => l.id === lessonId);
-  const prev = siblings[currentIndex - 1];
-  const next = siblings[currentIndex + 1];
-
-  const activities =
-    database.quizzes?.filter((a) => a.module_id === lesson?.module_id) ?? [];
-
-  const activeActivity = activityId
-    ? activities.find((a) => a.id === activityId)
-    : null;
-
-  const lessonMaterials = useMemo(() => {
-    const relations = database.lesson_materials ?? [];
-    const materials = database.materials ?? [];
-
-    return relations
-      .filter((r) => r.lesson_id === lessonId)
-      .map((r) => materials.find((m) => m.id === r.material_id))
-      .filter(Boolean);
-  }, [database.lesson_materials, database.materials, lessonId]);
-
-  const quizQuestions = activeActivity
-    ? (database.questions?.filter((q) => q.quiz_id === activeActivity.id) ?? [])
-    : [];
-
-  const attempt =
-    database.quiz_attempts?.find((a) => a.quiz_id === activeActivity?.id) ?? null;
-
-  const approved = attempt?.status === "FINISHED" && attempt?.is_approved;
-
-  const answers =
-    database.student_answers?.filter(
-      (a) => a.quiz_attempt_id === attempt?.id,
-    ) ?? [];
-
-  const getAlternatives = (questionId: string) =>
-    database.alternatives?.filter((a) => a.question_id === questionId) ?? [];
-
-  const selectedAlternative = (questionId: string) =>
-    answers.find((a) => a.question_id === questionId)?.alternative_id;
-
-  const goToLesson = (id: string) => {
-    router.push(`/aulas/${id}`);
-  };
-
-  const openActivity = (id: string) => {
-    router.push(`/aulas/${lessonId}?atividade=${id}`);
-  };
-
-  if (loading) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Typography>Carregando...</Typography>
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Typography color="error">{error}</Typography>
-      </Box>
-    );
-  }
-
   if (!lesson) {
     return (
       <Box sx={{ p: 3 }}>
@@ -200,6 +122,70 @@ export default function LessonPage() {
       </Box>
     );
   }
+
+  // mdoulo
+  const module = database.modulos.find((m) => m.id === lesson.modulo_id);
+
+  const discipline = database.disciplinas.find(
+    (d: any) => d.id === module?.disciplina_id,
+  );
+
+  // aulas do modulo
+  const siblings = useMemo(() => {
+    return database.aulas
+      .filter((l) => l.modulo_id === lesson.modulo_id)
+      .sort((a: any, b: any) => a.ordem - b.ordem);
+  }, [lesson.modulo_id]);
+
+  const currentIndex = siblings.findIndex((l: any) => l.id === lesson.id);
+  const prev = siblings[currentIndex - 1];
+  const next = siblings[currentIndex + 1];
+
+  const activities =
+    database.atividades?.filter((a: any) => a.modulo_id === lesson.modulo_id) ??
+    [];
+
+  const activeActivity = activityId
+    ? activities.find((a) => a.id === Number(activityId))
+    : null;
+
+  const goToLesson = (id: number) => {
+    router.push(`/aulas/${id}`);
+  };
+
+  const openActivity = (id: number) => {
+    router.push(`/aulas/${lessonId}?atividade=${id}`);
+  };
+
+  const lessonMaterials = useMemo(() => {
+    return null;
+    // return database.anexos.filter((a) => a.aula_id === lesson.id);
+  }, [lesson.id]);
+
+  const quizQuestions = activeActivity
+    ? database.questoes
+        .filter((q) => q.atividade_id === activeActivity.id)
+        .sort((a, b) => a.ordem - b.ordem)
+    : [];
+
+  const attempt =
+    database.tentativas_atividade?.find(
+      (a: any) => a.quiz_id === activeActivity?.id,
+    ) ?? null;
+
+  // const approved = attempt?.status === "FINISHED" && attempt?.is_approved;
+
+  // const answers =
+  //   database.respostas_aluno?.filter(
+  //     (a: any) => a.quiz_attempt_id === attempt?.id,
+  //   ) ?? [];
+
+  const getAlternatives = (questionId: number) =>
+    database.alternativas
+      .filter((a) => a.questao_id === questionId)
+      .sort((a, b) => a.ordem - b.ordem);
+
+  const selectedAlternative = (questionId: number) => answers[questionId] ?? "";
 
   return (
     <Box sx={{ p: 3 }}>
@@ -211,15 +197,15 @@ export default function LessonPage() {
         }}
       >
         <CardContent>
-          <Typography variant="h6">{lesson.name}</Typography>
+          <Typography variant="h6">{lesson.titulo}</Typography>
 
           <Typography variant="body2" color="text.secondary">
-            {module?.name} • {discipline?.name}
+            {module?.nome} • {discipline?.nome}
           </Typography>
 
           <Divider sx={{ my: 2 }} />
 
-          <Typography variant="body2">{lesson.content}</Typography>
+          {/* <Typography variant="body2">{lesson.description}</Typography> */}
         </CardContent>
       </Card>
 
@@ -319,11 +305,11 @@ export default function LessonPage() {
                       mb: 1,
                     }}
                   >
-                    {activeActivity.name}
+                    {activeActivity.titulo}
                   </Typography>
 
                   <Typography color="text.secondary" sx={{ mb: 3 }}>
-                    {activeActivity.description}
+                    {activeActivity.descricao}
                   </Typography>
 
                   <Stack spacing={3}>
@@ -345,29 +331,36 @@ export default function LessonPage() {
                                 mb: 2,
                               }}
                             >
-                              {index + 1}. {question.question}
+                              {index + 1}. {question.enunciado}
                             </Typography>
 
                             <RadioGroup
-                              value={selectedAlternative(question.id) ?? ""}
+                              value={selectedAlternative(question.id)}
+                              onChange={(e) =>
+                                setAnswers((prev) => ({
+                                  ...prev,
+                                  [question.id]: Number(e.target.value),
+                                }))
+                              }
                             >
                               <Stack spacing={1}>
                                 {alternatives.map((alt: any) => {
                                   const selected =
                                     selectedAlternative(question.id) === alt.id;
 
-                                  const isWrong = selected && !alt.is_correct;
-                                  const isRight = selected && alt.is_correct;
+                                  const isWrong = selected && !alt.correta;
+
+                                  const isRight = selected && alt.correta;
 
                                   const professorCorrect =
                                     effectiveRole === "PROFESSOR" &&
-                                    alt.is_correct;
+                                    alt.correta;
 
                                   return (
                                     <Box
                                       key={alt.id}
                                       sx={{
-                                        px:2,
+                                        px: 2,
                                         borderRadius: 2,
                                         border: "1px solid",
                                         borderColor: isWrong
@@ -389,12 +382,12 @@ export default function LessonPage() {
                                     >
                                       <FormControlLabel
                                         value={alt.id}
-                                        control={<Radio disabled />}
+                                        control={<Radio />}
                                         label={
                                           <Typography
                                             sx={{ userSelect: "none" }}
                                           >
-                                            {alt.description}
+                                            {alt.texto}
                                           </Typography>
                                         }
                                       />
@@ -408,7 +401,7 @@ export default function LessonPage() {
                       );
                     })}
 
-                    {attempt && (
+                    {/* {attempt && (
                       <Card
                         sx={{
                           borderRadius: 3,
@@ -429,7 +422,7 @@ export default function LessonPage() {
                           </Typography>
                         </CardContent>
                       </Card>
-                    )}
+                    )} */}
                   </Stack>
                 </Box>
               )}
@@ -466,116 +459,10 @@ export default function LessonPage() {
                     Material da aula
                   </Typography>
 
-                  <Chip size="small" label={lessonMaterials.length} />
+                  {/* <Chip size="small" label={lessonMaterials.length} /> */}
                 </Box>
 
-                {lessonMaterials.length === 0 ? (
-                  <Box
-                    sx={{
-                      py: 4,
-                      textAlign: "center",
-                      color: "text.secondary",
-                    }}
-                  >
-                    Nenhum material disponível.
-                  </Box>
-                ) : (
-                  <Stack spacing={1.5}>
-                    {lessonMaterials.map((material: any) => (
-                      <Card
-                        key={material.id}
-                        variant="outlined"
-                        sx={{
-                          borderRadius: 3,
-                          transition: ".2s",
-
-                          "&:hover": {
-                            borderColor: "#2e507d",
-                            bgcolor: "#fafafa",
-                          },
-                        }}
-                      >
-                        <Button
-                          fullWidth
-                          href={material.url ?? "#"}
-                          target="_blank"
-                          sx={{
-                            p: 2,
-                            color: "inherit",
-
-                            display: "flex",
-                            justifyContent: "space-between",
-
-                            alignItems: "center",
-
-                            textTransform: "none",
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              display: "flex",
-                              gap: 2,
-                              alignItems: "center",
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                width: 42,
-                                height: 42,
-
-                                borderRadius: 2,
-
-                                bgcolor: "#e8f0f5",
-
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                            >
-                              <DescriptionOutlined
-                                sx={{
-                                  color: "#2e507d",
-                                }}
-                              />
-                            </Box>
-
-                            <Box
-                              sx={{
-                                textAlign: "left",
-                              }}
-                            >
-                              <Typography
-                                sx={{
-                                  fontWeight: 600,
-                                }}
-                              >
-                                {material.title}
-                              </Typography>
-
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                {material.description}
-                              </Typography>
-
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  color: "#2e507d",
-                                }}
-                              >
-                                {material.type}
-                              </Typography>
-                            </Box>
-                          </Box>
-
-                          <DownloadOutlined />
-                        </Button>
-                      </Card>
-                    ))}
-                  </Stack>
-                )}
+                <Typography>A desenvolver materiais</Typography>
               </CardContent>
             </Card>
           )}
@@ -627,7 +514,7 @@ export default function LessonPage() {
                       onClick={() => goToLesson(l.id)}
                     >
                       <PlayCircle sx={{ mr: 1, fontSize: 18 }} />
-                      <ListItemText primary={l.name} />
+                      <ListItemText primary={l.titulo} />
                     </ListItemButton>
                   </ListItem>
                 ))}
@@ -651,7 +538,7 @@ export default function LessonPage() {
                         onClick={() => openActivity(a.id)}
                       >
                         <Description sx={{ mr: 1, fontSize: 18 }} />
-                        <ListItemText primary={a.name} />
+                        <ListItemText primary={a.titulo} />
                         {a.id === activityId && (
                           <Chip size="small" label="ativa" />
                         )}
@@ -667,3 +554,113 @@ export default function LessonPage() {
     </Box>
   );
 }
+
+// Para materiais
+// {lessonMaterials.length === 0 ? (
+//                   <Box
+//                     sx={{
+//                       py: 4,
+//                       textAlign: "center",
+//                       color: "text.secondary",
+//                     }}
+//                   >
+//                     Nenhum material disponível.
+//                   </Box>
+//                 ) : (
+//                   <Stack spacing={1.5}>
+//                     {/* {lessonMaterials.map((material: any) => (
+//                       <Card
+//                         key={material.id}
+//                         variant="outlined"
+//                         sx={{
+//                           borderRadius: 3,
+//                           transition: ".2s",
+
+//                           "&:hover": {
+//                             borderColor: "#2e507d",
+//                             bgcolor: "#fafafa",
+//                           },
+//                         }}
+//                       >
+//                         <Button
+//                           fullWidth
+//                           href={material.url ?? "#"}
+//                           target="_blank"
+//                           sx={{
+//                             p: 2,
+//                             color: "inherit",
+
+//                             display: "flex",
+//                             justifyContent: "space-between",
+
+//                             alignItems: "center",
+
+//                             textTransform: "none",
+//                           }}
+//                         >
+//                           <Box
+//                             sx={{
+//                               display: "flex",
+//                               gap: 2,
+//                               alignItems: "center",
+//                             }}
+//                           >
+//                             <Box
+//                               sx={{
+//                                 width: 42,
+//                                 height: 42,
+
+//                                 borderRadius: 2,
+
+//                                 bgcolor: "#e8f0f5",
+
+//                                 display: "flex",
+//                                 alignItems: "center",
+//                                 justifyContent: "center",
+//                               }}
+//                             >
+//                               <DescriptionOutlined
+//                                 sx={{
+//                                   color: "#2e507d",
+//                                 }}
+//                               />
+//                             </Box>
+
+//                             <Box
+//                               sx={{
+//                                 textAlign: "left",
+//                               }}
+//                             >
+//                               <Typography
+//                                 sx={{
+//                                   fontWeight: 600,
+//                                 }}
+//                               >
+//                                 {material.title}
+//                               </Typography>
+
+//                               <Typography
+//                                 variant="body2"
+//                                 color="text.secondary"
+//                               >
+//                                 {material.description}
+//                               </Typography>
+
+//                               <Typography
+//                                 variant="caption"
+//                                 sx={{
+//                                   color: "#2e507d",
+//                                 }}
+//                               >
+//                                 {material.type}
+//                               </Typography>
+//                             </Box>
+//                           </Box>
+
+//                           <DownloadOutlined />
+//                         </Button>
+//                       </Card>
+//                     ))} */}
+//                     <Typography>Criando material</Typography>
+//                   </Stack>
+//                 )}

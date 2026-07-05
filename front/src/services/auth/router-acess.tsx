@@ -1,4 +1,4 @@
-import { isAdminPanelRoute, routerPolicy, Role } from "./router-policy";
+import { routerPolicy, Role } from "./router-policy";
 
 /** Verifica se um role pode acessar uma rota:
  * 1. encontra a rota mais específica possível
@@ -13,10 +13,6 @@ export function canAccess(pathname: string, role: Role | null) {
   if (!role) return false;
 
   const path = normalizePath(pathname);
-
-  if (role === "ADMIN") {
-    return isAdminPanelRoute(path);
-  }
 
   const matchedRoute = Object.keys(routerPolicy)
     .sort((a, b) => b.length - a.length)

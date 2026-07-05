@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "../../services/auth/AuthContext";
-import { getPostLoginPath } from "../../services/auth/types";
-import { NetworkError } from "../../services/api/client";
+import Image from "next/image";
+import Logo from "../../../public/Longa-logo.svg";
+
+// USO DO UI/BUTTON
 import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 
 import {
   Box,
@@ -22,6 +24,11 @@ import {
 } from "@mui/material";
 
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+});
 
 export default function LoginPage() {
   const { login } = useUser();
@@ -40,20 +47,17 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const role = await login(email, password);
+      const success = await login(email, password);
 
-      if (!role) {
+      if (!success) {
         setError("Email ou senha inválidos");
         return;
       }
 
-      router.replace(getPostLoginPath(role));
-    } catch (err) {
-      if (err instanceof NetworkError) {
-        setError(err.message);
-        return;
-      }
-      setError("Ocorreu um erro inesperado. Tente novamente.");
+      // teste de login, redirecionando
+      console.log("LOGIN SUCCESS");
+
+      router.replace("/");
     } finally {
       setLoading(false);
     }
@@ -71,19 +75,12 @@ export default function LoginPage() {
         px: 2,
       }}
     >
-      <Stack spacing={0.5} sx={{ mb: 3 }}>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 800,
-            fontSize: "30px",
-            fontFamily: "system-ui",
-            textAlign: "center",
-            mb: 3,
-          }}
-        >
-          //SAGUI
-        </Typography>
+      <Stack spacing={0.5} sx={{ mb: 2 }}>
+        <Image
+          src={Logo}
+          alt="logo"
+          style={{ width: "220px", alignSelf: "center", marginBottom: "-15px" }}
+        />
         <Typography
           sx={{
             fontFamily: "system-ui",
@@ -92,7 +89,7 @@ export default function LoginPage() {
             color: "#556255",
           }}
         >
-          Entre com sua conta para continuar
+          Plataforma academica de estudos
         </Typography>
       </Stack>
       <Card
@@ -116,7 +113,6 @@ export default function LoginPage() {
               size="small"
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
-              required
               sx={{ mt: 0.5 }}
             />
 
@@ -131,7 +127,6 @@ export default function LoginPage() {
               size="small"
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
-              required
               slotProps={{
                 input: {
                   endAdornment:
@@ -179,19 +174,22 @@ export default function LoginPage() {
               )}
             </Button>
 
-            <Typography
+            {/* extra UX */}
+            <Stack
               sx={{
+                direction: "row",
+                justifyContent: "space-between",
                 mt: 2,
-                textAlign: "center",
-                fontSize: 14,
-                color: "#556255",
               }}
             >
-              Não tem conta?{" "}
-              <Link href="/cadastro" style={{ color: "#1976d2", fontWeight: 600 }}>
-                Cadastre-se
-              </Link>
-            </Typography>
+              <Typography variant="caption" sx={{ cursor: "pointer" }}>
+                Esqueci minha senha
+              </Typography>
+
+              <Typography variant="caption" sx={{ cursor: "pointer" }}>
+                Criar conta
+              </Typography>
+            </Stack>
           </Box>
         </CardContent>
       </Card>

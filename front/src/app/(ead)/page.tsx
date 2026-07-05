@@ -7,62 +7,46 @@ import {
   Card,
   CardContent,
   Grid,
-  CardMedia,
   LinearProgress,
 } from "@mui/material";
 
 import { useUser } from "@/services/auth/AuthContext";
-import { useCatalogDatabase } from "@/services/auth/dataContext";
-import { DashboardProvider } from "@/services/dashboardProvider";
-import { AccessTimeOutlined, ArrowRightAltOutlined } from "@mui/icons-material";
+// import database from "@/components/mock.json";
+import { DashboardProvider } from "@/services/poo/dashboard/dashboardProvider";
+import {
+  ArrowRightAltOutlined,
+  SchoolOutlined,
+} from "@mui/icons-material";
 import Link from "next/link";
-
-function getHomeCopy(role: string) {
-  if (role === "PROFESSOR") {
-    return {
-      subtitle: "Acompanhe os cursos e disciplinas sob sua responsabilidade.",
-      coursesTitle: "Cursos vinculados",
-      disciplinesTitle: "Minhas Disciplinas",
-      coursesLinkLabel: "Ver todos",
-      showDisciplines: true,
-    };
-  }
-
-  return {
-    subtitle: "Continue de onde parou ou descubra novos cursos.",
-    coursesTitle: "Meus Cursos",
-    disciplinesTitle: "Minhas Disciplinas",
-    coursesLinkLabel: "Ver todos",
-    showDisciplines: false,
-  };
-}
+import { DatabaseProvider } from "@/services/poo/databaseProvider";
+import CheckCircleOutline from "@mui/icons-material/CheckCircleOutlineOutlined";
+const database = DatabaseProvider.getDatabase();
 
 export default function Home() {
+  // usuario logado e role do usuario
   const { user, effectiveRole } = useUser();
-  const { database, loading, error } = useCatalogDatabase();
   const isStudent = effectiveRole === "ALUNO";
-  const copy = getHomeCopy(effectiveRole);
 
+  // seleciona qual dashboard (aluno ou professor) usar e cria o dashboard (componentes de seção)
+  // ex: aluno possui progressbar, mas professor não
   const dashboard = useMemo(() => {
-    if (!user) return null;
     return DashboardProvider.create(effectiveRole, user, database);
-  }, [effectiveRole, user, database]);
+  }, [effectiveRole, user]);
 
-  const data = useMemo(() => dashboard?.getData() ?? null, [dashboard]);
+  // renderiza dados
+  const data = dashboard.getData();
 
+  // transforma par array os dados
   const coursesMap = useMemo(
     () =>
-      data
-        ? Object.fromEntries(
-            data.courses.map((course: any) => [course.id, course]),
-          )
-        : {},
-    [data],
+      Object.fromEntries(
+        data.courses.map((course: any) => [course.id, course]),
+      ),
+    [data.courses],
   );
 
+  // modulos da disciplina agrupados
   const modulesMap = useMemo(() => {
-    if (!data) return {};
-
     const grouped: Record<string, any[]> = data.modules.reduce(
       (acc: Record<string, any[]>, module: any) => {
         if (!acc[module.discipline_id]) acc[module.discipline_id] = [];
@@ -77,24 +61,9 @@ export default function Home() {
     });
 
     return grouped;
-  }, [data]);
+  }, [data.modules]);
 
-  if (loading) {
-    return (
-      <Box sx={{ p: 3, display: "flex", justifyContent: "center" }}>
-        <Typography>Carregando...</Typography>
-      </Box>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Typography color="error">{error ?? "Não foi possível carregar o início."}</Typography>
-      </Box>
-    );
-  }
-
+  // tabela de nodulos usada para progressbar
   const moduleProgress = data.module_progress ?? [];
 
   return (
@@ -102,211 +71,105 @@ export default function Home() {
       <Typography sx={{ fontSize: 12 }}>Inicio</Typography>
 
       <Typography sx={{ fontWeight: 700, fontSize: 24 }}>
-        Olá, {user?.name}
+        Olá, {user?.nome}
       </Typography>
 
       <Typography sx={{ mb: 3, fontSize: 14, color: "gray" }}>
-        {copy.subtitle}
+        Continue de onde parou ou descubra novos cursos.
       </Typography>
 
-      {/* METRICAS */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      {/* MODIFICAÇÃO: Inserção do componente "Continue de onde parou" (Etapa 1) */}
+      <Box sx={{ mb: 4 }}>
+        <Card sx={{ p: 3, borderRadius: 3, border: "1px solid #e0e0e0", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+          <Box>
+            <Typography sx={{ fontSize: "12px", fontWeight: 700, color: "#1976d2", textTransform: "uppercase" }}>Continue de onde parou</Typography>
+            <Typography sx={{ fontSize: "18px", fontWeight: 700, mt: 0.5 }}>Desenvolvimento Web Full Stack</Typography>
+            <Typography sx={{ fontSize: "14px", color: "gray", mt: 0.5 }}>Módulo atual: Introdução a APIs REST</Typography>
+          </Box>
+          <Link href="/cursos/continuar">
+            <Box sx={{ bgcolor: "#1976d2", color: "white", px: 3, py: 1.5, borderRadius: 2, fontWeight: 600, display: "flex", alignItems: "center", gap: 1, "&:hover": { bgcolor: "#1565c0" } }}>
+              Continuar Aula
+            </Box>
+          </Link>
+        </Card>
+      </Box>
+
+      {/* MODIFICAÇÃO: Métricas otimizadas com sombras e efeitos de interação (Etapa 2) */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         {data.stats.map((stat: any, index: number) => (
-          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
-            <Card
-              sx={{
-                p: 1.5,
-                borderRadius: 2,
-                boxShadow:"none",
-                bgcolor: "rgba(0,0,0,0.03)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 0.5,
-              }}
-            >
-              <CardContent
-                sx={{ display: "flex", gap: 2, alignItems: "center" }}
-              >
-                <Box sx={{ bgcolor: "#add3f8", p: 1, borderRadius: 2 }}>
-                  {stat.icon}
-                </Box>
-
-                <Box>
-                  <Typography sx={{ fontSize: "12px", color: "#556255" }}>
-                    {stat.label}
-                  </Typography>
-
-                  <Typography sx={{ fontWeight: 700, fontSize: 20 }}>
-                    {stat.value}
-                  </Typography>
-                </Box>
-              </CardContent>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+            <Card sx={{ p: 2, borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.05)", border: "1px solid #f0f0f0", display: "flex", alignItems: "center", gap: 2, transition: "transform 0.2s", "&:hover": { transform: "translateY(-4px)" } }}>
+              <Box sx={{ bgcolor: "#E3F2FD", color: "#1976d2", p: 1.5, borderRadius: 3, display: "flex" }}>{stat.icon}</Box>
+              <Box>
+                <Typography sx={{ fontSize: "13px", color: "text.secondary", fontWeight: 500 }}>{stat.label}</Typography>
+                <Typography sx={{ fontWeight: 800, fontSize: "24px", color: "#333" }}>{stat.value}</Typography>
+              </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
 
-      {/* CURSOS */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-          {copy.coursesTitle}
-        </Typography>
-
+      {/* CURSOS - MODIFICAÇÃO: Grid compacto com capa e barra de progresso (Etapa 3) */}
+      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>Meus Cursos</Typography>
         <Link href="/cursos" style={{ color: "#1976d2", fontSize: "14px" }}>
-          {copy.coursesLinkLabel}
-          <ArrowRightAltOutlined sx={{ fontSize: 16, verticalAlign: "middle" }} />
+          Ver todos
+          <ArrowRightAltOutlined />
         </Link>
       </Box>
 
-      <Grid container spacing={2} sx={{ mb: 4 }}>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         {data.courses.map((course: any) => (
-          <Grid size={{ xs: 12, md: 6 }} key={course.id}>
-            <Card sx={{ borderRadius: 3, border: "1px solid #e0e0e0" }}>
-              <CardMedia
-                component="img"
-                image={course.image}
-                alt={course.name}
-              />
-
-              <CardContent sx={{ px: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  {course.name}
-                </Typography>
-
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: "gray",
-                    display: "-webkit-box",
-                    WebkitBoxOrient: "vertical",
-                    WebkitLineClamp: 2,
-                    overflow: "hidden",
-                  }}
-                >
-                  {course.description}
-                </Typography>
-
-                <Box sx={{ mt: 2, display: "flex", gap: 1, color: "gray" }}>
-                  <AccessTimeOutlined fontSize="small" />
-                  <Typography variant="caption">
-                    Carga horária: {course.workload}h
-                  </Typography>
-                </Box>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={course.id}>
+            <Card sx={{ borderRadius: 3, border: "1px solid #e0e0e0", boxShadow: "none", height: "100%", display: "flex", flexDirection: "column", "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.1)" } }}>
+              <Box sx={{ height: 120, bgcolor: "#f5f5f5", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <SchoolOutlined sx={{ fontSize: 40, color: '#bdbdbd' }} />
+              </Box>
+              <CardContent sx={{ px: 3, flexGrow: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "16px" }}>{course.nome}</Typography>
+                <Typography variant="body2" sx={{ color: "gray", mt: 1, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{course.descricao}</Typography>
               </CardContent>
+              <Box sx={{ px: 3, pb: 3 }}>
+                <Typography variant="caption" sx={{ fontWeight: 600, color: "#1976d2" }}>45% concluído</Typography>
+                <LinearProgress variant="determinate" value={45} sx={{ mt: 1, height: 6, borderRadius: 5 }} />
+              </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
 
-      {copy.showDisciplines && (
-        <>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-              {copy.disciplinesTitle}
-            </Typography>
-
-            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-              <Link href="/disciplinas" style={{ color: "#1976d2", fontSize: "14px" }}>
-                Ver todos
-                <ArrowRightAltOutlined sx={{ fontSize: 16, verticalAlign: "middle" }} />
-              </Link>
-            </Box>
-          </Box>
-
-          <Grid container spacing={2}>
-            {data.subjects.slice(0, 6).map((subject: any) => {
+      {/* DISCIPLINAS */}
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>Minhas Disciplinas</Typography>
+        <Link href="/disciplinas" style={{ color: "#1976d2", fontSize: "14px" }}>
+          Ver todos
+          <ArrowRightAltOutlined />
+        </Link>
+      </Box>
+      <Grid container spacing={2}>
+        {data.subjects.slice(0, 6).map((subject: any) => {
           const course = coursesMap[subject.course_id];
           const modules = modulesMap[subject.id] || [];
-
-          // contador de progresso do aluno por disciplina
-          const completedModules = moduleProgress.filter(
-            (p: any) =>
-              p.status === "COMPLETED" &&
-              modules.some((m: any) => m.id === p.module_id)
-          ).length;
-
-          // tranformar em percentual para barra de progresso
-          const progressPercent =
-            modules.length > 0
-              ? Math.round((completedModules / modules.length) * 100)
-              : 0;
-
+          const completedModules = moduleProgress.filter((p: any) => p.status === "COMPLETED" && modules.some((m: any) => m.id === p.module_id)).length;
+          const progressPercent = modules.length > 0 ? Math.round((completedModules / modules.length) * 100) : 0;
           const safeProgress = Math.min(100, Math.max(0, progressPercent));
 
           return (
             <Grid size={{ xs: 12, md: 4 }} key={subject.id}>
-              <Card
-                sx={{
-                  borderRadius: 3,
-                  border: "1px solid",
-                  borderColor: "divider",
-                  height: "100%",
-                }}
-              >
+              <Card sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", height: "100%" }}>
                 <CardContent sx={{ px: 3 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                    {subject.name}
-                  </Typography>
-
-                  <Typography variant="body2" color="primary">
-                    {course?.name}
-                  </Typography>
-
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      mt: 1,
-                      color: "text.secondary",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {subject.description}
-                  </Typography>
-
-                  <Box
-                    sx={{
-                      mt: 2,
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box sx={{ display: "flex", gap: 0.5, color: "gray" }}>
-                      <AccessTimeOutlined fontSize="small" />
-                      <Typography variant="caption">
-                        {subject.workload}h
-                      </Typography>
-                    </Box>
-
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        bgcolor: "#E3F2FD",
-                        color: "primary.main",
-                        px: 1,
-                        py: 0.5,
-                        borderRadius: 5,
-                        fontWeight: 600,
-                      }}
-                    >
+                  <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>{subject.nome}</Typography>
+                  <Typography variant="body2" color="primary">{course?.nome}</Typography>
+                  <Typography variant="body2" sx={{ mt: 1, color: "text.secondary", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{subject.descricao}</Typography>
+                  <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
+                    <Typography variant="caption" sx={{ bgcolor: "#E3F2FD", color: "primary.main", px: 1, py: 0.5, borderRadius: 5, fontWeight: 600 }}>
                       Módulos: {modules.length}
                     </Typography>
                   </Box>
-
-                  {/* PROGRESSO (CORRETO) */}
                   {isStudent && (
                     <Box sx={{ mt: 2 }}>
-                      <Typography variant="caption" color="text.secondary">
-                        Progresso da disciplina
-                      </Typography>
-
-                      <LinearProgress
-                        variant="determinate"
-                        value={safeProgress}
-                        sx={{ mt: 0.5, height: 6, borderRadius: 5 }}
-                      />
+                      <Typography variant="caption" color="text.secondary">Progresso da disciplina</Typography>
+                      <LinearProgress variant="determinate" value={safeProgress} sx={{ mt: 0.5, height: 6, borderRadius: 5 }} />
                     </Box>
                   )}
                 </CardContent>
@@ -314,9 +177,15 @@ export default function Home() {
             </Grid>
           );
         })}
-          </Grid>
-        </>
-      )}
+      </Grid>
+
+      {/* MODIFICAÇÃO (Etapa 4): Adição de aviso de conclusão para organizar o final da página */}
+      <Box sx={{ mt: 6, py: 3, borderTop: "1px solid #e0e0e0", textAlign: 'center' }}>
+        <Typography variant="body2" sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+          <CheckCircleOutline fontSize="small" />
+          Você visualizou todas as disciplinas disponíveis.
+        </Typography>
+      </Box>
     </Box>
   );
 }

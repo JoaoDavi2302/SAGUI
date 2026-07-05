@@ -1,417 +1,119 @@
-"use client";
+// homepage de dashboard
+'use client';
+import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
+import { Users, GraduationCap, BookOpen, Layers, FileDown, Search } from 'lucide-react';
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
+import jsPDF from 'jspdf';
+import database from '@/components/mock.json';
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Alert,
-  Box,
-  CircularProgress,
-  Grid,
-  Tab,
-  Tabs,
-  Typography,
-} from "@mui/material";
-import { Add } from "@mui/icons-material";
-import { ApiError } from "@/services/api/client";
-import {
-  changeCourseStatus,
-  changeDisciplineStatus,
-  CourseDTO,
-  DisciplineDTO,
-  EntityStatus,
-  listCourses,
-  listDisciplines,
-  listModules,
-  ModuleDTO,
-} from "@/services/api/catalog";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Card, CardActions, CardContent } from "@/components/ui/Card";
-import { CreateCourseModal } from "@/components/catalog/CreateCourseModal";
-import { CreateDisciplineModal } from "@/components/catalog/CreateDisciplineModal";
-import { EntityStatusToggle } from "@/components/admin/EntityStatusToggle";
+const studentConceptsData = [
+  { name: 'Excelente', value: 30 },
+  { name: 'Bom', value: 40 },
+  { name: 'Regular', value: 20 },
+  { name: 'Insuficiente', value: 10 },
+];
+const COLORS = ['#16a34a', '#2563eb', '#ca8a04', '#dc2626'];
+
+const MetricCard = ({ title, value, icon: Icon }: { title: string, value: string | number, icon: any }) => (
+  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center space-x-4">
+    <div className="p-3 bg-blue-50 text-blue-600 rounded-lg"><Icon size={24} /></div>
+    <div><h3 className="text-sm font-medium text-gray-500">{title}</h3><p className="text-2xl font-bold text-gray-900">{value}</p></div>
+  </div>
+);
 
 export default function DashboardPage() {
-  const [courses, setCourses] = useState<CourseDTO[]>([]);
-  const [disciplines, setDisciplines] = useState<DisciplineDTO[]>([]);
-  const [modules, setModules] = useState<ModuleDTO[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [tab, setTab] = useState(0);
-  const [courseModalOpen, setCourseModalOpen] = useState(false);
-  const [disciplineModalOpen, setDisciplineModalOpen] = useState(false);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [updatingType, setUpdatingType] = useState<"course" | "discipline" | null>(
-    null,
-  );
+  const [busca, setBusca] = useState('');
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError("");
+  const alunosFiltrados = useMemo(() => {
+    return database.usuarios
+      // ALTERAÇÃO: Filtra estritamente os usuários que possuem a tag 'ALUNO' no perfil[cite: 16].
+      .filter((a: any) => a.perfil === 'ALUNO')
+      // Filtra pela busca de texto digitada pelo administrador
+      .filter((a: any) => a.nome.toLowerCase().includes(busca.toLowerCase()))
+      // Ordena alfabeticamente
+      .sort((a: any, b: any) => a.nome.localeCompare(b.nome));
+  }, [busca]);
 
-    try {
-      const [coursesData, disciplinesData, modulesData] = await Promise.all([
-        listCourses(),
-        listDisciplines(),
-        listModules(),
-      ]);
+  const alunosPorLetra = useMemo(() => {
+    return alunosFiltrados.reduce((acc: any, aluno: any) => {
+      const primeiraLetra = aluno.nome[0].toUpperCase();
+      (acc[primeiraLetra] = acc[primeiraLetra] || []).push(aluno);
+      return acc;
+    }, {});
+  }, [alunosFiltrados]);
 
-      setCourses(
-        coursesData.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "pt-BR")),
-      );
-      setDisciplines(
-        disciplinesData.sort((a, b) =>
-          (a.name ?? "").localeCompare(b.name ?? "", "pt-BR"),
-        ),
-      );
-      setModules(modulesData);
-    } catch {
-      setError("Não foi possível carregar os dados do painel.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  const coursesMap = useMemo(
-    () => Object.fromEntries(courses.map((course) => [course.id, course])),
-    [courses],
-  );
-
-  const activeCourses = courses.filter((course) => course.status !== "Inactive");
-  const activeDisciplines = disciplines.filter(
-    (discipline) => discipline.status !== "Inactive",
-  );
-
-  async function handleCourseStatusChange(courseId: string, status: EntityStatus) {
-    setUpdatingId(courseId);
-    setUpdatingType("course");
-    setFeedback("");
-    setError("");
-
-    try {
-      await changeCourseStatus(courseId, status);
-      setCourses((prev) =>
-        prev.map((course) =>
-          course.id === courseId ? { ...course, status } : course,
-        ),
-      );
-      setFeedback(
-        status === "Active"
-          ? "Curso ativado com sucesso."
-          : "Curso inativado com sucesso.",
-      );
-    } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "Não foi possível alterar o status do curso.",
-      );
-      await loadData();
-    } finally {
-      setUpdatingId(null);
-      setUpdatingType(null);
-    }
-  }
-
-  async function handleDisciplineStatusChange(
-    disciplineId: string,
-    status: EntityStatus,
-  ) {
-    setUpdatingId(disciplineId);
-    setUpdatingType("discipline");
-    setFeedback("");
-    setError("");
-
-    try {
-      await changeDisciplineStatus(disciplineId, status);
-      setDisciplines((prev) =>
-        prev.map((discipline) =>
-          discipline.id === disciplineId ? { ...discipline, status } : discipline,
-        ),
-      );
-      setFeedback(
-        status === "Active"
-          ? "Disciplina ativada com sucesso."
-          : "Disciplina inativada com sucesso.",
-      );
-    } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "Não foi possível alterar o status da disciplina.",
-      );
-      await loadData();
-    } finally {
-      setUpdatingId(null);
-      setUpdatingType(null);
-    }
-  }
-
-  if (loading) {
-    return (
-      <Box sx={{ p: 3, display: "flex", justifyContent: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.text("Relatorio Geral de Desempenho", 10, 10);
+    doc.save("relatorio_geral.pdf");
+  };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography sx={{ fontSize: 24, fontWeight: "bold", mb: 0.5 }}>
-        Painel administrativo
-      </Typography>
-      <Typography sx={{ fontSize: 14, color: "gray", mb: 3 }}>
-        Gestão de cursos e disciplinas do sistema
-      </Typography>
+    <div className="p-6 space-y-6">
+      <div className="grid grid-cols-4 gap-6">
+        {/* Mantive o filtro aqui também para garantir que o número de cards bata com a tabela[cite: 16] */}
+        <MetricCard title="Total de Alunos" value={database.usuarios.filter(u => u.perfil === 'ALUNO').length} icon={Users} />
+        <MetricCard title="Cursos Ativos" value={database.cursos.length} icon={BookOpen} />
+        <MetricCard title="Disciplinas" value={database.disciplinas.length} icon={Layers} />
+        <MetricCard title="Total de Matrículas" value={database.matriculas.length} icon={GraduationCap} />
+      </div>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        <div className="xl:col-span-3 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold">Alunos por Nome</h3>
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 text-gray-400" size={18} />
+              <input 
+                placeholder="Pesquisar aluno..." 
+                className="pl-9 pr-4 py-2 border rounded-lg text-sm"
+                onChange={(e) => setBusca(e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <div className="max-h-[500px] overflow-y-auto">
+            {Object.keys(alunosPorLetra).sort().map(letra => (
+              <div key={letra} className="mb-6">
+                <h4 className="font-bold text-gray-700 bg-gray-50 p-2 rounded">Letra {letra}</h4>
+                <table className="w-full text-left mt-2">
+                  <thead className="text-sm text-gray-500"><tr><th>Nome</th><th>ID</th></tr></thead>
+                  <tbody>
+                    {alunosPorLetra[letra].map((a: any) => (
+                      <tr key={a.id} className="border-b text-sm">
+                        <td className="py-2">
+                          <Link href={`/dashboard/${a.id}`} className="text-blue-600 hover:underline font-medium">
+                            {a.nome}
+                          </Link>
+                        </td>
+                        <td>{a.id}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
+        </div>
 
-      {feedback && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {feedback}
-        </Alert>
-      )}
-
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <Card>
-            <CardContent className="!p-4">
-              <Typography variant="caption" color="text.secondary">
-                Cursos ativos
-              </Typography>
-              <Typography sx={{ fontWeight: 700, fontSize: 28, color: "#1f2937" }}>
-                {activeCourses.length}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                de {courses.length} cadastrados
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <Card>
-            <CardContent className="!p-4">
-              <Typography variant="caption" color="text.secondary">
-                Disciplinas ativas
-              </Typography>
-              <Typography sx={{ fontWeight: 700, fontSize: 28, color: "#1f2937" }}>
-                {activeDisciplines.length}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                de {disciplines.length} cadastradas
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <Card>
-            <CardContent className="!p-4">
-              <Typography variant="caption" color="text.secondary">
-                Módulos
-              </Typography>
-              <Typography sx={{ fontWeight: 700, fontSize: 28, color: "#1f2937" }}>
-                {modules.length}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Tabs value={tab} onChange={(_, value) => setTab(value)} sx={{ mb: 3 }}>
-        <Tab label="Cursos" />
-        <Tab label="Disciplinas" />
-      </Tabs>
-
-      {tab === 0 && (
-        <Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 2,
-            }}
-          >
-            <Typography sx={{ fontWeight: 600 }}>Gestão de cursos</Typography>
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              onClick={() => setCourseModalOpen(true)}
-            >
-              Novo curso
-            </Button>
-          </Box>
-
-          {courses.length === 0 ? (
-            <Alert severity="info">Nenhum curso cadastrado.</Alert>
-          ) : (
-            <Grid container spacing={2}>
-              {courses.map((course) => {
-                const isUpdating =
-                  updatingId === course.id && updatingType === "course";
-                const status = course.status === "Inactive" ? "Inactive" : "Active";
-
-                return (
-                  <Grid size={{ xs: 12, md: 6 }} key={course.id}>
-                    <Card className={status === "Inactive" ? "opacity-70" : ""}>
-                      <CardContent>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                            gap: 2,
-                            mb: 1,
-                          }}
-                        >
-                          <Typography sx={{ fontWeight: 700, color: "#1f2937" }}>
-                            {course.name}
-                          </Typography>
-                          <Badge
-                            color={status === "Active" ? "success" : "neutral"}
-                            label={status === "Active" ? "Ativo" : "Inativo"}
-                            dot
-                          />
-                        </Box>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          {course.description || "Sem descrição"}
-                        </Typography>
-                        <Badge
-                          color="info"
-                          label={`${disciplines.filter((d) => d.courseId === course.id).length} disciplinas`}
-                        />
-                      </CardContent>
-                      <CardActions className="!justify-between !items-center">
-                        <Typography variant="caption" color="text.secondary">
-                          Alterar status
-                        </Typography>
-                        <EntityStatusToggle
-                          status={status}
-                          loading={isUpdating}
-                          onToggle={(next) =>
-                            handleCourseStatusChange(course.id!, next)
-                          }
-                        />
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          )}
-        </Box>
-      )}
-
-      {tab === 1 && (
-        <Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 2,
-            }}
-          >
-            <Typography sx={{ fontWeight: 600 }}>Gestão de disciplinas</Typography>
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              onClick={() => setDisciplineModalOpen(true)}
-            >
-              Nova disciplina
-            </Button>
-          </Box>
-
-          {disciplines.length === 0 ? (
-            <Alert severity="info">Nenhuma disciplina cadastrada.</Alert>
-          ) : (
-            <Grid container spacing={2}>
-              {disciplines.map((discipline) => {
-                const isUpdating =
-                  updatingId === discipline.id && updatingType === "discipline";
-                const status =
-                  discipline.status === "Inactive" ? "Inactive" : "Active";
-
-                return (
-                  <Grid size={{ xs: 12, md: 6 }} key={discipline.id}>
-                    <Card className={status === "Inactive" ? "opacity-70" : ""}>
-                      <CardContent>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                            gap: 2,
-                            mb: 0.5,
-                          }}
-                        >
-                          <Typography sx={{ fontWeight: 700, color: "#1f2937" }}>
-                            {discipline.name}
-                          </Typography>
-                          <Badge
-                            color={status === "Active" ? "success" : "neutral"}
-                            label={status === "Active" ? "Ativo" : "Inativo"}
-                            dot
-                          />
-                        </Box>
-                        <Typography variant="body2" color="primary" sx={{ mb: 1 }}>
-                          {coursesMap[discipline.courseId ?? ""]?.name ??
-                            "Curso não encontrado"}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          {discipline.description || "Sem descrição"}
-                        </Typography>
-                        <Badge
-                          color="info"
-                          label={`${modules.filter((m) => m.disciplineId === discipline.id).length} módulos`}
-                        />
-                      </CardContent>
-                      <CardActions className="!justify-between !items-center">
-                        <Typography variant="caption" color="text.secondary">
-                          Alterar status
-                        </Typography>
-                        <EntityStatusToggle
-                          status={status}
-                          loading={isUpdating}
-                          onToggle={(next) =>
-                            handleDisciplineStatusChange(discipline.id!, next)
-                          }
-                        />
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          )}
-        </Box>
-      )}
-
-      <CreateCourseModal
-        open={courseModalOpen}
-        onClose={() => setCourseModalOpen(false)}
-        onSuccess={loadData}
-      />
-
-      <CreateDisciplineModal
-        open={disciplineModalOpen}
-        onClose={() => setDisciplineModalOpen(false)}
-        onSuccess={loadData}
-        courses={courses.map((course) => ({
-          id: course.id ?? "",
-          name: course.name ?? "",
-          area: course.description ?? "",
-          workload: 0,
-        }))}
-      />
-    </Box>
+        <div className="xl:col-span-1 space-y-6">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <h3 className="font-semibold mb-2 text-sm">Desempenho Geral</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={studentConceptsData} innerRadius={50} outerRadius={70} dataKey="value">
+                  {studentConceptsData.map((entry, index) => <Cell key={index} fill={COLORS[index]} />)}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <button onClick={generatePDF} className="w-full mt-4 flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+              <FileDown size={18} /> Exportar PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
