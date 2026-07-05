@@ -79,8 +79,27 @@ Exemplo:
 [] editar dados da do modulo visão do professor (ead)
 [] editar material (link e outros) da visão do professor (ead)
 [] editar aula
-[] pagina de cursos
-[] detalhes do curso (visualização somente do curso para aluno e todos os cursos que o professor faz parte na visão do professor)
-[] atividades (lista)
+[x] pagina de cursos
+[x] detalhes do curso (visualização somente do curso para aluno e todos os cursos que o professor faz parte na visão do professor)
+[x] atividades (lista)
+[] detalhes de atividades (do modulo)
 [] perfil
-[] dashboard completo
+[] dashboard homepage
+[x] dashboard disciplinas
+[] dashboard editar/adicionar disciplinas
+[] dashboard cursos
+[] dashboard editar/adicionar cursos
+[] dashboard materiais
+[] dashboard editar/adicionar materiais
+[] dashboard usuarios
+[] dashboard editar/adicionar usuarios
+[] dashboard aulas
+[] dashboard editar/adicionar aulas
+
+cursos ok
+homepage ok
+disciplinas ok
+acessar aula ok
+atividades ok (melhorar detalhes da atividade)
+materiais pendente informações do backend (corrigir poo quando houver)
+

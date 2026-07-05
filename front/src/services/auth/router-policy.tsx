@@ -1,25 +1,11 @@
-export type Role = "ADMIN" | "PROFESSOR" | "ALUNO";
+// politicas de acesso as rotas baseado em roles
+export type Role = "ADMINISTRADOR" | "PROFESSOR" | "ALUNO";
 
 export const routerPolicy: Record<string, Role[]> = {
-  "/": ["PROFESSOR", "ALUNO"],
-  "/dashboard": ["ADMIN"],
-  "/cursos": ["PROFESSOR", "ALUNO"],
-  "/disciplinas": ["PROFESSOR", "ALUNO"],
-  "/materiais": ["PROFESSOR", "ALUNO"],
-  "/avaliacoes": ["PROFESSOR", "ALUNO"],
-  "/aulas": ["PROFESSOR", "ALUNO"],
-  "/perfil": ["ADMIN", "PROFESSOR", "ALUNO"],
-  "/not-found": ["ADMIN", "PROFESSOR", "ALUNO"],
+  "/dashboard": ["ADMINISTRADOR"],
+  "/cursos": ["ADMINISTRADOR", "PROFESSOR", "ALUNO"],
+  "/disciplinas": ["ADMINISTRADOR", "PROFESSOR", "ALUNO"],
+  "/materiais": ["ADMINISTRADOR", "PROFESSOR", "ALUNO"],
+  "/avaliacoes": ["ADMINISTRADOR", "PROFESSOR", "ALUNO"],
+  "/perfil": ["ADMINISTRADOR", "PROFESSOR", "ALUNO"],
 };
-
-export function isAdminPanelRoute(pathname: string): boolean {
-  const path =
-    pathname === "/" ? "/" : pathname.split("?")[0].replace(/\/+$/, "") || "/";
-
-  return (
-    path === "/dashboard" ||
-    path.startsWith("/dashboard/") ||
-    path === "/perfil" ||
-    path === "/not-found"
-  );
-}
