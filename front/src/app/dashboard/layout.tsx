@@ -2,9 +2,9 @@
 
 import DrawerLayout from "@/components/drawer";
 import { useUser } from "@/services/auth/AuthContext";
-import { DashboardOutlined, PeopleOutlined } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import React from "react";
 
 export default function DashboardLayout({
   children,
@@ -22,24 +22,25 @@ export default function DashboardLayout({
       return;
     }
 
-    if (effectiveRole !== "ADMIN") {
+    if (effectiveRole !== "ADMINISTRADOR") {
       router.replace("/not-found");
     }
   }, [user, loading, effectiveRole, router]);
 
   if (loading || !user) return null;
 
-  if (effectiveRole !== "ADMIN") return null;
+  if (effectiveRole !== "ADMINISTRADOR") return null;
 
   return (
     <DrawerLayout
       title="Sagui Admin"
       avatarSrc="/avatar.png"
       items={[
-        { icon: <DashboardOutlined />, label: "Painel", href: "/dashboard" },
-        { icon: <PeopleOutlined />, label: "Usuários", href: "/dashboard/usuarios" },
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "Disciplinas", href: "/dashboard/disciplinas" },
       ]}
       settings={[
+        { label: "Site", href: "/" },
         { label: "Perfil", href: "/perfil" },
         { label: "Sair", action: "logout" },
       ]}

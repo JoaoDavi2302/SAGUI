@@ -1,3 +1,4 @@
+// guarda e compartilha qual usuario está logado e se ele está autenticado.
 "use client";
 
 import {
@@ -8,114 +9,153 @@ import {
   ReactNode,
 } from "react";
 
-import { ApiError } from "../api/client";
-import { getMyProfile, loginRequest, logoutRequest, registerRequest } from "./api";
-import { UserProfileResponseDTO } from "./api";
-import { AuthContextType, LoggedUser, RegisterInput, Role } from "./types";
-import { clearSession, getAccessToken, persistSession } from "../api/tokens";
+import database from "../../components/mock.json";
+import { LoggedUser } from "@/services/poo/shared/types";
+import { Role } from "@/services/poo/shared/types";
 
-const AuthContext = createContext<AuthContextType | null>(null);
-
-function toLoggedUser(profile: UserProfileResponseDTO): LoggedUser {
-  if (!profile.id || !profile.name || !profile.email || !profile.role || !profile.status) {
-    throw new Error("Perfil de usuário incompleto retornado pela API");
-  }
-
-  return {
-    id: profile.id,
-    name: profile.name,
-    email: profile.email,
-    status: profile.status,
-    role: profile.role.toUpperCase() as Role,
-  };
+interface User {
+  id: number;
+  nome: string;
+  email: string;
+  senha_hash: string;
+  ativo: boolean;
 }
+
+// interface LoggedUser extends User {
+//   role: Role;
+// }
+
+interface AuthContextType {
+  user: LoggedUser | null;
+  loading: boolean;
+
+  effectiveRole: Role;
+
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => void;
+}
+
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<LoggedUser | null>(null);
 
-  useEffect(() => {
-    const token = getAccessToken();
+  function getRole(userId: number): Role {
+    const user = database.usuarios.find((u) => u.id === userId);
 
-    if (!token) {
+    return (user?.perfil ?? "ALUNO") as Role;
+  }
+
+  useEffect(() => {
+    console.log("AUTH INIT");
+
+    const token = document.cookie
+      .split("; ")
+      .find((c) => c.startsWith("token="))
+      ?.split("=")[1];
+
+    const id = Number(localStorage.getItem("userId"));
+
+    console.log("COOKIE TOKEN:", token);
+    console.log("LOCAL USERID:", id);
+
+    if (!token || !id) {
+      console.log("SEM SESSÃO");
       setUser(null);
       setLoading(false);
       return;
     }
 
-    getMyProfile()
-      .then((profile) => setUser(toLoggedUser(profile)))
-      .catch(() => {
-        clearSession();
-        setUser(null);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    const dbUser = database.usuarios.find((u) => u.id === id);
 
-  async function establishSession(accesToken: string, refreshToken: string): Promise<Role> {
-    persistSession(accesToken, refreshToken);
+    console.log("DB USER:", dbUser);
 
-    const profile = await getMyProfile();
-    const loggedUser = toLoggedUser(profile);
-    setUser(loggedUser);
-
-    return loggedUser.role;
-  }
-
-  async function login(email: string, password: string): Promise<Role | null> {
-    try {
-      const { accesToken, refreshToken } = await loginRequest(email, password);
-
-      if (!accesToken || !refreshToken) {
-        throw new Error("Resposta de login inválida (token ausente)");
-      }
-
-      return await establishSession(accesToken, refreshToken);
-    } catch (err) {
-      if (err instanceof ApiError && (err.status === 401 || err.status === 400)) {
-        return null;
-      }
-      throw err;
+    if (!dbUser) {
+      console.log("USER INVÁLIDO");
+      setUser(null);
+      setLoading(false);
+      return;
     }
-  }
 
-  async function register(input: RegisterInput): Promise<Role> {
-    const { accesToken, refreshToken } = await registerRequest({
-      name: input.name,
-      email: input.email,
-      password: input.password,
-      birthDate: input.birthDate,
-      address: input.address,
+    const role = getRole(dbUser.id);
+
+    setUser({
+      id: dbUser.id,
+      nome: dbUser.nome,
+      email: dbUser.email,
+      perfil: role,
     });
 
-    if (!accesToken || !refreshToken) {
-      throw new Error("Resposta de cadastro inválida (token ausente)");
+    console.log("SESSÃO RESTAURADA");
+    setLoading(false);
+  }, []);
+
+  async function login(email: string, password: string) {
+    console.log("LOGIN");
+
+    // busca compatibilidade de dados do banco com dados de entrada
+    const foundUser = database.usuarios.find(
+      (u) => u.email === email && u.senha_hash === password,
+    );
+
+    // busca se usuario existe
+    if (!foundUser) {
+      // console.log("LOGIN INVALIDO");
+      return false;
     }
 
-    return establishSession(accesToken, refreshToken);
+    const role = getRole(foundUser.id);
+
+    // guardar dados do usuario para acesso rapido
+    localStorage.setItem("userId", String(foundUser.id));
+    document.cookie = `token=${foundUser.id}; path=/; max-age=86400`;
+    document.cookie = `role=${role}; path=/; max-age=86400`;
+
+    const loggedUser: LoggedUser = {
+      id: foundUser.id,
+      nome: foundUser.nome,
+      email: foundUser.email,
+      perfil: role,
+    };
+
+    //teste de login
+    // console.log("LOGIN OK", {
+    //   role,
+    //   cookies: document.cookie,
+    // });
+
+    // recebe dados do usuario logado
+    setUser(loggedUser);
+
+    return true;
   }
 
-  async function logout() {
-    const refreshToken = localStorage.getItem("refreshToken");
+  function logout() {
+    // console.log("LOGOUT");
 
-    if (refreshToken) {
-      try {
-        await logoutRequest(refreshToken);
-      } catch {
-        // segue limpando o estado local mesmo se o back falhar
-      }
-    }
+    // remove dados armazenados em cookie do usuario logado
+    localStorage.removeItem("userId");
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
-    clearSession();
     setUser(null);
 
     window.location.href = "/login";
   }
 
-  const effectiveRole = user?.role ?? "ALUNO";
+  const effectiveRole = user?.perfil ?? "ALUNO";
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, effectiveRole }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        logout,
+        effectiveRole,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -124,7 +164,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useUser() {
   const context = useContext(AuthContext);
 
-  if (!context) throw new Error("useUser deve ser usado dentro de AuthProvider");
+  if (!context)
+    throw new Error("useUser deve ser usado dentro de AuthProvider");
 
   return context;
 }
+export const useAuth = () => useContext(AuthContext);

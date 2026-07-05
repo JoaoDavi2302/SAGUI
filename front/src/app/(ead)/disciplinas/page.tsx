@@ -3,30 +3,30 @@
 import { useMemo, useState } from "react";
 import {
   Box,
-  Typography,
   Card,
   CardContent,
-  Grid,
-  Divider,
-  LinearProgress,
   Collapse,
-  CircularProgress,
-  Alert,
+  Divider,
+  FormGroup,
+  Grid,
+  LinearProgress,
+  Typography,
 } from "@mui/material";
-
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-
-import { useUser } from "@/services/auth/AuthContext";
-import { useCatalogDatabase } from "@/services/auth/dataContext";
 import {
-  AccessTimeOutlined,
   CheckCircle,
   Circle,
   LayersOutlined,
+  ExpandLess as ExpandLessIcon,
+  ExpandMore as ExpandMoreIcon,
+  CheckCircleOutlineOutlined, // Ícone adicionado para finalização
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
-import { Discipline } from "@/services/types/database";
+import { useUser } from "@/services/auth/AuthContext";
+import { DatabaseProvider } from "@/services/poo/databaseProvider";
+import { DisciplineProvider } from "@/services/poo/discipline/disciplineProvider";
+import { DisciplineCard } from "@/services/poo/shared/types";
+
+const database = DatabaseProvider.getDatabase();
 
 const slugify = (text: string) =>
   text
@@ -36,294 +36,151 @@ const slugify = (text: string) =>
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "");
 
-function groupDisciplinesByCourse(
-  courses: { id: string; name: string }[],
-  disciplines: Discipline[],
-) {
-  const map = new Map<string, { course: { id: string; name: string } | null; subjects: Discipline[] }>();
-
-  disciplines.forEach((discipline) => {
-    const course = courses.find((item) => item.id === discipline.course_id) ?? null;
-
-    if (!map.has(discipline.course_id)) {
-      map.set(discipline.course_id, { course, subjects: [] });
-    }
-
-    map.get(discipline.course_id)?.subjects.push(discipline);
-  });
-
-  return Array.from(map.values());
-}
-
 export default function DisciplinasPage() {
-  const { user, effectiveRole } = useUser();
-  const { database, loading, error } = useCatalogDatabase();
   const router = useRouter();
-
+  const { user, effectiveRole } = useUser();
   const isStudent = effectiveRole === "ALUNO";
-
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({});
 
-  const toggle = (id: string) => {
-    setOpenMap((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+  const toggle = (id: number) => {
+    setOpenMap((prev) => ({ ...prev, [id]: !prev[id] }));
   };
+
+  const provider = useMemo(() => {
+    if (!user) return null;
+    return DisciplineProvider.create(effectiveRole, database, user);
+  }, [effectiveRole, user]);
 
   const data = useMemo(() => {
-    if (!user) return { grouped: [], modules: [], moduleProgress: [], lessons: [] };
+    if (!provider) return { grouped: [], modules: [], lessons: [], moduleProgress: [] };
+    return provider.getPageData();
+  }, [provider]);
 
-    const courses = database.courses ?? [];
-    const disciplines = database.disciplines ?? [];
-    const modules = database.modules ?? [];
-    const lessons = database.lessons ?? [];
-
-    let visibleDisciplines = disciplines;
-
-    if (effectiveRole === "PROFESSOR") {
-      visibleDisciplines = disciplines.filter(
-        (discipline) => discipline.professor_id === user.id,
-      );
-    }
-
-    return {
-      grouped: groupDisciplinesByCourse(courses, visibleDisciplines),
-      modules,
-      moduleProgress: database.module_progress ?? [],
-      lessons,
-    };
-  }, [user, effectiveRole, database]);
-
-  const openDiscipline = (subject: Discipline) => {
-    const slug = slugify(subject.name);
-    router.push(`/disciplinas/${slug}?id=${subject.id}`);
+  const openDiscipline = (discipline: DisciplineCard) => {
+    const slug = slugify(discipline.nome);
+    router.push(`/disciplinas/${slug}?id=${discipline.id}`);
   };
 
-  const openModule = (_subject: Discipline, moduleId: string) => {
-    const firstLesson = (data.lessons ?? [])
-      .filter((lesson) => lesson.module_id === moduleId)
-      .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))[0];
-
-    if (!firstLesson) return;
-
-    router.push(`/aulas/${firstLesson.id}`);
+  const openModule = (moduleId: number) => {
+    const firstLesson = data.lessons
+      .filter((lesson) => lesson.modulo_id === moduleId)
+      .sort((a, b) => a.ordem - b.ordem)[0];
+    if (firstLesson) router.push(`/aulas/${firstLesson.id}`);
   };
 
-  if (loading) {
-    return (
-      <Box sx={{ p: 3, display: "flex", justifyContent: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Alert severity="error">{error}</Alert>
-      </Box>
-    );
-  }
+  if (!provider) return <Box sx={{ p: 3 }}><Typography>Carregando...</Typography></Box>;
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography sx={{ fontSize: 24, fontWeight: "bold" }}>
-          Minhas Disciplinas
-        </Typography>
-        <Typography sx={{ fontSize: 14, color: "gray" }}>
-          {isStudent
-            ? "Disciplinas dos cursos em que você está matriculado"
-            : "Disciplinas que você leciona"}
-        </Typography>
-      </Box>
+      <Typography sx={{ fontSize: 24, fontWeight: "bold" }}>
+        {isStudent ? "Minhas Disciplinas" : "Disciplinas"}
+      </Typography>
+      <Typography sx={{ fontSize: 14, color: "gray", mb: 3 }}>
+        {isStudent ? "Disciplinas do seu curso" : "Disciplinas disponíveis"}
+      </Typography>
 
-      {data.grouped.length === 0 && (
-        <Alert severity="info">Nenhuma disciplina encontrada.</Alert>
-      )}
-
+      {/* MODIFICAÇÃO (Etapa 4): mb: 6 para respiro final */}
       {data.grouped.map((group) => (
-        <Box key={group.course?.id ?? Math.random()} sx={{ mb: 4 }}>
+        <Box key={group.course?.id} sx={{ mb: 6 }}>
           {!isStudent && group.course && (
             <>
-              <Typography sx={{ fontSize: 16, color: "gray" }}>
-                {group.course.name}
-              </Typography>
+              <Typography sx={{ fontSize: 16, color: "gray" }}>{group.course.nome}</Typography>
               <Divider sx={{ my: 2 }} />
             </>
           )}
 
-          <Grid container spacing={2}>
+          <Grid container spacing={3}>
             {group.subjects.map((subject) => {
-              const disciplineModules =
-                data.modules?.filter(
-                  (module) => module.discipline_id === subject.id,
-                ) ?? [];
-
-              const completedModules = (data.moduleProgress ?? []).filter(
-                (progress) =>
-                  progress.status === "COMPLETED" &&
-                  disciplineModules.some((module) => module.id === progress.module_id),
-              ).length;
-
-              const progressPercent =
-                disciplineModules.length > 0
-                  ? Math.round((completedModules / disciplineModules.length) * 100)
-                  : 0;
-
-              const safeProgress = Math.min(100, Math.max(0, progressPercent));
-              const isOpen = openMap[subject.id] || false;
+              const isOpen = openMap[subject.id] ?? false;
+              const progress = subject.progress;
 
               return (
-                <Grid size={{ xs: 12, md: 12 }} key={subject.id}>
-                  <Card sx={{ borderRadius: 3 }}>
-                    <CardContent>
-                      <Box
-                        sx={{ cursor: "pointer" }}
-                        onClick={() => openDiscipline(subject)}
-                      >
-                        <Box
-                          sx={{
-                            flex: 1,
-                            gap: 2,
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Box
-                            sx={{ p: 2, bgcolor: "#add3f8", borderRadius: 2 }}
-                          >
-                            <LayersOutlined
-                              fontSize="small"
-                              sx={{ color: "#1976d2" }}
-                            />
-                          </Box>
-                          <Box
-                            sx={{
-                              flex: 1,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                            }}
-                          >
-                            <Typography sx={{ fontWeight: "bold" }}>
-                              {subject.name}
-                            </Typography>
-
-                            {subject.workload > 0 && (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1,
-                                }}
-                              >
-                                <AccessTimeOutlined fontSize="small" />
-                                <Typography variant="caption">
-                                  {subject.workload}h
-                                </Typography>
-                              </Box>
-                            )}
-                          </Box>
-                        </Box>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            mt: 1,
-                            color: "text.secondary",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {subject.description}
+                <Grid key={subject.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                  <Card sx={{ 
+                    borderRadius: 3, 
+                    height: "100%", 
+                    display: "flex", 
+                    flexDirection: "column", 
+                    boxShadow: "none", 
+                    border: "1px solid #e0e0e0", 
+                    "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.1)" } 
+                  }}>
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#1976d2', textTransform: 'uppercase' }}>
+                          {group.course?.nome || "Disciplina"}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {subject.modules.length} módulos
                         </Typography>
                       </Box>
 
-                      {isStudent && disciplineModules.length > 0 && (
-                        <Box sx={{ mt: 1.5 }}>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                            }}
-                          >
-                            <Typography variant="caption" color="text.secondary">
-                              Progresso
-                            </Typography>
-                            <Typography variant="caption">
-                              {safeProgress}%
-                            </Typography>
+                      <Box 
+                        sx={{ cursor: "pointer", transition: "0.2s", "&:hover": { opacity: 0.8 } }} 
+                        onClick={() => openDiscipline(subject)}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
+                          <Box sx={{ p: 1.5, bgcolor: "#add3f8", borderRadius: 2 }}>
+                            <LayersOutlined fontSize="small" sx={{ color: "#1976d2" }} />
                           </Box>
-                          <LinearProgress
-                            variant="determinate"
-                            value={safeProgress}
-                            sx={{ mt: 0.5, height: 6, borderRadius: 5 }}
-                          />
+                          <Typography sx={{ fontWeight: "bold" }}>{subject.nome}</Typography>
+                        </Box>
+                        <Typography variant="body2" sx={{ color: "text.secondary", mb: 2, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                          {subject.descricao}
+                        </Typography>
+                      </Box>
+
+                      {isStudent && (
+                        <Box sx={{ mb: 2 }}>
+                          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                            <Typography variant="caption" color="text.secondary">Progresso</Typography>
+                            <Typography variant="caption" sx={{ fontWeight: 600 }}>{progress.percentage}%</Typography>
+                          </Box>
+                          <LinearProgress variant="determinate" value={progress.percentage} sx={{ mt: 0.5, height: 6, borderRadius: 5 }} />
                         </Box>
                       )}
 
-                      <Divider sx={{ my: 2 }} />
-                      <Box
-                        component="button"
-                        sx={{
-                          border: "none",
-                          display: "flex",
-                          flex: 1,
-                          cursor: "pointer",
-                          bgcolor: "transparent",
-                          "&:hover": { fontWeight: 800 },
+                      <Divider sx={{ my: 1 }} />
+
+                      <Box 
+                        component="button" 
+                        onClick={() => toggle(subject.id)} 
+                        sx={{ 
+                          border: "none", 
+                          background: "transparent", 
+                          width: "100%", 
+                          display: "flex", 
+                          alignItems: "center", 
+                          justifyContent: "space-between", 
+                          cursor: "pointer", 
+                          p: 1,
+                          borderRadius: 2,
+                          "&:hover": { bgcolor: "#f5f5f5" }
                         }}
-                        onClick={() => toggle(subject.id)}
                       >
-                        <Typography variant="caption" sx={{ fontWeight: "bold" }}>
-                          Ver módulos ({disciplineModules.length})
+                        <Typography variant="caption" sx={{ fontWeight: "bold", color: isOpen ? 'primary.main' : 'text.primary' }}>
+                          {isOpen ? "Ocultar módulos" : `Ver módulos (${subject.modules.length})`}
                         </Typography>
-                        {isOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        {isOpen ? <ExpandLessIcon color="primary" /> : <ExpandMoreIcon />}
                       </Box>
 
                       <Collapse in={isOpen}>
                         <Box sx={{ mt: 2 }}>
-                          {disciplineModules.map((module) => {
-                            const progress = data.moduleProgress.find(
-                              (item) => item.module_id === module.id,
-                            );
-                            const isCompleted = progress?.status === "COMPLETED";
-                            const lessonsCount = (data.lessons ?? []).filter(
-                              (lesson) => lesson.module_id === module.id,
-                            ).length;
-
-                            return (
-                              <Box
-                                key={module.id}
-                                onClick={() => openModule(subject, module.id)}
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1.5,
-                                  p: 1,
-                                  borderRadius: 2,
-                                  cursor: "pointer",
-                                  "&:hover": { bgcolor: "#f5f5f5" },
-                                }}
-                              >
-                                {isCompleted ? (
-                                  <CheckCircle sx={{ fontSize: 18, color: "green" }} />
-                                ) : (
-                                  <Circle sx={{ fontSize: 18, color: "gray" }} />
-                                )}
-                                <Typography variant="body2">{module.name}</Typography>
-                                <Typography
-                                  variant="caption"
-                                  sx={{ color: "gray", ml: "auto" }}
-                                >
-                                  ({lessonsCount} aulas)
-                                </Typography>
-                              </Box>
-                            );
-                          })}
+                          <FormGroup>
+                            {subject.modules.map((module) => {
+                              const completed = isStudent && subject.progress.completedModules > 0 
+                                ? data.moduleProgress.some((p) => p.aluno_id === user?.id && p.modulo_id === module.id && p.concluido) 
+                                : false;
+                              const lessonsCount = data.lessons.filter((l) => l.modulo_id === module.id).length;
+                              return (
+                                <Box key={module.id} onClick={() => openModule(module.id)} sx={{ display: "flex", alignItems: "center", gap: 1.5, p: 1, borderRadius: 2, cursor: "pointer", "&:hover": { bgcolor: "#f5f5f5" } }}>
+                                  {completed ? <CheckCircle sx={{ fontSize: 18, color: "green" }} /> : <Circle sx={{ fontSize: 18, color: "gray" }} />}
+                                  <Typography variant="body2">{module.nome}</Typography>
+                                  <Typography variant="caption" sx={{ ml: "auto", color: "gray" }}>({lessonsCount} aulas)</Typography>
+                                </Box>
+                              );
+                            })}
+                          </FormGroup>
                         </Box>
                       </Collapse>
                     </CardContent>
@@ -334,6 +191,14 @@ export default function DisciplinasPage() {
           </Grid>
         </Box>
       ))}
+
+      {/* MODIFICAÇÃO (Etapa 4): Rodapé de conclusão profissional */}
+      <Box sx={{ py: 3, borderTop: "1px solid #e0e0e0", textAlign: 'center', mt: 4 }}>
+        <Typography variant="body2" sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+          <CheckCircleOutlineOutlined fontSize="small" />
+          Você visualizou todas as suas disciplinas.
+        </Typography>
+      </Box>
     </Box>
   );
 }
