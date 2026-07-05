@@ -1,44 +1,42 @@
 'use client';
 import React, { use, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, FileDown } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
-import data from '@/services/mock_completo.json';
+import database from '@/components/mock.json'; // Importação do arquivo consolidado
 
 export default function DetalhesAlunoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
 
   const alunoRelatorio = useMemo(() => {
-    console.log("ID recebido da URL:", id);
-    console.log("Dados do JSON:", data);
-    const usuario = data.usuarios.find(u => u.id === Number(id));
-    console.log("Usuário encontrado:", usuario);
+    const usuario = database.usuarios.find(u => u.id === Number(id));
     if (!usuario) return null;
 
-    const matriculas = data.matriculas.filter(m => m.aluno_id === usuario.id);
+    const matriculas = database.matriculas.filter(m => m.aluno_id === usuario.id && m.status === 'APROVADA');
     
     const detalhamento = matriculas.map(m => {
-      const curso = data.cursos.find(c => c.id === m.curso_id);
-      const disciplinas = data.disciplinas.filter(d => d.curso_id === curso?.id);
+      const curso = database.cursos.find(c => c.id === m.curso_id);
+      const disciplinas = database.disciplinas.filter(d => d.curso_id === curso?.id);
       
       return {
         curso: curso?.nome,
         disciplinas: disciplinas.map(d => ({
           nome: d.nome,
-          modulos: data.modulos.filter(mod => mod.disciplina_id === d.id).map(mod => {
-            const prova = data.provas.find(p => p.modulo_id === mod.id);
-            const nota = data.notas.find(n => n.aluno_id === usuario.id && n.prova_id === prova?.id)?.valor || 0;
-            return { nome: mod.nome, nota };
+          modulos: database.modulos.filter(mod => mod.disciplina_id === d.id).map(mod => {
+            // ALTERAÇÃO: Buscando nota no progresso_modulo, pois não existe mais a entidade 'provas' ou 'notas'
+            const progresso = database.progresso_modulo.find(p => p.aluno_id === usuario.id && p.modulo_id === mod.id);
+            return { nome: mod.nome, nota: progresso?.nota || 0 };
           })
         }))
       };
     });
 
-    // Dados para o gráfico: Média por disciplina do aluno
     const dadosGrafico = detalhamento.flatMap(c => 
       c.disciplinas.map(d => ({
         disciplina: d.nome,
-        media: d.modulos.reduce((acc, m) => acc + m.nota, 0) / (d.modulos.length || 1)
+        media: d.modulos.length > 0 
+          ? d.modulos.reduce((acc, m) => acc + m.nota, 0) / d.modulos.length 
+          : 0
       }))
     );
 
@@ -64,7 +62,7 @@ export default function DetalhesAlunoPage({ params }: { params: Promise<{ id: st
                   {d.modulos.map((m, k) => (
                     <div key={k} className="bg-gray-50 p-2 rounded text-sm">
                       <p>{m.nome}</p>
-                      <p className="font-bold">Nota: {m.nota}</p>
+                      <p className="font-bold">Nota: {m.nota.toFixed(1)}</p>
                     </div>
                   ))}
                 </div>
@@ -80,7 +78,7 @@ export default function DetalhesAlunoPage({ params }: { params: Promise<{ id: st
           <BarChart data={alunoRelatorio.dadosGrafico}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="disciplina" />
-            <YAxis domain={[0, 10]} />
+            <YAxis domain={[0, 100]} />
             <Tooltip />
             <Bar dataKey="media" fill="#3b82f6" />
           </BarChart>

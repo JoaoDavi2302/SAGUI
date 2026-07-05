@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Users, GraduationCap, BookOpen, Layers, FileDown, Search } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import jsPDF from 'jspdf';
-import data from '../../services/mock_completo.json';
+import database from '@/components/mock.json';
 
 const studentConceptsData = [
   { name: 'Excelente', value: 30 },
@@ -26,14 +26,19 @@ export default function DashboardPage() {
   const [busca, setBusca] = useState('');
 
   const alunosFiltrados = useMemo(() => {
-    return data.usuarios
+    return database.usuarios
+      // ALTERAÇÃO: Filtra estritamente os usuários que possuem a tag 'ALUNO' no perfil[cite: 16].
+      .filter((a: any) => a.perfil === 'ALUNO')
+      // Filtra pela busca de texto digitada pelo administrador
       .filter((a: any) => a.nome.toLowerCase().includes(busca.toLowerCase()))
+      // Ordena alfabeticamente
       .sort((a: any, b: any) => a.nome.localeCompare(b.nome));
   }, [busca]);
 
-  const alunosPorAno = useMemo(() => {
+  const alunosPorLetra = useMemo(() => {
     return alunosFiltrados.reduce((acc: any, aluno: any) => {
-      (acc[aluno.ano_cadastro] = acc[aluno.ano_cadastro] || []).push(aluno);
+      const primeiraLetra = aluno.nome[0].toUpperCase();
+      (acc[primeiraLetra] = acc[primeiraLetra] || []).push(aluno);
       return acc;
     }, {});
   }, [alunosFiltrados]);
@@ -47,16 +52,17 @@ export default function DashboardPage() {
   return (
     <div className="p-6 space-y-6">
       <div className="grid grid-cols-4 gap-6">
-        <MetricCard title="Total de Alunos" value={data.usuarios.length} icon={Users} />
-        <MetricCard title="Cursos Ativos" value={data.cursos.length} icon={BookOpen} />
-        <MetricCard title="Disciplinas" value={data.disciplinas.length} icon={Layers} />
-        <MetricCard title="Total de Matrículas" value={data.matriculas.length} icon={GraduationCap} />
+        {/* Mantive o filtro aqui também para garantir que o número de cards bata com a tabela[cite: 16] */}
+        <MetricCard title="Total de Alunos" value={database.usuarios.filter(u => u.perfil === 'ALUNO').length} icon={Users} />
+        <MetricCard title="Cursos Ativos" value={database.cursos.length} icon={BookOpen} />
+        <MetricCard title="Disciplinas" value={database.disciplinas.length} icon={Layers} />
+        <MetricCard title="Total de Matrículas" value={database.matriculas.length} icon={GraduationCap} />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         <div className="xl:col-span-3 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold">Alunos por Ano de Cadastro</h3>
+            <h3 className="font-semibold">Alunos por Nome</h3>
             <div className="relative">
               <Search className="absolute left-2 top-2.5 text-gray-400" size={18} />
               <input 
@@ -68,13 +74,13 @@ export default function DashboardPage() {
           </div>
           
           <div className="max-h-[500px] overflow-y-auto">
-            {Object.keys(alunosPorAno).sort((a,b) => Number(b) - Number(a)).map(ano => (
-              <div key={ano} className="mb-6">
-                <h4 className="font-bold text-gray-700 bg-gray-50 p-2 rounded">Ano {ano}</h4>
+            {Object.keys(alunosPorLetra).sort().map(letra => (
+              <div key={letra} className="mb-6">
+                <h4 className="font-bold text-gray-700 bg-gray-50 p-2 rounded">Letra {letra}</h4>
                 <table className="w-full text-left mt-2">
                   <thead className="text-sm text-gray-500"><tr><th>Nome</th><th>ID</th></tr></thead>
                   <tbody>
-                    {alunosPorAno[ano].map((a: any) => (
+                    {alunosPorLetra[letra].map((a: any) => (
                       <tr key={a.id} className="border-b text-sm">
                         <td className="py-2">
                           <Link href={`/dashboard/${a.id}`} className="text-blue-600 hover:underline font-medium">

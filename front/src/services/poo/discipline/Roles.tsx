@@ -7,6 +7,7 @@ import {
   DisciplineDetailsPage,
   UserEntity,
   ModuleDetailsCard,
+  CourseEntity,
 } from "../shared/types";
 
 /* aluno */
@@ -15,6 +16,10 @@ export class StudentDiscipline extends Discipline {
     const courseIds = this.getStudentCourseIds();
 
     return this.disciplines().filter((d) => courseIds.includes(d.curso_id));
+  }
+
+  listCourses(): CourseEntity[] {
+    return this.courses().filter((c) => c.ativo);
   }
 
   getDiscipline(id: number): DisciplineEntity | null {
@@ -137,6 +142,10 @@ export class StudentDiscipline extends Discipline {
 export class ProfessorDiscipline extends Discipline {
   listDisciplines(): DisciplineEntity[] {
     return this.disciplines().filter((d) => d.professor_id === this.user.id);
+  }
+
+  listCourses(): CourseEntity[] {
+    return this.courses().filter((c) => c.ativo);
   }
 
   getDiscipline(id: number): DisciplineEntity | null {
@@ -275,6 +284,10 @@ export class ProfessorDiscipline extends Discipline {
 export class AdminDiscipline extends Discipline {
   listDisciplines(): DisciplineEntity[] {
     return this.disciplines();
+  }
+
+  listCourses(): CourseEntity[] {
+    return this.courses();
   }
 
   listProfessors(): UserEntity[] {

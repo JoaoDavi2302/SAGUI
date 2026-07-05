@@ -74,36 +74,57 @@
   "cursos": [
     {
       "id": 1,
-      "nome": "Ciência da Computação",
-      "descricao": "Ciência da Computação",
+      "nome": "Desenvolvimento Web Full Stack",
+      "descricao": "Curso profissionalizante voltado ao desenvolvimento de aplicações web utilizando HTML, CSS, JavaScript, banco de dados e APIs.",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
     },
     {
       "id": 2,
-      "nome": "Administração",
-      "descricao": "Administração",
+      "nome": "Gestão Financeira",
+      "descricao": "Curso profissionalizante sobre planejamento financeiro, controle de custos, fluxo de caixa e análise de investimentos.",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
     },
     {
       "id": 3,
-      "nome": "Direito",
-      "descricao": "Direito",
+      "nome": "Assistente Jurídico",
+      "descricao": "Curso profissionalizante para atuação em rotinas administrativas de escritórios de advocacia e departamentos jurídicos.",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
-    }
+    },
+    { "id": 4,
+      "nome": "Ciência de Dados", 
+      "descricao": "Análise e processamento de dados.", 
+      "ativo": true,
+      "criado_em": "2026-07-01T12:00:00Z",
+      "atualizado_em": "2026-07-01T12:00:00Z" 
+    },
+    { "id": 5, 
+      "nome": "Marketing Digital", 
+      "descricao": "Estratégias de presença digital.", 
+      "ativo": true 
+    },
+    { "id": 6, 
+    "nome": "Gestão de Pessoas", 
+    "descricao": "Liderança e capital humano.", 
+    "ativo": true 
+  },
+    { "id": 7, 
+    "nome": "Segurança da Informação", 
+    "descricao": "Proteção de dados corporativos.", 
+    "ativo": true }
   ],
   "disciplinas": [
     {
       "id": 1,
       "curso_id": 1,
       "professor_id": 2,
-      "nome": "Disciplina 1",
-      "descricao": "Descrição da disciplina 1",
+      "nome": "Fundamentos da Web",
+      "descricao": "Introdução às tecnologias utilizadas no desenvolvimento web moderno.",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -112,8 +133,8 @@
       "id": 2,
       "curso_id": 1,
       "professor_id": 2,
-      "nome": "Disciplina 2",
-      "descricao": "...",
+      "nome": "Back-end com APIs",
+      "descricao": "Desenvolvimento de APIs REST e integração com bancos de dados.",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -122,8 +143,8 @@
       "id": 3,
       "curso_id": 2,
       "professor_id": 2,
-      "nome": "Disciplina 3",
-      "descricao": "...",
+      "nome": "Matemática Financeira",
+      "descricao": "Conceitos de juros, descontos, financiamentos e investimentos.",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -132,8 +153,8 @@
       "id": 4,
       "curso_id": 2,
       "professor_id": 2,
-      "nome": "Disciplina 4",
-      "descricao": "...",
+      "nome": "Controle Financeiro",
+      "descricao": "Planejamento financeiro, fluxo de caixa e orçamento empresarial.",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -142,8 +163,8 @@
       "id": 5,
       "curso_id": 3,
       "professor_id": 2,
-      "nome": "Disciplina 5",
-      "descricao": "...",
+      "nome": "Direito Civil",
+      "descricao": "Princípios fundamentais do Direito Civil e relações jurídicas.",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -152,8 +173,8 @@
       "id": 6,
       "curso_id": 3,
       "professor_id": 2,
-      "nome": "Disciplina 6",
-      "descricao": "...",
+      "nome": "Prática Processual",
+      "descricao": "Procedimentos jurídicos, petições e organização processual.",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -163,8 +184,8 @@
     {
       "id": 1,
       "disciplina_id": 1,
-      "nome": "Módulo 1",
-      "descricao": "...",
+      "nome": "HTML e CSS",
+      "descricao": "Criação da estrutura e estilização de páginas web.",
       "ordem": 1,
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
@@ -173,8 +194,8 @@
     {
       "id": 2,
       "disciplina_id": 1,
-      "nome": "Módulo 2",
-      "descricao": "...",
+      "nome": "JavaScript Básico",
+      "descricao": "Programação para interatividade em páginas web.",
       "ordem": 2,
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
@@ -183,8 +204,8 @@
     {
       "id": 3,
       "disciplina_id": 2,
-      "nome": "Módulo 1",
-      "descricao": "...",
+      "nome": "Node.js",
+      "descricao": "Criação de aplicações back-end utilizando Node.js.",
       "ordem": 1,
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
@@ -193,8 +214,8 @@
     {
       "id": 4,
       "disciplina_id": 2,
-      "nome": "Módulo 2",
-      "descricao": "...",
+      "nome": "APIs REST",
+      "descricao": "Desenvolvimento de APIs RESTful e integração com banco de dados.",
       "ordem": 2,
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
@@ -203,8 +224,8 @@
     {
       "id": 5,
       "disciplina_id": 3,
-      "nome": "Módulo 1",
-      "descricao": "...",
+      "nome": "Juros e Descontos",
+      "descricao": "Cálculos financeiros aplicados ao mercado.",
       "ordem": 1,
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
@@ -213,8 +234,8 @@
     {
       "id": 6,
       "disciplina_id": 3,
-      "nome": "Módulo 2",
-      "descricao": "...",
+      "nome": "Investimentos",
+      "descricao": "Análise de aplicações financeiras e rentabilidade.",
       "ordem": 2,
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
@@ -223,8 +244,8 @@
     {
       "id": 7,
       "disciplina_id": 4,
-      "nome": "Módulo 1",
-      "descricao": "...",
+      "nome": "Fluxo de Caixa",
+      "descricao": "Controle financeiro diário e planejamento empresarial.",
       "ordem": 1,
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
@@ -233,8 +254,8 @@
     {
       "id": 8,
       "disciplina_id": 4,
-      "nome": "Módulo 2",
-      "descricao": "...",
+      "nome": "Orçamento",
+      "descricao": "Elaboração e acompanhamento do orçamento organizacional.",
       "ordem": 2,
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
@@ -243,8 +264,8 @@
     {
       "id": 9,
       "disciplina_id": 5,
-      "nome": "Módulo 1",
-      "descricao": "...",
+      "nome": "Pessoas e Bens",
+      "descricao": "Conceitos fundamentais do Direito Civil.",
       "ordem": 1,
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
@@ -253,8 +274,8 @@
     {
       "id": 10,
       "disciplina_id": 5,
-      "nome": "Módulo 2",
-      "descricao": "...",
+      "nome": "Contratos",
+      "descricao": "Elementos essenciais e classificação dos contratos.",
       "ordem": 2,
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
@@ -263,8 +284,8 @@
     {
       "id": 11,
       "disciplina_id": 6,
-      "nome": "Módulo 1",
-      "descricao": "...",
+      "nome": "Petições",
+      "descricao": "Estrutura e elaboração de peças processuais.",
       "ordem": 1,
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
@@ -273,13 +294,21 @@
     {
       "id": 12,
       "disciplina_id": 6,
-      "nome": "Módulo 2",
-      "descricao": "...",
+      "nome": "Tramitação Processual",
+      "descricao": "Etapas do processo judicial e atuação do assistente jurídico.",
       "ordem": 2,
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
-    }
+    },
+    { "id": 37, "disciplina_id": 7, "nome": "Módulo 1: Estatística", "descricao": "Dados e variáveis", "ordem": 1, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 38, "disciplina_id": 7, "nome": "Módulo 2: Probabilidade", "descricao": "Cálculo de chances", "ordem": 2, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 39, "disciplina_id": 8, "nome": "Módulo 1: SEO", "descricao": "Otimização de busca", "ordem": 1, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 40, "disciplina_id": 8, "nome": "Módulo 2: Redes Sociais", "descricao": "Estratégia de conteúdo", "ordem": 2, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 41, "disciplina_id": 9, "nome": "Módulo 1: Recrutamento", "descricao": "Seleção de talentos", "ordem": 1, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 42, "disciplina_id": 9, "nome": "Módulo 2: Cultura", "descricao": "Clima organizacional", "ordem": 2, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 43, "disciplina_id": 10, "nome": "Módulo 1: Criptografia", "descricao": "Segurança de dados", "ordem": 1, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" },
+    { "id": 44, "disciplina_id": 10, "nome": "Módulo 2: Compliance", "descricao": "Normas e leis", "ordem": 2, "ativo": true, "criado_em": "2026-07-04T17:00:00Z", "atualizado_em": "2026-07-04T17:00:00Z" }
   ],
   "aulas": [
     {
@@ -1525,7 +1554,118 @@
       "ordem": 4
     }
   ],
-  "anexos": [],
+  "anexos": [
+    {
+      "id": 1,
+      "modulo_id": 1,
+      "aula_id": null,
+      "atividade_id": null,
+      "tipo": "DOCUMENTO",
+      "nome_arquivo": "plano-do-modulo.pdf",
+      "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "tamanho_bytes": 13264,
+      "criado_em": "2026-01-05T09:00:00Z"
+    },
+    {
+      "id": 2,
+      "modulo_id": null,
+      "aula_id": 1,
+      "atividade_id": null,
+      "tipo": "VIDEO",
+      "nome_arquivo": "introducao.mp4",
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "tamanho_bytes": 85463214,
+      "criado_em": "2026-01-05T10:00:00Z"
+    },
+    {
+      "id": 3,
+      "modulo_id": null,
+      "aula_id": 2,
+      "atividade_id": null,
+      "tipo": "IMAGEM",
+      "nome_arquivo": "arquitetura.png",
+      "url": "https://developer.mozilla.org/static/img/opengraph-logo.png",
+      "tamanho_bytes": 524211,
+      "criado_em": "2026-01-06T09:20:00Z"
+    },
+    {
+      "id": 4,
+      "modulo_id": null,
+      "aula_id": null,
+      "atividade_id": 1,
+      "tipo": "DOCUMENTO",
+      "nome_arquivo": "enunciado.pdf",
+      "url": "https://www.africau.edu/images/default/sample.pdf",
+      "tamanho_bytes": 302812,
+      "criado_em": "2026-01-07T11:00:00Z"
+    },
+    {
+      "id": 5,
+      "modulo_id": 2,
+      "aula_id": null,
+      "atividade_id": null,
+      "tipo": "IMAGEM",
+      "nome_arquivo": "fluxograma.png",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/3/38/Diagram.svg",
+      "tamanho_bytes": 222143,
+      "criado_em": "2026-01-08T08:15:00Z"
+    },
+    {
+      "id": 6,
+      "modulo_id": null,
+      "aula_id": 5,
+      "atividade_id": null,
+      "tipo": "VIDEO",
+      "nome_arquivo": "api-rest.mp4",
+      "url": "https://www.youtube.com/watch?v=7YcW25PHnAA",
+      "tamanho_bytes": 112548963,
+      "criado_em": "2026-01-09T15:10:00Z"
+    },
+    {
+      "id": 7,
+      "modulo_id": null,
+      "aula_id": null,
+      "atividade_id": 4,
+      "tipo": "DOCUMENTO",
+      "nome_arquivo": "atividade4.pdf",
+      "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "tamanho_bytes": 18456,
+      "criado_em": "2026-01-10T14:00:00Z"
+    },
+    {
+      "id": 8,
+      "modulo_id": 6,
+      "aula_id": null,
+      "atividade_id": null,
+      "tipo": "DOCUMENTO",
+      "nome_arquivo": "material.pdf",
+      "url": "https://www.africau.edu/images/default/sample.pdf",
+      "tamanho_bytes": 299845,
+      "criado_em": "2026-01-12T09:00:00Z"
+    },
+    {
+      "id": 9,
+      "modulo_id": null,
+      "aula_id": 12,
+      "atividade_id": null,
+      "tipo": "VIDEO",
+      "nome_arquivo": "docker.mp4",
+      "url": "https://www.youtube.com/watch?v=fqMOX6JJhGo",
+      "tamanho_bytes": 94521123,
+      "criado_em": "2026-01-13T13:30:00Z"
+    },
+    {
+      "id": 10,
+      "modulo_id": null,
+      "aula_id": null,
+      "atividade_id": 12,
+      "tipo": "IMAGEM",
+      "nome_arquivo": "modelo.png",
+      "url": "https://developer.mozilla.org/static/img/opengraph-logo.png",
+      "tamanho_bytes": 491220,
+      "criado_em": "2026-01-15T17:00:00Z"
+    }
+  ],
   "matriculas": [
     {
       "id": 1,
@@ -1558,9 +1698,455 @@
       "criado_em": "2026-07-01T12:00:00Z"
     }
   ],
-  "progresso_modulo": [],
-  "tentativas_atividade": [],
-  "respostas_aluno": [],
-  "tokens_recuperacao_senha": [],
-  "material": []
+  "progresso_modulo": [
+    {
+      "id": 1,
+      "aluno_id": 1,
+      "modulo_id": 1,
+      "tentativas": 1,
+      "nota": 85.5,
+      "concluido": true,
+      "concluido_em": "2026-02-01T10:00:00Z",
+      "atualizado_em": "2026-02-01T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "aluno_id": 1,
+      "modulo_id": 2,
+      "tentativas": 2,
+      "nota": 73,
+      "concluido": true,
+      "concluido_em": "2026-02-03T09:00:00Z",
+      "atualizado_em": "2026-02-03T09:00:00Z"
+    },
+    {
+      "id": 3,
+      "aluno_id": 1,
+      "modulo_id": 3,
+      "tentativas": 3,
+      "nota": 68,
+      "concluido": false,
+      "concluido_em": null,
+      "atualizado_em": "2026-02-05T12:00:00Z"
+    },
+    {
+      "id": 4,
+      "aluno_id": 1,
+      "modulo_id": 4,
+      "tentativas": 1,
+      "nota": 94,
+      "concluido": true,
+      "concluido_em": "2026-02-08T09:00:00Z",
+      "atualizado_em": "2026-02-08T09:00:00Z"
+    },
+    {
+      "id": 5,
+      "aluno_id": 1,
+      "modulo_id": 5,
+      "tentativas": 1,
+      "nota": 77,
+      "concluido": true,
+      "concluido_em": "2026-02-10T09:00:00Z",
+      "atualizado_em": "2026-02-10T09:00:00Z"
+    },
+    {
+      "id": 6,
+      "aluno_id": 1,
+      "modulo_id": 6,
+      "tentativas": 2,
+      "nota": 69,
+      "concluido": false,
+      "concluido_em": null,
+      "atualizado_em": "2026-02-11T09:00:00Z"
+    },
+    {
+      "id": 7,
+      "aluno_id": 1,
+      "modulo_id": 7,
+      "tentativas": 1,
+      "nota": 88,
+      "concluido": true,
+      "concluido_em": "2026-02-13T09:00:00Z",
+      "atualizado_em": "2026-02-13T09:00:00Z"
+    },
+    {
+      "id": 8,
+      "aluno_id": 1,
+      "modulo_id": 8,
+      "tentativas": 2,
+      "nota": 72,
+      "concluido": true,
+      "concluido_em": "2026-02-15T09:00:00Z",
+      "atualizado_em": "2026-02-15T09:00:00Z"
+    },
+    {
+      "id": 9,
+      "aluno_id": 1,
+      "modulo_id": 9,
+      "tentativas": 1,
+      "nota": 81,
+      "concluido": true,
+      "concluido_em": "2026-02-17T09:00:00Z",
+      "atualizado_em": "2026-02-17T09:00:00Z"
+    },
+    {
+      "id": 10,
+      "aluno_id": 1,
+      "modulo_id": 10,
+      "tentativas": 3,
+      "nota": 65,
+      "concluido": false,
+      "concluido_em": null,
+      "atualizado_em": "2026-02-20T09:00:00Z"
+    },
+    {
+      "id": 11,
+      "aluno_id": 1,
+      "modulo_id": 11,
+      "tentativas": 2,
+      "nota": 79,
+      "concluido": true,
+      "concluido_em": "2026-02-22T09:00:00Z",
+      "atualizado_em": "2026-02-22T09:00:00Z"
+    },
+    {
+      "id": 12,
+      "aluno_id": 1,
+      "modulo_id": 12,
+      "tentativas": 1,
+      "nota": 91,
+      "concluido": true,
+      "concluido_em": "2026-02-25T09:00:00Z",
+      "atualizado_em": "2026-02-25T09:00:00Z"
+    },
+    {
+      "id": 13,
+      "aluno_id": 2,
+      "modulo_id": 1,
+      "tentativas": 2,
+      "nota": 75,
+      "concluido": true,
+      "concluido_em": "2026-02-02T09:00:00Z",
+      "atualizado_em": "2026-02-02T09:00:00Z"
+    },
+    {
+      "id": 14,
+      "aluno_id": 2,
+      "modulo_id": 2,
+      "tentativas": 1,
+      "nota": 93,
+      "concluido": true,
+      "concluido_em": "2026-02-04T09:00:00Z",
+      "atualizado_em": "2026-02-04T09:00:00Z"
+    },
+    {
+      "id": 15,
+      "aluno_id": 2,
+      "modulo_id": 3,
+      "tentativas": 1,
+      "nota": 84,
+      "concluido": true,
+      "concluido_em": "2026-02-06T09:00:00Z",
+      "atualizado_em": "2026-02-06T09:00:00Z"
+    },
+    {
+      "id": 16,
+      "aluno_id": 2,
+      "modulo_id": 4,
+      "tentativas": 3,
+      "nota": 66,
+      "concluido": false,
+      "concluido_em": null,
+      "atualizado_em": "2026-02-08T09:00:00Z"
+    },
+    {
+      "id": 17,
+      "aluno_id": 2,
+      "modulo_id": 5,
+      "tentativas": 2,
+      "nota": 78,
+      "concluido": true,
+      "concluido_em": "2026-02-10T09:00:00Z",
+      "atualizado_em": "2026-02-10T09:00:00Z"
+    },
+    {
+      "id": 18,
+      "aluno_id": 2,
+      "modulo_id": 6,
+      "tentativas": 1,
+      "nota": 87,
+      "concluido": true,
+      "concluido_em": "2026-02-12T09:00:00Z",
+      "atualizado_em": "2026-02-12T09:00:00Z"
+    },
+    {
+      "id": 19,
+      "aluno_id": 2,
+      "modulo_id": 7,
+      "tentativas": 2,
+      "nota": 74,
+      "concluido": true,
+      "concluido_em": "2026-02-14T09:00:00Z",
+      "atualizado_em": "2026-02-14T09:00:00Z"
+    },
+    {
+      "id": 20,
+      "aluno_id": 2,
+      "modulo_id": 8,
+      "tentativas": 1,
+      "nota": 95,
+      "concluido": true,
+      "concluido_em": "2026-02-16T09:00:00Z",
+      "atualizado_em": "2026-02-16T09:00:00Z"
+    },
+    {
+      "id": 21,
+      "aluno_id": 2,
+      "modulo_id": 9,
+      "tentativas": 3,
+      "nota": 69,
+      "concluido": false,
+      "concluido_em": null,
+      "atualizado_em": "2026-02-18T09:00:00Z"
+    },
+    {
+      "id": 22,
+      "aluno_id": 2,
+      "modulo_id": 10,
+      "tentativas": 2,
+      "nota": 82,
+      "concluido": true,
+      "concluido_em": "2026-02-20T09:00:00Z",
+      "atualizado_em": "2026-02-20T09:00:00Z"
+    },
+    {
+      "id": 23,
+      "aluno_id": 2,
+      "modulo_id": 11,
+      "tentativas": 1,
+      "nota": 90,
+      "concluido": true,
+      "concluido_em": "2026-02-22T09:00:00Z",
+      "atualizado_em": "2026-02-22T09:00:00Z"
+    },
+    {
+      "id": 24,
+      "aluno_id": 2,
+      "modulo_id": 12,
+      "tentativas": 1,
+      "nota": 88,
+      "concluido": true,
+      "concluido_em": "2026-02-24T09:00:00Z",
+      "atualizado_em": "2026-02-24T09:00:00Z"
+    },
+    {
+      "id": 25,
+      "aluno_id": 3,
+      "modulo_id": 1,
+      "tentativas": 1,
+      "nota": 92,
+      "concluido": true,
+      "concluido_em": "2026-02-01T09:00:00Z",
+      "atualizado_em": "2026-02-01T09:00:00Z"
+    },
+    {
+      "id": 26,
+      "aluno_id": 3,
+      "modulo_id": 2,
+      "tentativas": 2,
+      "nota": 70,
+      "concluido": true,
+      "concluido_em": "2026-02-03T09:00:00Z",
+      "atualizado_em": "2026-02-03T09:00:00Z"
+    },
+    {
+      "id": 27,
+      "aluno_id": 3,
+      "modulo_id": 3,
+      "tentativas": 2,
+      "nota": 80,
+      "concluido": true,
+      "concluido_em": "2026-02-05T09:00:00Z",
+      "atualizado_em": "2026-02-05T09:00:00Z"
+    },
+    {
+      "id": 28,
+      "aluno_id": 3,
+      "modulo_id": 4,
+      "tentativas": 1,
+      "nota": 89,
+      "concluido": true,
+      "concluido_em": "2026-02-07T09:00:00Z",
+      "atualizado_em": "2026-02-07T09:00:00Z"
+    },
+    {
+      "id": 29,
+      "aluno_id": 3,
+      "modulo_id": 5,
+      "tentativas": 3,
+      "nota": 67,
+      "concluido": false,
+      "concluido_em": null,
+      "atualizado_em": "2026-02-09T09:00:00Z"
+    },
+    {
+      "id": 30,
+      "aluno_id": 3,
+      "modulo_id": 6,
+      "tentativas": 1,
+      "nota": 86,
+      "concluido": true,
+      "concluido_em": "2026-02-11T09:00:00Z",
+      "atualizado_em": "2026-02-11T09:00:00Z"
+    },
+    {
+      "id": 31,
+      "aluno_id": 3,
+      "modulo_id": 7,
+      "tentativas": 2,
+      "nota": 79,
+      "concluido": true,
+      "concluido_em": "2026-02-13T09:00:00Z",
+      "atualizado_em": "2026-02-13T09:00:00Z"
+    },
+    {
+      "id": 32,
+      "aluno_id": 3,
+      "modulo_id": 8,
+      "tentativas": 1,
+      "nota": 83,
+      "concluido": true,
+      "concluido_em": "2026-02-15T09:00:00Z",
+      "atualizado_em": "2026-02-15T09:00:00Z"
+    },
+    {
+      "id": 33,
+      "aluno_id": 3,
+      "modulo_id": 9,
+      "tentativas": 1,
+      "nota": 91,
+      "concluido": true,
+      "concluido_em": "2026-02-17T09:00:00Z",
+      "atualizado_em": "2026-02-17T09:00:00Z"
+    },
+    {
+      "id": 34,
+      "aluno_id": 3,
+      "modulo_id": 10,
+      "tentativas": 2,
+      "nota": 73,
+      "concluido": true,
+      "concluido_em": "2026-02-19T09:00:00Z",
+      "atualizado_em": "2026-02-19T09:00:00Z"
+    },
+    {
+      "id": 35,
+      "aluno_id": 3,
+      "modulo_id": 11,
+      "tentativas": 1,
+      "nota": 84,
+      "concluido": true,
+      "concluido_em": "2026-02-21T09:00:00Z",
+      "atualizado_em": "2026-02-21T09:00:00Z"
+    },
+    {
+      "id": 36,
+      "aluno_id": 3,
+      "modulo_id": 12,
+      "tentativas": 2,
+      "nota": 76,
+      "concluido": true,
+      "concluido_em": "2026-02-23T09:00:00Z",
+      "atualizado_em": "2026-02-23T09:00:00Z"
+    }
+  ],
+  "tentativas_atividade": [
+    {
+      "id": 1,
+      "aluno_id": 1,
+      "atividade_id": 1,
+      "numero": 1,
+      "nota": 82.50,
+      "realizado_em": "2026-02-01T10:30:00Z"
+    },
+    {
+      "id": 2,
+      "aluno_id": 1,
+      "atividade_id": 2,
+      "numero": 1,
+      "nota": 55.00,
+      "realizado_em": "2026-02-03T09:20:00Z"
+    },
+    {
+      "id": 3,
+      "aluno_id": 1,
+      "atividade_id": 2,
+      "numero": 2,
+      "nota": 76.00,
+      "realizado_em": "2026-02-03T10:00:00Z"
+    },
+    {
+      "id": 4,
+      "aluno_id": 2,
+      "atividade_id": 1,
+      "numero": 1,
+      "nota": 43.00,
+      "realizado_em": "2026-02-04T08:30:00Z"
+    },
+    {
+      "id": 5,
+      "aluno_id": 2,
+      "atividade_id": 1,
+      "numero": 2,
+      "nota": 61.00,
+      "realizado_em": "2026-02-04T09:30:00Z"
+    },
+    {
+      "id": 6,
+      "aluno_id": 2,
+      "atividade_id": 1,
+      "numero": 3,
+      "nota": 78.50,
+      "realizado_em": "2026-02-04T10:15:00Z"
+    }
+  ],
+  "respostas_aluno": [
+    {
+      "id": 1,
+      "tentativa_id": 1,
+      "questao_id": 1,
+      "alternativa_id": 2
+    },
+    {
+      "id": 2,
+      "tentativa_id": 1,
+      "questao_id": 2,
+      "alternativa_id": 8
+    },
+    {
+      "id": 3,
+      "tentativa_id": 1,
+      "questao_id": 3,
+      "alternativa_id": 10
+    },
+    {
+      "id": 4,
+      "tentativa_id": 2,
+      "questao_id": 6,
+      "alternativa_id": 23
+    },
+    {
+      "id": 5,
+      "tentativa_id": 2,
+      "questao_id": 7,
+      "alternativa_id": 27
+    },
+    {
+      "id": 6,
+      "tentativa_id": 3,
+      "questao_id": 6,
+      "alternativa_id": 24
+    }
+  ],
+  "tokens_recuperacao_senha": []
 }
