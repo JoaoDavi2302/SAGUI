@@ -16,8 +16,8 @@ export interface Database {
   alternativas: AlternativeEntity[];
   matriculas: EnrollmentEntity[];
   progresso_modulo: ModuleProgressEntity[];
-  // tentativas_atividade: AttemptEntity[];
-  // respostas_aluno: AnswerEntity[];
+  tentativas_atividade: AttemptEntity[];
+  respostas_aluno: AnswerEntity[];
   // tokens_recuperacao_senha: PasswordTokenEntity[];
 }
 
@@ -68,22 +68,33 @@ export interface DisciplineEntity {
   atualizado_em: string;
 }
 
+/* matriculas */
 export interface EnrollmentEntity {
   id: number;
-
   aluno_id: number;
-
   curso_id: number;
-
   disciplina_id?: number | null;
-
   status: string;
-
   aprovado_por?: number | null;
-
   aprovado_em?: string | null;
-
   criado_em: string;
+}
+
+export interface AttemptEntity {
+  id: number;
+  aluno_id: number;
+  atividade_id: number;
+  numero: number; /* numero da tentativa */
+  nota: number;
+  realizado_em: string;
+}
+
+/* respostas do aluno */
+export interface AnswerEntity {
+  id: number;
+  tentativa_id: number;
+  questao_id: number;
+  alternativa_id: number;
 }
 
 /* modulo de entidade */
@@ -101,15 +112,12 @@ export interface ModuleEntity {
 /* progressos de modulo da disciplina */
 export interface ModuleProgressEntity {
   id: number;
-
   aluno_id: number;
-
   modulo_id: number;
-
-  percentual: number;
-
+  tentativas: number;
+  nota: number;
   concluido: boolean;
-
+  concluido_em: string;
   atualizado_em: string;
 }
 
@@ -160,14 +168,13 @@ export interface LessonEntity {
 /* antigo material (anexos) */
 export interface AttachmentEntity {
   id: number;
-
+  modulo_id?: number | null;
   aula_id?: number | null;
   atividade_id?: number | null;
-
-  nome: string;
-  url: string;
   tipo: string;
-
+  nome_arquivo: string;
+  url: string;
+  tamanho_bytes: number;
   criado_em: string;
 }
 

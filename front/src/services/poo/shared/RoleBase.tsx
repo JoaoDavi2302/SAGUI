@@ -348,25 +348,15 @@ export abstract class RoleBase {
     };
   }
 
-  // AQUI --------------------------------
-
   //disciplina id
   protected getStudentsByDiscipline(disciplineId: number): UserEntity[] {
-    const discipline = this.getDisciplineById(disciplineId);
+    const enrollments = this.enrollments().filter(
+      (e) => e.disciplina_id === disciplineId,
+    );
 
-    if (!discipline) {
-      return [];
-    }
+    const studentIds = [...new Set(enrollments.map((e) => e.aluno_id))];
 
-    const studentIds = [
-      ...new Set(
-        this.enrollments()
-          .filter((enrollment) => enrollment.curso_id === discipline.curso_id)
-          .map((enrollment) => enrollment.aluno_id),
-      ),
-    ];
-
-    return this.users().filter((user) => studentIds.includes(user.id));
+    return this.users().filter((u) => studentIds.includes(u.id));
   }
 
   protected buildModuleDetails(moduleId: number): ModuleDetailsCard | null {

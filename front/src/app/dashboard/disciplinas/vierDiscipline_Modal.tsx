@@ -39,7 +39,7 @@ const database = DatabaseProvider.getDatabase();
 
 interface Props {
   open: boolean;
-  disciplineId?: string;
+  disciplineId?: number;
   onClose: () => void;
 }
 
@@ -74,7 +74,7 @@ export default function DisciplineViewModal({
     (total: number, m: any) => total + m.lessons.length,
     0,
   );
-  
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
       {/* HEADER */}
@@ -88,6 +88,7 @@ export default function DisciplineViewModal({
       >
         <Stack
           sx={{
+            width: "100%",
             direction: "row",
             justifyContent: "space-between",
             alignItems: "center",
@@ -106,11 +107,11 @@ export default function DisciplineViewModal({
 
             <Box>
               <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                {discipline.name}
+                {discipline.nome}
               </Typography>
 
               <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                {discipline.description}
+                {discipline.descricao}
               </Typography>
 
               <Stack spacing={1} sx={{ mt: 1, direction: "row" }}>
@@ -120,18 +121,14 @@ export default function DisciplineViewModal({
                   label={discipline.professorName ?? "Sem professor"}
                 />
 
-                <Chip
+                {/* <Chip
                   color="default"
                   size="small"
                   label={`${discipline.workload} horas`}
-                />
+                /> */}
               </Stack>
             </Box>
           </Stack>
-
-          <Button color="inherit" startIcon={<Close />} onClick={onClose}>
-            Fechar
-          </Button>
         </Stack>
       </DialogTitle>
 
@@ -172,7 +169,7 @@ export default function DisciplineViewModal({
           <SummaryCard
             icon={<Quiz color="primary" />}
             title="Quizzes"
-            value={details.quizzes?.length ?? 0}
+            value={details.activities?.length ?? 0}
           />
 
           <SummaryCard
@@ -181,11 +178,11 @@ export default function DisciplineViewModal({
             value={details.students.length}
           />
 
-          <SummaryCard
+          {/* <SummaryCard
             icon={<AccessTime color="primary" />}
             title="Carga Horária"
             value={`${discipline.workload}h`}
-          />
+          /> */}
         </Box>
 
         <Paper
@@ -226,11 +223,11 @@ export default function DisciplineViewModal({
                   <Paper key={module.id} sx={{ p: 2, borderRadius: 2 }}>
                     <Stack spacing={1}>
                       <Typography sx={{ fontWeight: "bold" }}>
-                        {module.name}
+                        {module.nome}
                       </Typography>
 
                       <Typography variant="body2" color="text.secondary">
-                        {module.description}
+                        {module.descricao}
                       </Typography>
 
                       <Stack direction="row" spacing={2}>
@@ -255,7 +252,7 @@ export default function DisciplineViewModal({
                               opacity: lesson.completed ? 1 : 0.5,
                             }}
                           >
-                            • {lesson.name}
+                            • {lesson.titulo}
                             {lesson.completed ? " ✓" : ""}
                           </Typography>
                         ))}
@@ -269,38 +266,43 @@ export default function DisciplineViewModal({
             {tab === 1 && (
               <Stack spacing={2}>
                 {details.materials?.map((m: any) => (
-                  <Paper key={m.id} sx={{ p: 2, borderRadius: 2 }}>
+                  <Button
+                    key={m.id}
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: "white",
+                      maxWidth: "200px",
+                    }}
+                    href={m.url}
+                  >
                     <Stack spacing={1}>
                       <Typography sx={{ fontWeight: "bold" }}>
-                        {m.title}
-                      </Typography>
-
-                      <Typography variant="body2" color="text.secondary">
-                        {m.description}
+                        {m.nome_arquivo}
                       </Typography>
 
                       <Stack direction="row" spacing={1}>
-                        <Chip size="small" label={m.type} />
-                        <Chip size="small" label={m.moduleName} />
-                        <Chip size="small" label={m.status} />
+                        <Chip size="small" label={m.tipo} />
+                        <Chip size="small" label={`${m.tamanho_bytes} bytes`} />
+                        {/* <Chip size="small" label={m.moduloNome} /> */}
                       </Stack>
                     </Stack>
-                  </Paper>
+                  </Button>
                 ))}
               </Stack>
             )}
 
             {tab === 2 && (
               <Stack spacing={2}>
-                {details.quizzes?.map((q: any) => (
+                {details.activities?.map((q: any) => (
                   <Paper key={q.id} sx={{ p: 2, borderRadius: 2 }}>
                     <Stack spacing={1}>
                       <Typography sx={{ fontWeight: "bold" }}>
-                        {q.name}
+                        {q.titulo}
                       </Typography>
 
                       <Typography variant="body2" color="text.secondary">
-                        {q.description}
+                        {q.descricao}
                       </Typography>
 
                       <Stack direction="row" spacing={1}>
@@ -308,10 +310,13 @@ export default function DisciplineViewModal({
                           size="small"
                           label={`${q.questionCount} questões`}
                         />
-                        <Chip size="small" label={`mín: ${q.passing_score}%`} />
                         <Chip
                           size="small"
-                          label={`tentativas: ${q.max_attempts}`}
+                          label={`nota de aprovação: ${q.nota_aprovacao}`}
+                        />
+                        <Chip
+                          size="small"
+                          label={`tentativas: ${q.max_tentativas}`}
                         />
                       </Stack>
                     </Stack>
@@ -335,12 +340,12 @@ export default function DisciplineViewModal({
                         <Typography sx={{ fontWeight: "bold" }}>
                           {s.name}
                         </Typography>
-
+                        {/* modificar para calcular a partir do progresso do modulo */}
                         <Typography variant="body2" color="text.secondary">
                           {s.completedLessons}/{s.totalLessons} aulas
                         </Typography>
                       </Stack>
-
+                      {/* a partir do progresso do modulo, calcular o total */}
                       <Chip label={`${s.percentage}%`} color="primary" />
                     </Stack>
                   </Paper>

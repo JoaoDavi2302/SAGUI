@@ -1,6 +1,7 @@
 import { RoleBase } from "../shared/RoleBase";
 
 import {
+  CourseEntity,
   Database,
   DisciplineDetailsPage,
   DisciplineEntity,
@@ -18,6 +19,9 @@ export abstract class Discipline extends RoleBase {
   }
   /* Lista todas as disciplinas visíveis para o perfil*/
   abstract listDisciplines(): DisciplineEntity[];
+
+  /* Lista cursos para identificar a disciplina que faz parte */
+  abstract listCourses(): CourseEntity[];
 
   /* Retorna uma disciplina caso o usuário possua acesso*/
   abstract getDiscipline(id: number): DisciplineEntity | null;
@@ -40,10 +44,15 @@ export abstract class Discipline extends RoleBase {
   ): DisciplineEntity;
 
   /* criar disciplina */
-  abstract createDiscipline(
-    data: Omit<DisciplineEntity, "id">,
-  ): DisciplineEntity;
+  abstract createDiscipline(data: CreateDisciplineDTO): DisciplineEntity;
 
   /* remover disciplina */
   abstract deleteDiscipline(id: number): boolean;
+}
+
+export interface CreateDisciplineDTO {
+  curso_id: number;
+  professor_id?: number;
+  nome: string;
+  descricao: string;
 }

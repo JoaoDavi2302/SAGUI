@@ -14,10 +14,11 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-  useMediaQuery,
+  Badge, // Adicionado
 } from "@mui/material";
 
 import MenuIcon from "@mui/icons-material/Menu";
+import NotificationsIcon from "@mui/icons-material/Notifications"; // Adicionado
 import { useRouter } from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
 import { useTheme } from "@mui/material/styles";
@@ -63,32 +64,40 @@ export default function DashboardHeader({
         }),
       })}
     >
-      <Toolbar>
-        {isMobile && onMenuClick && (
-          <IconButton color="inherit" onClick={onMenuClick} edge="start">
-            <MenuIcon />
-          </IconButton>
-        )}
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {isMobile && onMenuClick && (
+            <IconButton color="inherit" onClick={onMenuClick} edge="start">
+              <MenuIcon />
+            </IconButton>
+          )}
+          <Typography variant="h6" sx={{ ml: 2, color: "#fff" }}>
+            {title}
+          </Typography>
+        </Box>
 
-        <Typography variant="h6" sx={{ ml: 2, color:"#fff" }}>
-          {title}
-        </Typography>
-
-        <Search>
+        <Search sx={{ width: '40%' }}>
           <SearchIconWrapper>
             <SearchIcon />
           </SearchIconWrapper>
           <StyledInputBase
-            placeholder="Search…"
+            placeholder="Pesquisar cursos..."
             inputProps={{ "aria-label": "search" }}
           />
         </Search>
 
-        <Tooltip title="Conta">
-          <IconButton onClick={(e) => setAnchorUser(e.currentTarget)}>
-            <Avatar src={avatarSrc} />
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton color="inherit">
+            <Badge badgeContent={3} color="error">
+              <NotificationsIcon />
+            </Badge>
           </IconButton>
-        </Tooltip>
+          <Tooltip title="Conta">
+            <IconButton onClick={(e) => setAnchorUser(e.currentTarget)}>
+              <Avatar src={avatarSrc} />
+            </IconButton>
+          </Tooltip>
+        </Box>
 
         <Menu
           anchorEl={anchorUser}
@@ -99,14 +108,11 @@ export default function DashboardHeader({
             <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
               {user?.name ?? "Usuário"}
             </Typography>
-
             <Typography variant="caption" sx={{ opacity: 0.7 }}>
               {user?.role ?? "Sem perfil"}
             </Typography>
           </Box>
-
           <Divider />
-
           {settings.map((item) => {
             if ("action" in item && item.action === "logout") {
               return (
@@ -122,7 +128,6 @@ export default function DashboardHeader({
                 </MenuItem>
               );
             }
-
             if ("href" in item) {
               return (
                 <MenuItem
@@ -135,7 +140,6 @@ export default function DashboardHeader({
                 </MenuItem>
               );
             }
-
             return null;
           })}
         </Menu>

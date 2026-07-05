@@ -23,12 +23,13 @@ import { useUser } from "@/services/auth/AuthContext";
 
 import { DatabaseProvider } from "@/services/poo/databaseProvider";
 import { DisciplineProvider } from "@/services/poo/discipline/disciplineProvider";
+import { CreateDisciplineDTO } from "@/services/poo/discipline/discipline";
 
 const database = DatabaseProvider.getDatabase();
 
 interface Props {
   open: boolean;
-  disciplineId?: string;
+  disciplineId?: number;
   onClose: (reload?: boolean) => void;
 }
 
@@ -42,8 +43,8 @@ export default function DisciplineModal({
   const provider = useMemo(() => {
     if (!user) return null;
 
-    return DisciplineProvider.create(effectiveRole, database, user);
-  }, [user, effectiveRole]);
+    return DisciplineProvider.create("ADMINISTRADOR", database, user);
+  }, [user]);
 
   const professors = useMemo(() => {
     if (!provider) return [];
@@ -55,9 +56,9 @@ export default function DisciplineModal({
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [courseId, setCourseId] = useState("");
-  const [professorId, setProfessorId] = useState("");
-  const [workload, setWorkload] = useState(60);
+  const [courseId, setCourseId] = useState<number | "">("");
+  const [professorId, setProfessorId] = useState<number | "">("");
+  // const [workload, setWorkload] = useState(60);
   const [orderIndex, setOrderIndex] = useState(1);
 
   useEffect(() => {
@@ -68,7 +69,7 @@ export default function DisciplineModal({
       setDescription("");
       setCourseId("");
       setProfessorId("");
-      setWorkload(60);
+      // setWorkload(60);
       setOrderIndex(1);
       return;
     }
@@ -78,28 +79,30 @@ export default function DisciplineModal({
 
     if (!discipline) return;
 
-    setName(discipline.name);
-    setDescription(discipline.description);
-    setCourseId(discipline.course_id);
+    setName(discipline.nome);
+    setDescription(discipline.descricao);
+    setCourseId(discipline.curso_id);
     setProfessorId(discipline.professor_id ?? "");
-    setWorkload(discipline.workload);
-    setOrderIndex(discipline.order_index);
+    // setWorkload(discipline.workload);
+    // setOrderIndex(discipline.order_index);
   }, [disciplineId, provider, open]);
 
-  const courses = database.courses;
+  const courses = useMemo(() => {
+    if (!provider) return [];
 
-  console.log(database.users);
+    return provider.listCourses();
+  }, [provider]);
+
+  console.log(database.usuarios);
 
   const handleSave = () => {
     if (!provider) return;
 
-    const payload = {
-      course_id: courseId,
-      professor_id: professorId || null,
-      name,
-      description,
-      workload,
-      order_index: orderIndex,
+    const payload: CreateDisciplineDTO = {
+      curso_id: Number(courseId),
+      professor_id: Number(professorId),
+      nome: name,
+      descricao: description,
     };
 
     try {
@@ -178,11 +181,11 @@ export default function DisciplineModal({
               label="Curso"
               fullWidth
               value={courseId}
-              onChange={(e) => setCourseId(e.target.value)}
+              onChange={(e) => setCourseId(Number(e.target.value))}
             >
               {courses.map((course: any) => (
                 <MenuItem key={course.id} value={course.id}>
-                  {course.name}
+                  {course.nome}
                 </MenuItem>
               ))}
             </TextField>
@@ -194,19 +197,23 @@ export default function DisciplineModal({
               label="Professor"
               fullWidth
               value={professorId}
-              onChange={(e) => setProfessorId(e.target.value)}
+              onChange={(e) =>
+                setProfessorId(
+                  e.target.value === "" ? "" : Number(e.target.value),
+                )
+              }
             >
               <MenuItem value="">Nenhum</MenuItem>
 
               {professors.map((p: any) => (
                 <MenuItem key={p.id} value={p.id}>
-                  {p.name}
+                  {p.nome}
                 </MenuItem>
               ))}
             </TextField>
           </Grid>
 
-          <Grid size={{ xs: 6 }}>
+          {/* <Grid size={{ xs: 6 }}>
             <TextField
               type="number"
               label="Carga Horária"
@@ -214,7 +221,7 @@ export default function DisciplineModal({
               value={workload}
               onChange={(e) => setWorkload(Number(e.target.value))}
             />
-          </Grid>
+          </Grid> */}
 
           <Grid size={{ xs: 6 }}>
             <TextField
