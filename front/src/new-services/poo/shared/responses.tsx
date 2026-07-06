@@ -2,7 +2,7 @@ import { Role, Status } from "./types";
 
 /* AUTH */
 export interface LoginResponse {
-  accesToken: string;
+  accessToken: string;
   refreshToken: string;
 }
 
@@ -13,10 +13,10 @@ export interface RefreshTokenResponse {
 
 /* USER */
 export interface UserProfileResponse {
-  id: string;
+  id: number;
   name: string;
   email: string;
-  role: Role;
+  perfil: Role;
   status: Status;
   birthDate?: string;
   address?: string;
@@ -65,14 +65,16 @@ export interface LessonResponse {
 export interface LessonCompletionResponse {
   lessonId: string;
   completed: boolean;
-  moduleProgress: any;
+  moduleProgress: ModuleProgressResponse;
 }
 
 /* ENROLLMENT */
+// incompleto no back
 export interface EnrollmentResponse {
   id: string;
-  status: string;
-  message?: string;
+  studentId: string;
+  courseId: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
 }
 
 export interface EnrollmentDetailResponse {

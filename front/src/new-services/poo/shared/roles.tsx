@@ -1,21 +1,21 @@
 import { LoggedUser, Role } from "./types";
 
-export abstract class RoleBase {
+export abstract class perfilBase {
   constructor(
     protected database: any,
     protected user: LoggedUser,
   ) {}
 
   protected isAdmin(): boolean {
-    return this.user.role === "Admin";
+    return this.user.perfil === "ADMIN";
   }
 
   protected isProfessor(): boolean {
-    return this.user.role === "Professor";
+    return this.user.perfil === "PROFESSOR";
   }
 
   protected isStudent(): boolean {
-    return this.user.role === "Aluno";
+    return this.user.perfil === "ALUNO";
   }
 
   protected canManageCourses(): boolean {
@@ -34,7 +34,7 @@ export abstract class RoleBase {
     return this.isStudent();
   }
 
-  protected assertRole(role: Role) {
-    return this.user.role === role;
+  protected assertPerfil(perfil: Role) {
+    return this.user.perfil === perfil;
   }
 }

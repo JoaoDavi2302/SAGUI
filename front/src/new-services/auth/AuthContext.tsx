@@ -8,17 +8,17 @@ import {
   ReactNode,
 } from "react";
 
-import { LoggedUser, Role } from "@/services/poo/shared/types";
+import { LoggedUser, Role } from "@/new-services/poo/shared/types";
+import { apiAuth, apiUsers } from "@/new-services/poo/shared/api";
 
+/* CONTEXT */
 interface AuthContextType {
   user: LoggedUser | null;
   loading: boolean;
-
   effectiveRole: Role;
 
   login(email: string, password: string): Promise<boolean>;
   logout(): Promise<void>;
-
   refreshUser(): Promise<void>;
 }
 
@@ -26,15 +26,12 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const API = "http://localhost:8080/api";
 
-export function AuthProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+/* PROVIDER */
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<LoggedUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [user, setUser] = useState<LoggedUser | null>(null);
-
+  /* REFRESH USER */
   async function refreshUser() {
     try {
       const token = localStorage.getItem("accessToken");
@@ -44,72 +41,34 @@ export function AuthProvider({
         return;
       }
 
-      const response = await fetch(`${API}/users/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        setUser(null);
-        return;
-      }
-
-      const data = await response.json();
+      const data = await apiUsers.me();
 
       setUser({
-        id: data.id,
-        nome: data.nome,
+        id: data.id, // resolve erro number/string
+        name: data.name,
         email: data.email,
-        perfil: data.perfil,
+        perfil: data.perfil as Role,
       });
     } catch {
       setUser(null);
     }
   }
 
+  /* INIT */
   useEffect(() => {
-    async function init() {
+    (async () => {
       await refreshUser();
       setLoading(false);
-    }
-
-    init();
+    })();
   }, []);
 
-  async function login(
-    email: string,
-    password: string,
-  ): Promise<boolean> {
+  /* LOGIN */
+  async function login(email: string, password: string): Promise<boolean> {
     try {
-      const response = await fetch(`${API}/auth/login`, {
-        method: "POST",
+      const data = await apiAuth.login({ email, password });
 
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      if (!response.ok) {
-        return false;
-      }
-
-      const data = await response.json();
-
-      localStorage.setItem(
-        "accessToken",
-        data.accessToken,
-      );
-
-      localStorage.setItem(
-        "refreshToken",
-        data.refreshToken,
-      );
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
 
       await refreshUser();
 
@@ -119,35 +78,24 @@ export function AuthProvider({
     }
   }
 
-  async function logout() {
+  /* LOGOUT */
+  async function logout(): Promise<void> {
+    const refreshToken = localStorage.getItem("refreshToken");
+
     try {
-      const refreshToken =
-        localStorage.getItem("refreshToken");
-
       if (refreshToken) {
-        await fetch(`${API}/auth/logout`, {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            refreshToken,
-          }),
-        });
+        await apiAuth.logout(refreshToken);
       }
     } finally {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-
       setUser(null);
 
       window.location.href = "/login";
     }
   }
 
-  const effectiveRole = user?.perfil ?? "ALUNO";
+  const effectiveRole: Role = user?.perfil ?? "ALUNO";
 
   return (
     <AuthContext.Provider
@@ -165,13 +113,12 @@ export function AuthProvider({
   );
 }
 
+/* HOOK */
 export function useUser() {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error(
-      "useUser deve ser usado dentro de AuthProvider",
-    );
+    throw new Error("useUser deve ser usado dentro de AuthProvider");
   }
 
   return context;

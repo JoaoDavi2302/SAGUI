@@ -1,212 +1,90 @@
-import { Discipline } from "./discipline";
+import { DisciplineService } from "./discipline";
 import { apiDisciplines, apiCourses } from "../shared/api";
-import {
-  CourseEntity,
-  DisciplineEntity,
-  UserEntity,
-} from "../shared/types";
 import { DisciplineRequest } from "../shared/requests";
+import { DisciplineEntity } from "../shared/types";
 
-export class StudentDiscipline extends Discipline {
-  async listDisciplines(): Promise<DisciplineEntity[]> {
+export class StudentDiscipline extends DisciplineService {
+  async list() {
     return apiDisciplines.list();
   }
 
-  async listCourses(): Promise<CourseEntity[]> {
-    const courses = await apiCourses.list();
-    return courses.filter((c) => c.status === "Active");
+  async get(id: string) {
+    return apiDisciplines.get(id);
   }
 
-  async getDiscipline(id: number): Promise<DisciplineEntity | null> {
-    const discipline = await apiDisciplines.get(String(id));
-    return discipline ?? null;
-  }
-
-  async getByCourse(courseId: number): Promise<DisciplineEntity[]> {
+  async listByCourse(courseId: string) {
     const disciplines = await apiDisciplines.list();
-    return disciplines.filter((d) => d.courseId === String(courseId));
+    return this.filterByCourse(disciplines, courseId);
   }
 
-  async listProfessors(): Promise<UserEntity[]> {
-    return [];
+  async create(data: DisciplineRequest): Promise<DisciplineEntity> {
+    throw new Error("Aluno não pode criar disciplina");
   }
 
-  async getPageData(): Promise<any> {
-    const disciplines = await this.listDisciplines();
-    const courses = await this.listCourses();
-
-    return {
-      grouped: courses.map((course) => ({
-        course,
-        subjects: disciplines.filter(
-          (d) => d.courseId === course.id
-        ),
-      })),
-    };
-  }
-
-  async getDetails(id: number): Promise<any> {
-    const discipline = await apiDisciplines.get(String(id));
-
-    return {
-      discipline,
-      modules: [],
-      students: [],
-      materials: [],
-      activities: [],
-    };
-  }
-
-  async updateDiscipline(): Promise<DisciplineEntity> {
-    throw new Error("Permissão negada.");
-  }
-
-  async createDiscipline(): Promise<DisciplineEntity> {
-    throw new Error("Permissão negada.");
-  }
-
-  async deleteDiscipline(): Promise<boolean> {
-    throw new Error("Permissão negada.");
+  async update(
+    id: string,
+    data: Partial<DisciplineEntity>,
+  ): Promise<DisciplineEntity> {
+    throw new Error("Aluno não pode atualizar disciplina");
   }
 }
 
-export class ProfessorDiscipline extends Discipline {
-  async listDisciplines(): Promise<DisciplineEntity[]> {
+export class ProfessorDiscipline extends DisciplineService {
+  constructor(private user: any) {
+    super();
+  }
+
+  async list() {
     const disciplines = await apiDisciplines.list();
-
-    return disciplines.filter(
-      (d) => d.responsibleProfessorId === this.user.id
-    );
+    return disciplines.filter((d) => d.responsibleProfessorId === this.user.id);
   }
 
-  async listCourses(): Promise<CourseEntity[]> {
-    return [];
+  async get(id: string): Promise<DisciplineEntity | null> {
+    const d = await apiDisciplines.get(id);
+
+    if (!d) return null;
+
+    return d.responsibleProfessorId === this.user.id ? d : null;
   }
 
-  async getDiscipline(id: number): Promise<DisciplineEntity | null> {
-    const discipline = await apiDisciplines.get(String(id));
-
-    return discipline.responsibleProfessorId === this.user.id
-      ? discipline
-      : null;
-  }
-
-  async getByCourse(courseId: number): Promise<DisciplineEntity[]> {
+  async listByCourse(courseId: string) {
     const disciplines = await apiDisciplines.list();
-
-    return disciplines.filter(
-      (d) =>
-        d.courseId === String(courseId) &&
-        d.responsibleProfessorId === this.user.id
-    );
+    return this.filterByCourse(disciplines, courseId);
   }
 
-  async listProfessors(): Promise<UserEntity[]> {
-    return [];
+  async create(data: DisciplineRequest): Promise<DisciplineEntity> {
+    throw new Error("Professor não pode criar disciplina");
   }
 
-  async getPageData(): Promise<any> {
-    const disciplines = await this.listDisciplines();
-
-    return {
-      grouped: [],
-      disciplines,
-    };
-  }
-
-  async getDetails(id: number): Promise<any> {
-    const discipline = await this.getDiscipline(id);
-
-    if (!discipline) throw new Error("Disciplina não encontrada");
-
-    return {
-      discipline,
-      modules: [],
-      students: [],
-      materials: [],
-      activities: [],
-    };
-  }
-
-  async updateDiscipline(
-    id: number,
-    data: Partial<DisciplineEntity>
+  async update(
+    id: string,
+    data: Partial<DisciplineEntity>,
   ): Promise<DisciplineEntity> {
-    return apiDisciplines.update(String(id), data);
-  }
-
-  async createDiscipline(
-    data: DisciplineRequest
-  ): Promise<DisciplineEntity> {
-    return apiDisciplines.create(data);
-  }
-
-  async deleteDiscipline(): Promise<boolean> {
-    throw new Error("Professor não pode remover disciplinas.");
+    return apiDisciplines.update(id, data);
   }
 }
-
-export class AdminDiscipline extends Discipline {
-  async listDisciplines(): Promise<DisciplineEntity[]> {
+export class AdminDiscipline extends DisciplineService {
+  async list() {
     return apiDisciplines.list();
   }
 
-  async listCourses(): Promise<CourseEntity[]> {
-    return [];
+  async get(id: string) {
+    return apiDisciplines.get(id);
   }
 
-  async getDiscipline(id: number): Promise<DisciplineEntity | null> {
-    const discipline = await apiDisciplines.get(String(id));
-    return discipline ?? null;
-  }
-
-  async getByCourse(courseId: number): Promise<DisciplineEntity[]> {
+  async listByCourse(courseId: string) {
     const disciplines = await apiDisciplines.list();
-
-    return disciplines.filter(
-      (d) => d.courseId === String(courseId)
-    );
+    return this.filterByCourse(disciplines, courseId);
   }
 
-  async listProfessors(): Promise<UserEntity[]> {
-    return [];
-  }
-
-  async getPageData(): Promise<any> {
-    const disciplines = await this.listDisciplines();
-
-    return {
-      grouped: [],
-      disciplines,
-    };
-  }
-
-  async getDetails(id: number): Promise<any> {
-    const discipline = await apiDisciplines.get(String(id));
-
-    return {
-      discipline,
-      modules: [],
-      students: [],
-      materials: [],
-      activities: [],
-    };
-  }
-
-  async updateDiscipline(
-    id: number,
-    data: Partial<DisciplineEntity>
-  ): Promise<DisciplineEntity> {
-    return apiDisciplines.update(String(id), data);
-  }
-
-  async createDiscipline(
-    data: DisciplineRequest
-  ): Promise<DisciplineEntity> {
+  async create(data: DisciplineRequest): Promise<DisciplineEntity> {
     return apiDisciplines.create(data);
   }
 
-  async deleteDiscipline(id: number): Promise<boolean> {
-    return apiDisciplines.delete(String(id));
+  async update(
+    id: string,
+    data: Partial<DisciplineEntity>,
+  ): Promise<DisciplineEntity> {
+    return apiDisciplines.update(id, data);
   }
 }

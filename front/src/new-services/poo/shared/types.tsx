@@ -1,5 +1,5 @@
 // entidades base
-export type Role = "Admin" | "Professor" | "Aluno";
+export type Role = "ADMIN" | "PROFESSOR" | "ALUNO";
 export type Status = "Active" | "Inactive";
 
 export interface Database {
@@ -18,10 +18,10 @@ export interface Database {
 
 /* USERS */
 export interface UserEntity {
-  id: string;
+  id: number;
   name: string;
   email: string;
-  role: Role;
+  perfil: Role,
   status: Status;
   birthDate?: string;
   address?: string;
@@ -30,10 +30,10 @@ export interface UserEntity {
 }
 
 export interface LoggedUser {
-  id: string;
+  id: number;
   name: string;
   email: string;
-  role: Role;
+  perfil: Role;
 }
 
 /* COURSE */

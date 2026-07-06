@@ -1,36 +1,21 @@
-import { RoleBase } from "../shared/roles";
-import {
-  CourseEntity,
-  DisciplineEntity,
-  LoggedUser,
-  UserEntity,
-} from "../shared/types";
-
+import { DisciplineEntity } from "../shared/types";
 import { DisciplineRequest } from "../shared/requests";
 
-export abstract class Discipline extends RoleBase {
-  abstract listDisciplines(): Promise<DisciplineEntity[]>;
+export abstract class DisciplineService {
+  abstract list(): Promise<DisciplineEntity[]>;
 
-  abstract listCourses(): Promise<CourseEntity[]>;
+  abstract get(id: string): Promise<DisciplineEntity | null>;
 
-  abstract getDiscipline(id: number): Promise<DisciplineEntity | null>;
+  abstract listByCourse(courseId: string): Promise<DisciplineEntity[]>;
 
-  abstract getByCourse(courseId: number): Promise<DisciplineEntity[]>;
+  abstract create(data: DisciplineRequest): Promise<DisciplineEntity>;
 
-  abstract getPageData(): Promise<any>;
-
-  abstract getDetails(disciplineId: number): Promise<any>;
-
-  abstract listProfessors(): Promise<UserEntity[]>;
-
-  abstract updateDiscipline(
-    id: number,
-    data: Partial<DisciplineEntity>
+  abstract update(
+    id: string,
+    data: Partial<DisciplineEntity>,
   ): Promise<DisciplineEntity>;
 
-  abstract createDiscipline(
-    data: DisciplineRequest
-  ): Promise<DisciplineEntity>;
-
-  abstract deleteDiscipline(id: number): Promise<boolean>;
+  protected filterByCourse(disciplines: DisciplineEntity[], courseId: string) {
+    return disciplines.filter((d) => d.courseId === courseId);
+  }
 }
