@@ -325,9 +325,9 @@ export class AdminDiscipline extends Discipline {
 
     const lessons = this.getLessonsByDiscipline(id);
 
-    // visualiza todos os alunos (sem filtro)
-    const students = this.getAllStudents().map((s) =>
-      this.buildStudentProgress(s.id, lessons),
+    // visualiza todos os alunos (da disciplina)
+    const students = this.getStudentsByDiscipline(id).map((student) =>
+      this.buildStudentProgress(student.id, lessons),
     );
 
     const moduleIds = this.getModulesByDiscipline(id).map((m) => m.id);
