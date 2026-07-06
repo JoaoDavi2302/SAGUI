@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record ActivityResponse(
         UUID id,
+        UUID moduleId,
         String title,
         String description,
         Integer attemptLimit,
