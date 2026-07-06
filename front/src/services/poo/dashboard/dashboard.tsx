@@ -17,7 +17,7 @@ export interface StudentPerformance {
 
 // Para dashboard e (ead)
 export interface DashboardData {
-  // stats: StatCard[];
+  stats: StatCard[];
   courses: CourseEntity[];
   subjects: DisciplineEntity[];
   modules: ModuleEntity[];

@@ -279,9 +279,12 @@ export interface DisciplineGroup {
 
 /* dados da pagina de disciplina */
 export interface DisciplinePageData {
-  grouped: DisciplineGroup[];
+  disciplines: DisciplineCard[];
+
   modules: ModuleEntity[];
+
   lessons: LessonEntity[];
+
   moduleProgress: ModuleProgressEntity[];
 }
 

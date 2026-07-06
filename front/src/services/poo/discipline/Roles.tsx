@@ -45,28 +45,24 @@ export class StudentDiscipline extends Discipline {
   }
 
   getPageData(): DisciplinePageData {
-    const groups: DisciplineGroup[] = [];
+  const courseIds = this.getStudentCourseIds();
 
-    this.getStudentCourseIds().forEach((courseId) => {
-      groups.push({
-        course: this.getCourseById(courseId),
+  return {
+    disciplines: this.disciplines()
+      .filter((discipline) =>
+        courseIds.includes(discipline.curso_id),
+      )
+      .map((discipline) =>
+        this.buildDisciplineCard(discipline),
+      ),
 
-        subjects: this.getDisciplinesByCourse(courseId).map((discipline) =>
-          this.buildDisciplineCard(discipline),
-        ),
-      });
-    });
+    modules: this.modules(),
 
-    return {
-      grouped: groups,
+    lessons: this.lessons(),
 
-      modules: this.modules(),
-
-      lessons: this.lessons(),
-
-      moduleProgress: this.moduleProgress(),
-    };
-  }
+    moduleProgress: this.moduleProgress(),
+  };
+}
 
   protected getLessonsByDiscipline(disciplineId: number) {
     return this.getModulesByDiscipline(disciplineId).flatMap((module) =>
@@ -174,27 +170,19 @@ export class ProfessorDiscipline extends Discipline {
   }
 
   getPageData(): DisciplinePageData {
-    const groups: DisciplineGroup[] = [];
+  return {
+    disciplines: this.listDisciplines()
+      .map((discipline) =>
+        this.buildDisciplineCard(discipline),
+      ),
 
-    this.getProfessorCourseIds().forEach((courseId) => {
-      const course = this.getCourseById(courseId);
+    modules: this.modules(),
 
-      groups.push({
-        course,
+    lessons: this.lessons(),
 
-        subjects: this.getByCourse(courseId).map((d) =>
-          this.buildDisciplineCard(d),
-        ),
-      });
-    });
-
-    return {
-      grouped: groups,
-      modules: this.modules(),
-      lessons: this.lessons(),
-      moduleProgress: [],
-    };
-  }
+    moduleProgress: [],
+  };
+}
 
   protected getLessonsByDiscipline(disciplineId: number) {
     const modules = this.getModulesByDiscipline(disciplineId);
@@ -303,24 +291,19 @@ export class AdminDiscipline extends Discipline {
   }
 
   getPageData(): DisciplinePageData {
-    const groups: DisciplineGroup[] = [];
+  return {
+    disciplines: this.listDisciplines()
+      .map((discipline) =>
+        this.buildDisciplineCard(discipline),
+      ),
 
-    this.courses().forEach((course) => {
-      groups.push({
-        course,
-        subjects: this.getDisciplinesByCourse(course.id).map((d) =>
-          this.buildDisciplineCard(d),
-        ),
-      });
-    });
+    modules: this.modules(),
 
-    return {
-      grouped: groups,
-      modules: this.modules(),
-      lessons: this.lessons(),
-      moduleProgress: this.moduleProgress(),
-    };
-  }
+    lessons: this.lessons(),
+
+    moduleProgress: this.moduleProgress(),
+  };
+}
 
   protected getLessonsByDiscipline(disciplineId: number) {
     const modules = this.getModulesByDiscipline(disciplineId);
