@@ -11,7 +11,7 @@ export interface RefreshTokenResponse {
   refreshToken: string;
 }
 
-/* USER */
+/* usuarios */
 export interface UserProfileResponse {
   id: string;
   name: string;
@@ -24,7 +24,7 @@ export interface UserProfileResponse {
   updatedAt: string;
 }
 
-/* COURSE */
+/* cursos */
 export interface CourseResponse {
   id: string;
   name: string;
@@ -32,7 +32,7 @@ export interface CourseResponse {
   status: Status;
 }
 
-/* DISCIPLINE */
+/* disciplinas */
 export interface DisciplineResponse {
   id: string;
   name: string;
@@ -42,7 +42,7 @@ export interface DisciplineResponse {
   responsibleProfessorId: string;
 }
 
-/* MODULE */
+/* modulos */
 export interface ModuleResponse {
   id: string;
   name: string;
@@ -52,7 +52,7 @@ export interface ModuleResponse {
   disciplineId: string;
 }
 
-/* LESSON */
+/* aulas */
 export interface LessonResponse {
   id: string;
   name: string;
@@ -68,7 +68,7 @@ export interface LessonCompletionResponse {
   moduleProgress: any;
 }
 
-/* ENROLLMENT */
+/* enrollement */
 export interface EnrollmentResponse {
   id: string;
   status: string;
@@ -85,7 +85,7 @@ export interface EnrollmentDetailResponse {
   courseId: string;
 }
 
-/* PROGRESS */
+/* progressos */
 export interface ModuleProgressResponse {
   moduleId: string;
   moduleName: string;
@@ -104,7 +104,7 @@ export interface DisciplineProgressResponse {
   modules: ModuleProgressResponse[];
 }
 
-/* PAGINATION */
+/* paginação */
 export interface Page<T> {
   content: T[];
   totalElements: number;

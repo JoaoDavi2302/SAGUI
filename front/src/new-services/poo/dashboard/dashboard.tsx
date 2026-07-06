@@ -14,7 +14,7 @@ export interface StudentPerformance {
 }
 
 export interface DashboardData {
-  stats: StatCard[];
+  // stats: StatCard[];
   courses: CourseEntity[];
   subjects: DisciplineEntity[];
   modules: ModuleEntity[];

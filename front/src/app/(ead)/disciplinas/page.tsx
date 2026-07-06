@@ -18,7 +18,7 @@ import {
   LayersOutlined,
   ExpandLess as ExpandLessIcon,
   ExpandMore as ExpandMoreIcon,
-  CheckCircleOutlineOutlined, // Ícone adicionado para finalização
+  CheckCircleOutlineOutlined,
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/services/auth/AuthContext";
@@ -85,7 +85,7 @@ export default function DisciplinasPage() {
           {!isStudent && group.course && (
             <>
               <Typography sx={{ fontSize: 16, color: "gray" }}>{group.course.nome}</Typography>
-              <Divider sx={{ my: 2 }} />
+              {/* <Divider sx={{ my: 2 }} /> */}
             </>
           )}
 

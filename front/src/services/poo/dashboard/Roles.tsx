@@ -14,7 +14,7 @@ export class StudentDashboard extends Dashboard {
 
     if (!enrollment) {
       return {
-        stats: [],
+        // stats: [],
         courses: [],
         subjects: [],
         modules: [],
@@ -72,23 +72,23 @@ export class StudentDashboard extends Dashboard {
         : 0;
 
     return {
-      stats: [
-        {
-          icon: <AssignmentOutlined sx={{ color: "#1976d2" }} />,
-          label: "Atividades",
-          value: progressQuizzes,
-        },
-        {
-          icon: <ShowChartOutlined sx={{ color: "#1976d2" }} />,
-          label: "Média de atividades",
-          value: mediaQuizzesModule,
-        },
-        {
-          icon: <EmojiEventsOutlined sx={{ color: "#1976d2" }} />,
-          label: "Conclusão de curso",
-          value: `${progressPercent}%`,
-        },
-      ],
+      // stats: [
+      //   {
+      //     icon: <AssignmentOutlined sx={{ color: "#1976d2" }} />,
+      //     label: "Atividades",
+      //     value: progressQuizzes,
+      //   },
+      //   {
+      //     icon: <ShowChartOutlined sx={{ color: "#1976d2" }} />,
+      //     label: "Média de atividades",
+      //     value: mediaQuizzesModule,
+      //   },
+      //   {
+      //     icon: <EmojiEventsOutlined sx={{ color: "#1976d2" }} />,
+      //     label: "Conclusão de curso",
+      //     value: `${progressPercent}%`,
+      //   },
+      // ],
 
       courses: course ? [course] : [],
       subjects: disciplines,
@@ -120,11 +120,11 @@ export class ProfessorDashboard extends Dashboard {
     );
 
     return {
-      stats: [
-        { label: "Cursos", value: courses.length },
-        { label: "Disciplinas", value: disciplines.length },
-        { label: "Módulos", value: modules.length },
-      ],
+      // stats: [
+      //   { label: "Cursos", value: courses.length },
+      //   { label: "Disciplinas", value: disciplines.length },
+      //   { label: "Módulos", value: modules.length },
+      // ],
 
       courses,
       subjects: disciplines,
@@ -142,13 +142,13 @@ export class AdminDashboard extends Dashboard {
     const users = this.database.usuarios;
 
     return {
-      stats: [
-        { label: "Cursos", value: courses.length },
-        { label: "Disciplinas", value: disciplines.length },
-        { label: "Módulos", value: modules.length },
-        { label: "Aulas", value: lessons.length },
-        { label: "Usuários", value: users.length },
-      ],
+      // stats: [
+      //   { label: "Cursos", value: courses.length },
+      //   { label: "Disciplinas", value: disciplines.length },
+      //   { label: "Módulos", value: modules.length },
+      //   { label: "Aulas", value: lessons.length },
+      //   { label: "Usuários", value: users.length },
+      // ],
 
       courses,
       subjects: disciplines,
