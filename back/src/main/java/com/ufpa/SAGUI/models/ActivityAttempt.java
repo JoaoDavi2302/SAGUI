@@ -37,7 +37,7 @@ public class ActivityAttempt extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AttemptStatus status;
+    private AttemptStatus attemptStatus;
 
     @OneToMany(mappedBy = "activityAttempt", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudentAnswer> answers = new ArrayList<>();
