@@ -62,7 +62,7 @@ public class ActivityAttemptService {
         attempt.setAttemptNumber((int) previousAttempts + 1);
         attempt.setScore(0.0);
         attempt.setApproved(false);
-        attempt.setStatus(AttemptStatus.FINISHED);
+        attempt.setAttemptStatus(AttemptStatus.FINISHED);
 
         List<StudentAnswer> answers = request.answers()
                 .stream()
