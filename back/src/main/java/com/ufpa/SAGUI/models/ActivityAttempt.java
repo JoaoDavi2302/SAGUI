@@ -85,13 +85,11 @@ public class ActivityAttempt extends BaseEntity {
         this.approved = approved;
     }
 
-    public AttemptStatus getStatus() {
-        return status;
-    }
+    public AttemptStatus getAttemptStatus() {
+        return attemptStatus;}
 
-    public void setStatus(AttemptStatus status) {
-        this.status = status;
-    }
+    public void setAttemptStatus(AttemptStatus attemptStatus) {
+        this.attemptStatus = attemptStatus;}
 
     public List<StudentAnswer> getAnswers() {
         return answers;
