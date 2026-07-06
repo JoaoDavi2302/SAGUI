@@ -279,6 +279,10 @@ export interface DisciplineGroup {
 
 /* dados da pagina de disciplina */
 export interface DisciplinePageData {
+  enrolledSubjects?: DisciplineCard[];
+  availableSubjects?: DisciplineCard[];
+
+  // professor
   disciplines: DisciplineCard[];
 
   modules: ModuleEntity[];

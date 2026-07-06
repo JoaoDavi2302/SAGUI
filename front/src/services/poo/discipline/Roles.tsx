@@ -45,24 +45,25 @@ export class StudentDiscipline extends Discipline {
   }
 
   getPageData(): DisciplinePageData {
-  const courseIds = this.getStudentCourseIds();
+    const enrolledCourseIds = this.getStudentCourseIds();
 
-  return {
-    disciplines: this.disciplines()
-      .filter((discipline) =>
-        courseIds.includes(discipline.curso_id),
-      )
-      .map((discipline) =>
-        this.buildDisciplineCard(discipline),
-      ),
+    const enrolledSubjects = this.disciplines()
+      .filter((discipline) => enrolledCourseIds.includes(discipline.curso_id))
+      .map((discipline) => this.buildDisciplineCard(discipline));
 
-    modules: this.modules(),
+    const availableSubjects = this.disciplines()
+      .filter((discipline) => !enrolledCourseIds.includes(discipline.curso_id))
+      .map((discipline) => this.buildDisciplineCard(discipline));
 
-    lessons: this.lessons(),
-
-    moduleProgress: this.moduleProgress(),
-  };
-}
+    return {
+      enrolledSubjects,
+      availableSubjects,
+      disciplines: enrolledSubjects,
+      modules: this.modules(),
+      lessons: this.lessons(),
+      moduleProgress: this.moduleProgress(),
+    };
+  }
 
   protected getLessonsByDiscipline(disciplineId: number) {
     return this.getModulesByDiscipline(disciplineId).flatMap((module) =>
@@ -170,19 +171,18 @@ export class ProfessorDiscipline extends Discipline {
   }
 
   getPageData(): DisciplinePageData {
-  return {
-    disciplines: this.listDisciplines()
-      .map((discipline) =>
+    return {
+      disciplines: this.listDisciplines().map((discipline) =>
         this.buildDisciplineCard(discipline),
       ),
 
-    modules: this.modules(),
+      modules: this.modules(),
 
-    lessons: this.lessons(),
+      lessons: this.lessons(),
 
-    moduleProgress: [],
-  };
-}
+      moduleProgress: [],
+    };
+  }
 
   protected getLessonsByDiscipline(disciplineId: number) {
     const modules = this.getModulesByDiscipline(disciplineId);
@@ -291,19 +291,18 @@ export class AdminDiscipline extends Discipline {
   }
 
   getPageData(): DisciplinePageData {
-  return {
-    disciplines: this.listDisciplines()
-      .map((discipline) =>
+    return {
+      disciplines: this.listDisciplines().map((discipline) =>
         this.buildDisciplineCard(discipline),
       ),
 
-    modules: this.modules(),
+      modules: this.modules(),
 
-    lessons: this.lessons(),
+      lessons: this.lessons(),
 
-    moduleProgress: this.moduleProgress(),
-  };
-}
+      moduleProgress: this.moduleProgress(),
+    };
+  }
 
   protected getLessonsByDiscipline(disciplineId: number) {
     const modules = this.getModulesByDiscipline(disciplineId);

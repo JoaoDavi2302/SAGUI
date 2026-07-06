@@ -64,7 +64,7 @@ export default function AdminDisciplinesPage({
         {disciplines.map((discipline: any) => (
           <Grid key={discipline.id} size={{ xs: 12, md: 6, lg: 4 }}>
             <Card component={Button}
-              href={`/disciplinas/${discipline.nome}?id=${discipline.id}`}
+              href={`/disciplinas/${discipline.slug}?id=${discipline.id}`}
               sx={{
                 height: "100%",
                 borderRadius: 3,

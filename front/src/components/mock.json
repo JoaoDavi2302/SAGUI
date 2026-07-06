@@ -1671,7 +1671,7 @@
       "id": 1,
       "aluno_id": 3,
       "curso_id": 1,
-      "disciplina_id": null,
+      "disciplina_id": 1,
       "status": "APROVADA",
       "aprovado_por": 1,
       "aprovado_em": "2026-07-01T12:00:00Z",
