@@ -2,12 +2,14 @@ package com.ufpa.SAGUI.service;
 
 import com.ufpa.SAGUI.dto.activity.ActivityRequest;
 import com.ufpa.SAGUI.dto.activity.ActivityResponse;
-import com.ufpa.SAGUI.dto.activity.QuestionResponse;
 import com.ufpa.SAGUI.dto.activity.AlternativeResponse;
+import com.ufpa.SAGUI.dto.activity.QuestionResponse;
 import com.ufpa.SAGUI.models.Activity;
-import com.ufpa.SAGUI.models.Question;
 import com.ufpa.SAGUI.models.Alternative;
+import com.ufpa.SAGUI.models.Module;
+import com.ufpa.SAGUI.models.Question;
 import com.ufpa.SAGUI.repository.ActivityRepository;
+import com.ufpa.SAGUI.repository.ModuleRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,40 +19,55 @@ import java.util.UUID;
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
+    private final ModuleRepository moduleRepository;
 
-    public ActivityService(ActivityRepository activityRepository) {
+    public ActivityService(
+            ActivityRepository activityRepository,
+            ModuleRepository moduleRepository
+    ) {
         this.activityRepository = activityRepository;
+        this.moduleRepository = moduleRepository;
     }
 
     // CREATE - Criar atividade
     public ActivityResponse createActivity(ActivityRequest request) {
         validateActivityRequest(request);
 
+        Module module = moduleRepository.findById(request.moduleId())
+                .orElseThrow(() -> new RuntimeException("Módulo não encontrado."));
+
         Activity activity = new Activity();
         activity.setTitle(request.title());
         activity.setDescription(request.description());
         activity.setAttemptLimit(3);
         activity.setMinimumScore(70.0);
+        activity.setModule(module);
 
-        List<Question> questions = request.questions().stream().map(questionRequest -> {
-            Question question = new Question();
-            question.setStatement(questionRequest.statement());
-            question.setQuestionType(questionRequest.questionType());
-            question.setScore(questionRequest.score());
-            question.setActivity(activity);
+        List<Question> questions = request.questions()
+                .stream()
+                .map(questionRequest -> {
+                    Question question = new Question();
+                    question.setStatement(questionRequest.statement());
+                    question.setQuestionType(questionRequest.questionType());
+                    question.setScore(questionRequest.score());
+                    question.setActivity(activity);
 
-            List<Alternative> alternatives = questionRequest.alternatives().stream().map(alternativeRequest -> {
-                Alternative alternative = new Alternative();
-                alternative.setText(alternativeRequest.text());
-                alternative.setCorrect(alternativeRequest.correct());
-                alternative.setQuestion(question);
-                return alternative;
-            }).toList();
+                    List<Alternative> alternatives = questionRequest.alternatives()
+                            .stream()
+                            .map(alternativeRequest -> {
+                                Alternative alternative = new Alternative();
+                                alternative.setText(alternativeRequest.text());
+                                alternative.setCorrect(alternativeRequest.correct());
+                                alternative.setQuestion(question);
+                                return alternative;
+                            })
+                            .toList();
 
-            question.setAlternatives(alternatives);
+                    question.setAlternatives(alternatives);
 
-            return question;
-        }).toList();
+                    return question;
+                })
+                .toList();
 
         activity.setQuestions(questions);
 
@@ -79,30 +96,40 @@ public class ActivityService {
 
         Activity activity = findActivityById(id);
 
+        Module module = moduleRepository.findById(request.moduleId())
+                .orElseThrow(() -> new RuntimeException("Módulo não encontrado."));
+
         activity.setTitle(request.title());
         activity.setDescription(request.description());
+        activity.setModule(module);
 
         activity.getQuestions().clear();
 
-        List<Question> questions = request.questions().stream().map(questionRequest -> {
-            Question question = new Question();
-            question.setStatement(questionRequest.statement());
-            question.setQuestionType(questionRequest.questionType());
-            question.setScore(questionRequest.score());
-            question.setActivity(activity);
+        List<Question> questions = request.questions()
+                .stream()
+                .map(questionRequest -> {
+                    Question question = new Question();
+                    question.setStatement(questionRequest.statement());
+                    question.setQuestionType(questionRequest.questionType());
+                    question.setScore(questionRequest.score());
+                    question.setActivity(activity);
 
-            List<Alternative> alternatives = questionRequest.alternatives().stream().map(alternativeRequest -> {
-                Alternative alternative = new Alternative();
-                alternative.setText(alternativeRequest.text());
-                alternative.setCorrect(alternativeRequest.correct());
-                alternative.setQuestion(question);
-                return alternative;
-            }).toList();
+                    List<Alternative> alternatives = questionRequest.alternatives()
+                            .stream()
+                            .map(alternativeRequest -> {
+                                Alternative alternative = new Alternative();
+                                alternative.setText(alternativeRequest.text());
+                                alternative.setCorrect(alternativeRequest.correct());
+                                alternative.setQuestion(question);
+                                return alternative;
+                            })
+                            .toList();
 
-            question.setAlternatives(alternatives);
+                    question.setAlternatives(alternatives);
 
-            return question;
-        }).toList();
+                    return question;
+                })
+                .toList();
 
         activity.getQuestions().addAll(questions);
 
@@ -117,14 +144,18 @@ public class ActivityService {
         activityRepository.delete(activity);
     }
 
-    // Método auxiliar para buscar a atividade ou lançar erro
+    // Buscar Activity ou lançar erro
     private Activity findActivityById(UUID id) {
         return activityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Atividade não encontrada."));
     }
 
-    // Validação básica da atividade
+    // Valida os dados recebidos para criar/atualizar atividade
     private void validateActivityRequest(ActivityRequest request) {
+        if (request.moduleId() == null) {
+            throw new RuntimeException("O módulo da atividade é obrigatório.");
+        }
+
         if (request.title() == null || request.title().isBlank()) {
             throw new RuntimeException("O título da atividade é obrigatório.");
         }
@@ -140,6 +171,10 @@ public class ActivityService {
 
             if (question.questionType() == null) {
                 throw new RuntimeException("O tipo da questão é obrigatório.");
+            }
+
+            if (question.score() == null || question.score() <= 0) {
+                throw new RuntimeException("A pontuação da questão deve ser maior que zero.");
             }
 
             if (question.alternatives() == null || question.alternatives().isEmpty()) {
@@ -180,7 +215,7 @@ public class ActivityService {
         });
     }
 
-    // Converte entidade Activity para DTO de resposta
+    // Converte Activity para ActivityResponse
     private ActivityResponse toActivityResponse(Activity activity) {
         List<QuestionResponse> questionResponses = activity.getQuestions()
                 .stream()
@@ -206,6 +241,7 @@ public class ActivityService {
 
         return new ActivityResponse(
                 activity.getId(),
+                activity.getModule().getId(),
                 activity.getTitle(),
                 activity.getDescription(),
                 activity.getAttemptLimit(),
