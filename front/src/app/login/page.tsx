@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useUser } from "../../services/auth/AuthContext";
+import { useUser } from "../../new-services/auth/AuthContext";
 
 import {
   Box,
@@ -143,7 +143,7 @@ export default function LoginPage() {
 
           <Typography
             component={Link}
-            href="/cadastro"
+            href="/register"
             variant="caption"
             sx={{ fontWeight: 600, textDecoration: "none", color: "primary.main" }}
           >

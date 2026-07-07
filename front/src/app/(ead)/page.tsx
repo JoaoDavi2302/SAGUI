@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
-import { useUser } from "@/services/auth/AuthContext";
+import { useUser } from "@/new-services/auth/AuthContext";
 import { DashboardProvider } from "@/services/poo/dashboard/dashboardProvider";
 import { DatabaseProvider } from "@/services/poo/databaseProvider";
 

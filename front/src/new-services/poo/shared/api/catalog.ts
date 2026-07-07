@@ -1,3 +1,4 @@
+// disciplinas, cursos e modulos
 import { apiFetch } from "./client";
 import { fetchAllPages } from "./pagination";
 import type { Role } from "@/services/poo/shared/types";
@@ -56,14 +57,6 @@ export async function listCourses(status?: EntityStatus) {
   );
 }
 
-export async function getCourse(id: string) {
-  return apiFetch<CourseDTO>(`/courses/${id}`);
-}
-
-export async function getDiscipline(id: string) {
-  return apiFetch<DisciplineDTO>(`/disciplines/${id}`);
-}
-
 export async function createCourse(data: CourseRequestDTO) {
   return apiFetch<CourseDTO>("/courses", {
     method: "POST",
@@ -85,6 +78,14 @@ export async function changeCourseStatus(
   return apiFetch<void>(`/courses/${courseId}/status?status=${status}`, {
     method: "PATCH",
   });
+}
+
+export async function getCourse(id: string) {
+  return apiFetch<CourseDTO>(`/courses/${id}`);
+}
+
+export async function getDiscipline(id: string) {
+  return apiFetch<DisciplineDTO>(`/disciplines/${id}`);
 }
 
 export async function listDisciplines(courseId?: string) {

@@ -25,7 +25,7 @@ import {
 import { useRouter } from "next/navigation";
 import { ModuleActivityCard } from "@/services/poo/shared/types";
 import { DatabaseProvider } from "@/services/poo/databaseProvider";
-import { useUser } from "@/services/auth/AuthContext";
+import { useUser } from "@/new-services/auth/AuthContext";
 import { ActivityProvider } from "@/services/poo/activity/activityProvider";
 
 const database = DatabaseProvider.getDatabase();

@@ -8,7 +8,19 @@ import {
   ReactNode,
 } from "react";
 
-import { LoggedUser, Role } from "@/services/poo/shared/types";
+import type { LoggedUser, Role } from "@/services/poo/shared/types";
+
+import {
+  clearSessionCookies,
+  clearStoredTokens,
+  fetchMe,
+  getAccessToken,
+  loginRequest,
+  logoutRequest,
+  registerRequest,
+  setSessionCookies,
+  type RegisterInput,
+} from "./authApi";
 
 interface AuthContextType {
   user: LoggedUser | null;
@@ -16,15 +28,22 @@ interface AuthContextType {
 
   effectiveRole: Role;
 
-  login(email: string, password: string): Promise<boolean>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<LoggedUser | null>;
+
+  register: (
+    data: RegisterInput,
+  ) => Promise<boolean>;
+
   logout(): Promise<void>;
 
   refreshUser(): Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
-
-const API = "http://localhost:8080/api";
+export const AuthContext =
+  createContext<AuthContextType | null>(null);
 
 export function AuthProvider({
   children,
@@ -33,37 +52,27 @@ export function AuthProvider({
 }) {
   const [loading, setLoading] = useState(true);
 
-  const [user, setUser] = useState<LoggedUser | null>(null);
+  const [user, setUser] =
+    useState<LoggedUser | null>(null);
 
   async function refreshUser() {
+    const accessToken = getAccessToken();
+
+    if (!accessToken) {
+      setUser(null);
+      return;
+    }
+
     try {
-      const token = localStorage.getItem("accessToken");
+      const profile = await fetchMe(accessToken);
 
-      if (!token) {
-        setUser(null);
-        return;
-      }
+      setUser(profile);
 
-      const response = await fetch(`${API}/users/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        setUser(null);
-        return;
-      }
-
-      const data = await response.json();
-
-      setUser({
-        id: data.id,
-        nome: data.nome,
-        email: data.email,
-        perfil: data.perfil,
-      });
+      setSessionCookies(profile.role);
     } catch {
+      clearStoredTokens();
+      clearSessionCookies();
+
       setUser(null);
     }
   }
@@ -77,69 +86,102 @@ export function AuthProvider({
     init();
   }, []);
 
+  async function establishSession(tokens: {
+    accessToken: string;
+    refreshToken: string;
+  }) {
+    localStorage.setItem(
+      "accessToken",
+      tokens.accessToken,
+    );
+
+    localStorage.setItem(
+      "refreshToken",
+      tokens.refreshToken,
+    );
+
+    const profile = await fetchMe(tokens.accessToken);
+
+    setUser(profile);
+
+    setSessionCookies(profile.role);
+  }
+
   async function login(
     email: string,
     password: string,
-  ): Promise<boolean> {
+  ): Promise<LoggedUser | null> {
     try {
-      const response = await fetch(`${API}/auth/login`, {
-        method: "POST",
+      const tokens = await loginRequest(
+        email,
+        password,
+      );
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+      await establishSession(tokens);
 
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      const accessToken = getAccessToken();
 
-      if (!response.ok) {
-        return false;
+      if (!accessToken) {
+        return null;
       }
 
-      const data = await response.json();
+      return await fetchMe(accessToken);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "INVALID_CREDENTIALS"
+      ) {
+        return null;
+      }
 
-      localStorage.setItem(
-        "accessToken",
-        data.accessToken,
-      );
+      if (
+        error instanceof Error &&
+        error.message === "INVALID_AUTH_RESPONSE"
+      ) {
+        throw new Error(
+          "AUTH_RESPONSE_INVALID",
+        );
+      }
 
-      localStorage.setItem(
-        "refreshToken",
-        data.refreshToken,
-      );
-
-      await refreshUser();
-
-      return true;
-    } catch {
-      return false;
+      throw error;
     }
   }
 
-  async function logout() {
+  async function register(
+    data: RegisterInput,
+  ): Promise<boolean> {
+    try {
+      const tokens =
+        await registerRequest(data);
+
+      await establishSession(tokens);
+
+      return true;
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "INVALID_AUTH_RESPONSE"
+      ) {
+        throw new Error(
+          "AUTH_RESPONSE_INVALID",
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  async function logout(): Promise<void> {
     try {
       const refreshToken =
-        localStorage.getItem("refreshToken");
+        localStorage.getItem(
+          "refreshToken",
+        );
 
-      if (refreshToken) {
-        await fetch(`${API}/auth/logout`, {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            refreshToken,
-          }),
-        });
-      }
+      await logoutRequest(refreshToken);
     } finally {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      clearStoredTokens();
+      clearSessionCookies();
 
       setUser(null);
 
@@ -147,7 +189,8 @@ export function AuthProvider({
     }
   }
 
-  const effectiveRole = user?.perfil ?? "ALUNO";
+  const effectiveRole: Role =
+    user?.role ?? "Aluno";
 
   return (
     <AuthContext.Provider
@@ -155,6 +198,7 @@ export function AuthProvider({
         user,
         loading,
         login,
+        register,
         logout,
         refreshUser,
         effectiveRole,

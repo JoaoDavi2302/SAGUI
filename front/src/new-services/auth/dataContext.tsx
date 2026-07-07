@@ -8,13 +8,21 @@ import {
   ReactNode,
 } from "react";
 
+import databaseJson from "@/components/mock.json";
+import type { Database } from "@/new-services/poo/shared/types";
+
+const database = databaseJson as Database;
+
 import { useUser } from "./AuthContext";
 
 import {
   CourseEntity,
   DisciplineEntity,
   LessonEntity,
+  AttachmentEntity,
   ModuleEntity,
+  ActivityEntity,
+  UserEntity,
 } from "@/services/poo/shared/types";
 
 interface DataContextType {
@@ -24,99 +32,67 @@ interface DataContextType {
   disciplines: DisciplineEntity[];
   modules: ModuleEntity[];
   lessons: LessonEntity[];
+  attachments: AttachmentEntity[];
+  activities: ActivityEntity[];
 
-  refresh(): Promise<void>;
+  professor?: UserEntity;
+  student?: UserEntity;
+  admin?: UserEntity;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
 
-const API = "http://localhost:8080/api";
-
-export function DataProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function DataProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
-
   const [loading, setLoading] = useState(true);
 
-  const [courses, setCourses] = useState<CourseEntity[]>([]);
-  const [disciplines, setDisciplines] = useState<DisciplineEntity[]>([]);
-  const [modules, setModules] = useState<ModuleEntity[]>([]);
-  const [lessons, setLessons] = useState<LessonEntity[]>([]);
+  const [data, setData] = useState<DataContextType>({
+    loading: true,
 
-  async function api<T>(url: string): Promise<T> {
-    const token = localStorage.getItem("accessToken");
+    courses: [],
+    disciplines: [],
+    modules: [],
+    lessons: [],
+    attachments: [],
+    activities: [],
+  });
 
-    const response = await fetch(`${API}${url}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erro ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  async function refresh() {
+  useEffect(() => {
     if (!user) {
-      setCourses([]);
-      setDisciplines([]);
-      setModules([]);
-      setLessons([]);
+      setData({
+        loading: false,
+        courses: [],
+        disciplines: [],
+        modules: [],
+        lessons: [],
+        attachments: [],
+        activities: [],
+      });
+
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
+    setData({
+      loading: false,
 
-    try {
-      const [
-        coursesResponse,
-        disciplinesResponse,
-        modulesResponse,
-        lessonsResponse,
-      ] = await Promise.all([
-        api<CourseEntity[]>("/courses"),
-        api<DisciplineEntity[]>("/disciplines"),
-        api<ModuleEntity[]>("/modules"),
-        api<LessonEntity[]>("/lessons"),
-      ]);
+      courses: database.cursos,
+      disciplines: database.disciplinas,
+      modules: database.modulos,
+      lessons: database.aulas,
+      attachments: database.anexos,
+      activities: database.atividades,
 
-      setCourses(coursesResponse);
-      setDisciplines(disciplinesResponse);
-      setModules(modulesResponse);
-      setLessons(lessonsResponse);
-    } catch (error) {
-      console.error(error);
+      professor: database.usuarios.find((u) => u.perfil === "Professor"),
+      student: database.usuarios.find((u) => u.perfil === "Aluno"),
+      admin: database.usuarios.find((u) => u.perfil === "Admin"),
+    });
 
-      setCourses([]);
-      setDisciplines([]);
-      setModules([]);
-      setLessons([]);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    refresh();
+    setLoading(false);
   }, [user]);
 
   return (
-    <DataContext.Provider
-      value={{
-        loading,
-        courses,
-        disciplines,
-        modules,
-        lessons,
-        refresh,
-      }}
-    >
+    <DataContext.Provider value={{ ...data, loading }}>
       {children}
     </DataContext.Provider>
   );
@@ -125,11 +101,8 @@ export function DataProvider({
 export function useData() {
   const context = useContext(DataContext);
 
-  if (!context) {
-    throw new Error(
-      "useData deve ser usado dentro de DataProvider",
-    );
-  }
+  if (!context)
+    throw new Error("useData deve ser usado dentro do DataProvider");
 
   return context;
 }

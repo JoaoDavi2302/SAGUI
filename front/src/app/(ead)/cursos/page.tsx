@@ -16,7 +16,7 @@ import {
 import { SchoolOutlined, CheckCircleOutlineOutlined } from "@mui/icons-material"; // Ícone adicionado
 
 import { useMemo, useState } from "react";
-import { useUser } from "@/services/auth/AuthContext";
+import { useUser } from "@/new-services/auth/AuthContext";
 import { CourseProvider } from "@/services/poo/course/CourseProvider";
 import { DatabaseProvider } from "@/services/poo/databaseProvider";
 import { useRouter } from "next/navigation";

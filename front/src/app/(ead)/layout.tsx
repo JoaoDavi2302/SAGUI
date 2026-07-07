@@ -2,7 +2,7 @@
 
 import DrawerLayout from "@/components/drawer";
 import { HeaderItem } from "@/components/layout/types";
-import { useUser } from "@/services/auth/AuthContext";
+import { useUser } from "@/new-services/auth/AuthContext";
 import {
   AssignmentOutlined,
   DashboardOutlined,

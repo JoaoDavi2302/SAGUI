@@ -2,7 +2,7 @@ import { Role, Status } from "./types";
 
 /* AUTH */
 export interface LoginResponse {
-  accesToken: string;
+  accessToken: string;
   refreshToken: string;
 }
 

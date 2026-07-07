@@ -1,78 +1,104 @@
-import { Course } from "./course";
-import { LoggedUser } from "../shared/types";
-import { CourseRequest } from "../shared/requests";
+import { CourseService } from "./course";
 
-import { CourseResponse, DisciplineResponse } from "../shared/responses";
+import type {
+  CourseDTO,
+  CourseRequestDTO,
+  DisciplineDTO,
+} from "@/new-services/poo/shared/api/catalog";
 
-import { apiCourses, apiDisciplines } from "../shared/api";
+import {
+  createCourse,
+  getCourse,
+  listCourses,
+  listDisciplines,
+  updateCourse,
+} from "@/new-services/poo/shared/api/catalog";
+import { getDashboardCourses } from "../shared/api/dashboard";
 
-/* util opcional */
-async function safeRequest<T>(fn: () => Promise<T>): Promise<T> {
-  try {
-    return await fn();
-  } catch (err) {
-    throw new Error("API error: " + (err as Error).message);
-  }
-}
-
-/* STUDENT */
-export class StudentCourse extends Course {
-  async listCourses(): Promise<CourseResponse[]> {
-    return safeRequest(() => apiCourses.list());
-  }
-
-  async getCourse(id: string): Promise<CourseResponse | null> {
-    const courses = await apiCourses.list();
-    return courses.find((c) => c.id === id) ?? null;
+export class StudentCourse extends CourseService {
+  async listCourses(): Promise<CourseDTO[]> {
+    return listCourses();
   }
 
-  async getDisciplines(courseId: string): Promise<DisciplineResponse[]> {
-    const disciplines = await apiDisciplines.list();
-    return disciplines.filter((d) => d.courseId === courseId);
+  async getCourse(id: string): Promise<CourseDTO> {
+    const courses = await listCourses();
+
+    const course = courses.find((course) => course.id === id);
+
+    if (!course) {
+      throw new Error("COURSE_NOT_FOUND");
+    }
+
+    return course;
   }
 
-  async createCourse(_: CourseRequest): Promise<CourseResponse> {
+  async getDisciplines(courseId: string): Promise<DisciplineDTO[]> {
+    const disciplines = await listDisciplines();
+
+    return disciplines.filter((discipline) => discipline.courseId === courseId);
+  }
+
+  async createCourse(_: CourseRequestDTO): Promise<CourseDTO> {
     throw new Error("Aluno não pode criar curso");
   }
+
+  async updateCourse(id: string, data: CourseRequestDTO): Promise<CourseDTO> {
+    throw new Error("Aluno não pode atualizar curso");
+  }
 }
 
-/* PROFESSOR */
-export class ProfessorCourse extends Course {
-  async listCourses(): Promise<CourseResponse[]> {
-    return apiCourses.list();
+export class ProfessorCourse extends CourseService {
+  async listCourses(): Promise<CourseDTO[]> {
+    return listCourses();
   }
 
-  async getCourse(id: string): Promise<CourseResponse | null> {
-    const course = await apiCourses.get(id);
-    return course ?? null;
+  async getCourse(id: string): Promise<CourseDTO> {
+    const courses = await listCourses();
+
+    const course = courses.find((course) => course.id === id);
+
+    if (!course) {
+      throw new Error("COURSE_NOT_FOUND");
+    }
+
+    return course;
   }
 
-  async getDisciplines(courseId: string): Promise<DisciplineResponse[]> {
-    const disciplines = await apiDisciplines.list();
-    return disciplines.filter((d) => d.courseId === courseId);
+  async getDisciplines(courseId: string): Promise<DisciplineDTO[]> {
+    const disciplines = await listDisciplines();
+
+    return disciplines.filter((discipline) => discipline.courseId === courseId);
   }
 
-  async createCourse(_: CourseRequest): Promise<CourseResponse> {
+  async createCourse(_: CourseRequestDTO): Promise<CourseDTO> {
     throw new Error("Professor não pode criar curso");
   }
+
+  async updateCourse(id: string, data: CourseRequestDTO): Promise<CourseDTO> {
+    throw new Error("Professor não pode atualizar curso");
+  }
 }
 
-/* ADMIN */
-export class AdminCourse extends Course {
-  async listCourses(): Promise<CourseResponse[]> {
-    return apiCourses.list();
+export class AdminCourse extends CourseService {
+  async listCourses(): Promise<CourseDTO[]> {
+    return listCourses();
   }
 
-  async getCourse(id: string): Promise<CourseResponse | null> {
-    return apiCourses.get(id);
+  async getCourse(id: string): Promise<CourseDTO> {
+    return getCourse(id);
   }
 
-  async getDisciplines(courseId: string): Promise<DisciplineResponse[]> {
-    const disciplines = await apiDisciplines.list();
-    return disciplines.filter((d) => d.courseId === courseId);
+  async getDisciplines(courseId: string): Promise<DisciplineDTO[]> {
+    const disciplines = await listDisciplines();
+
+    return disciplines.filter((discipline) => discipline.courseId === courseId);
   }
 
-  async createCourse(data: CourseRequest): Promise<CourseResponse> {
-    return apiCourses.create(data);
+  async createCourse(data: CourseRequestDTO): Promise<CourseDTO> {
+    return createCourse(data);
+  }
+
+  async updateCourse(id: string, data: CourseRequestDTO): Promise<CourseDTO> {
+    return updateCourse(id, data);
   }
 }

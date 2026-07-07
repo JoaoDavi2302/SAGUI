@@ -6,6 +6,7 @@ const PUBLIC_ROUTES = [
   "/login",
   "/cadastro",
   "/recuperar-senha",
+  "/register"
 //   "/", não precisa
 ];
 

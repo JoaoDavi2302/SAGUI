@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { useUser } from "@/services/auth/AuthContext";
+import { useUser } from "@/new-services/auth/AuthContext";
 import { DatabaseProvider } from "@/services/poo/databaseProvider";
 import { DisciplineProvider } from "@/services/poo/discipline/disciplineProvider";
 

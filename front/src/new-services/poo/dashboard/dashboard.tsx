@@ -1,4 +1,11 @@
-import { CourseEntity, DisciplineEntity, LessonEntity, ModuleEntity, UserEntity } from "../shared/types";
+import type {
+  CourseDTO,
+  DisciplineDTO,
+  ModuleDTO,
+  UserProfileDTO,
+} from "@/services/api/catalog";
+import type { LessonDTO } from "@/new-services/poo/shared/api/lessons";
+import type { LoggedUser } from "@/new-services/poo/shared/types";
 
 export interface StatCard {
   icon?: React.ReactNode;
@@ -7,29 +14,36 @@ export interface StatCard {
 }
 
 export interface StudentPerformance {
-  student_id: string;
-  discipline_id: string;
-  progress_percent: number;
+  studentId: string;
+  disciplineId: string;
+  progressPercent: number;
   grade: number;
 }
 
 export interface DashboardData {
   stats: StatCard[];
-  courses: CourseEntity[];
-  subjects: DisciplineEntity[];
-  modules: ModuleEntity[];
-  lessons?: LessonEntity[];
-  module_progress?: any[];
+
+  courses: CourseDTO[];
+  subjects: DisciplineDTO[];
+  modules: ModuleDTO[];
+
+  lessons?: LessonDTO[];
+
+  moduleProgress?: unknown[];
+
   progressPercent?: number;
+
   completedModules?: number;
-  student_performance?: StudentPerformance[];
-  users?: UserEntity[];
+
+  studentPerformance?: StudentPerformance[];
+
+  users?: UserProfileDTO[];
 }
 
 export abstract class Dashboard {
-  protected user: UserEntity;
+  protected readonly user: LoggedUser;
 
-  constructor(user: UserEntity) {
+  constructor(user: LoggedUser) {
     this.user = user;
   }
 

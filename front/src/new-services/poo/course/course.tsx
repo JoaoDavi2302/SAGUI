@@ -1,15 +1,24 @@
-import { RoleBase } from "../shared/roles";
-import { CourseResponse, DisciplineResponse } from "../shared/responses";
+import type {
+  CourseDTO,
+  CourseRequestDTO,
+  DisciplineDTO,
+} from "@/new-services/poo/shared/api/catalog";
 
-import { CourseRequest } from "../shared/requests";
-import { CourseCard } from "../shared/cards";
+export abstract class CourseService {
+  abstract listCourses(): Promise<CourseDTO[]>;
 
-export abstract class Course extends RoleBase {
-  abstract listCourses(): Promise<CourseCard[]>;
+  abstract getCourse(id: string): Promise<CourseDTO>;
 
-  abstract getCourse(id: string): Promise<CourseResponse | null>;
+  abstract getDisciplines(
+    courseId: string,
+  ): Promise<DisciplineDTO[]>;
 
-  abstract getDisciplines(courseId: string): Promise<DisciplineResponse[]>;
+  abstract createCourse(
+    data: CourseRequestDTO,
+  ): Promise<CourseDTO>;
 
-  abstract createCourse(data: CourseRequest): Promise<CourseResponse>;
+  abstract updateCourse(
+    id: string,
+    data: CourseRequestDTO,
+  ): Promise<CourseDTO>;
 }
