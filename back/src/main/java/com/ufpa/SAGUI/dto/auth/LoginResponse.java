@@ -1,3 +1,3 @@
 package com.ufpa.SAGUI.dto.auth;
 
-public record LoginResponse(String accessToken, String refreshToken) {}
+public record LoginResponse(String accesToken, String refreshToken) {}
