@@ -55,7 +55,7 @@ public class ActivityAttemptService {
         User student = getAuthenticatedStudent();
 
         Activity activity = activityRepository.findById(activityId)
-                .orElseThrow(() -> new RuntimeException("Atividade não encontrada."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada."));
 
         validateEnrollmentForActivity(student, activity);
 
@@ -63,7 +63,7 @@ public class ActivityAttemptService {
                 .countByStudentIdAndActivityId(student.getId(), activity.getId());
 
         if (previousAttempts >= activity.getAttemptLimit()) {
-            throw new RuntimeException("Limite de tentativas atingido.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Limite de tentativas atingido.");
         }
 
         ActivityAttempt attempt = new ActivityAttempt();
@@ -110,13 +110,15 @@ public class ActivityAttemptService {
                 .stream()
                 .filter(q -> q.getId().equals(answerRequest.questionId()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Questão não pertence à atividade informada."));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Questão não pertence à atividade informada."));
 
         List<Alternative> selectedAlternatives = alternativeRepository
                 .findAllById(answerRequest.selectedAlternativeIds());
 
         if (selectedAlternatives.isEmpty()) {
-            throw new RuntimeException("Nenhuma alternativa selecionada.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nenhuma alternativa selecionada.");
         }
 
         boolean allAlternativesBelongToQuestion = selectedAlternatives
@@ -124,7 +126,9 @@ public class ActivityAttemptService {
                 .allMatch(alternative -> alternative.getQuestion().getId().equals(question.getId()));
 
         if (!allAlternativesBelongToQuestion) {
-            throw new RuntimeException("Uma ou mais alternativas não pertencem à questão informada.");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Uma ou mais alternativas não pertencem à questão informada.");
         }
 
         StudentAnswer studentAnswer = new StudentAnswer();
@@ -154,7 +158,7 @@ public class ActivityAttemptService {
                 .getAuthentication();
 
         if (authentication == null || authentication.getPrincipal() == null) {
-            throw new RuntimeException("Usuário não autenticado.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não autenticado.");
         }
 
         Object principal = authentication.getPrincipal();
@@ -163,6 +167,6 @@ public class ActivityAttemptService {
             return user;
         }
 
-        throw new RuntimeException("Não foi possível identificar o aluno autenticado.");
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Não foi possível identificar o aluno autenticado.");
     }
 }

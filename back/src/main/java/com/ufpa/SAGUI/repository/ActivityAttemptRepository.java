@@ -10,5 +10,7 @@ public interface ActivityAttemptRepository extends JpaRepository<ActivityAttempt
 
     long countByStudentIdAndActivityId(UUID studentId, UUID activityId);
 
+    long countByActivityId(UUID activityId);
+
     List<ActivityAttempt> findByStudentIdAndActivityId(UUID studentId, UUID activityId);
 }

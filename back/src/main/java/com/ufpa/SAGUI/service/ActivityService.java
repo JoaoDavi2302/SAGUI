@@ -9,8 +9,11 @@ import com.ufpa.SAGUI.models.Alternative;
 import com.ufpa.SAGUI.models.Module;
 import com.ufpa.SAGUI.models.Question;
 import com.ufpa.SAGUI.repository.ActivityRepository;
+import com.ufpa.SAGUI.repository.ActivityAttemptRepository;
 import com.ufpa.SAGUI.repository.ModuleRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,13 +22,16 @@ import java.util.UUID;
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
+    private final ActivityAttemptRepository activityAttemptRepository;
     private final ModuleRepository moduleRepository;
 
     public ActivityService(
             ActivityRepository activityRepository,
+            ActivityAttemptRepository activityAttemptRepository,
             ModuleRepository moduleRepository
     ) {
         this.activityRepository = activityRepository;
+        this.activityAttemptRepository = activityAttemptRepository;
         this.moduleRepository = moduleRepository;
     }
 
@@ -34,7 +40,7 @@ public class ActivityService {
         validateActivityRequest(request);
 
         Module module = moduleRepository.findById(request.moduleId())
-                .orElseThrow(() -> new RuntimeException("Módulo não encontrado."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Módulo não encontrado."));
 
         Activity activity = new Activity();
         activity.setTitle(request.title());
@@ -97,7 +103,7 @@ public class ActivityService {
         Activity activity = findActivityById(id);
 
         Module module = moduleRepository.findById(request.moduleId())
-                .orElseThrow(() -> new RuntimeException("Módulo não encontrado."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Módulo não encontrado."));
 
         activity.setTitle(request.title());
         activity.setDescription(request.description());
@@ -141,44 +147,49 @@ public class ActivityService {
     // DELETE - Remover atividade
     public void deleteActivity(UUID id) {
         Activity activity = findActivityById(id);
+
+        if (activityAttemptRepository.countByActivityId(id) > 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Não é possível excluir uma atividade que já possui tentativas registradas.");
+        }
+
         activityRepository.delete(activity);
     }
 
-    // Buscar Activity ou lançar erro
     private Activity findActivityById(UUID id) {
         return activityRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Atividade não encontrada."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada."));
     }
 
-    // Valida os dados recebidos para criar/atualizar atividade
     private void validateActivityRequest(ActivityRequest request) {
         if (request.moduleId() == null) {
-            throw new RuntimeException("O módulo da atividade é obrigatório.");
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "O módulo da atividade é obrigatório.");
         }
 
         if (request.title() == null || request.title().isBlank()) {
-            throw new RuntimeException("O título da atividade é obrigatório.");
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "O título da atividade é obrigatório.");
         }
 
         if (request.questions() == null || request.questions().isEmpty()) {
-            throw new RuntimeException("A atividade deve possuir pelo menos uma questão.");
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "A atividade deve possuir pelo menos uma questão.");
         }
 
         request.questions().forEach(question -> {
             if (question.statement() == null || question.statement().isBlank()) {
-                throw new RuntimeException("O enunciado da questão é obrigatório.");
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "O enunciado da questão é obrigatório.");
             }
 
             if (question.questionType() == null) {
-                throw new RuntimeException("O tipo da questão é obrigatório.");
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "O tipo da questão é obrigatório.");
             }
 
             if (question.score() == null || question.score() <= 0) {
-                throw new RuntimeException("A pontuação da questão deve ser maior que zero.");
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "A pontuação da questão deve ser maior que zero.");
             }
 
             if (question.alternatives() == null || question.alternatives().isEmpty()) {
-                throw new RuntimeException("A questão deve possuir alternativas.");
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "A questão deve possuir alternativas.");
             }
 
             long correctAlternatives = question.alternatives()
@@ -189,28 +200,36 @@ public class ActivityService {
             switch (question.questionType()) {
                 case SINGLE_CHOICE:
                     if (correctAlternatives != 1) {
-                        throw new RuntimeException("Questões de resposta única devem possuir exatamente uma alternativa correta.");
+                        throw new ResponseStatusException(
+                                HttpStatus.UNPROCESSABLE_ENTITY,
+                                "Questões de resposta única devem possuir exatamente uma alternativa correta.");
                     }
                     break;
 
                 case TRUE_FALSE:
                     if (question.alternatives().size() != 2) {
-                        throw new RuntimeException("Questões verdadeiro/falso devem possuir exatamente duas alternativas.");
+                        throw new ResponseStatusException(
+                                HttpStatus.UNPROCESSABLE_ENTITY,
+                                "Questões verdadeiro/falso devem possuir exatamente duas alternativas.");
                     }
 
                     if (correctAlternatives != 1) {
-                        throw new RuntimeException("Questões verdadeiro/falso devem possuir exatamente uma alternativa correta.");
+                        throw new ResponseStatusException(
+                                HttpStatus.UNPROCESSABLE_ENTITY,
+                                "Questões verdadeiro/falso devem possuir exatamente uma alternativa correta.");
                     }
                     break;
 
                 case MULTIPLE_CHOICE:
                     if (correctAlternatives < 1) {
-                        throw new RuntimeException("Questões de múltipla seleção devem possuir pelo menos uma alternativa correta.");
+                        throw new ResponseStatusException(
+                                HttpStatus.UNPROCESSABLE_ENTITY,
+                                "Questões de múltipla seleção devem possuir pelo menos uma alternativa correta.");
                     }
                     break;
 
                 default:
-                    throw new RuntimeException("Tipo de questão inválido.");
+                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Tipo de questão inválido.");
             }
         });
     }
