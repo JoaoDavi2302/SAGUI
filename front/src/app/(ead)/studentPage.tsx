@@ -137,10 +137,10 @@ export default function StudentPage({
         </Card>
       </Box>
 
-      {/* Estatísticas */}
+      {/* Estatísticas - Código Corrigido */}
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {data.stats.map((stat: any, index: number) => (
+        {(data?.stats || []).map((stat: any, index: number) => (
           <Grid
             key={index}
             size={{ xs: 12, sm: 6, md: 4 }}
