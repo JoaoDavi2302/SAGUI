@@ -17,6 +17,10 @@ import {
   Tab,
   Chip,
   Avatar,
+  AccordionDetails,
+  AccordionSummary,
+  Accordion,
+  LinearProgress,
 } from "@mui/material";
 
 import {
@@ -29,6 +33,7 @@ import {
   Article,
   Groups,
   Close,
+  ExpandMore,
 } from "@mui/icons-material";
 
 import { useUser } from "@/services/auth/AuthContext";
@@ -81,55 +86,84 @@ export default function DisciplineViewModal({
 
       <DialogTitle
         sx={{
-          background: "linear-gradient(135deg,#1976d2,#42a5f5)",
+          p: 0,
+          background: "linear-gradient(135deg, #1565c0, #42a5f5)",
           color: "white",
-          py: 3,
         }}
       >
-        <Stack
+        <Box
           sx={{
-            width: "100%",
-            direction: "row",
+            p: 3,
+            display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
           }}
         >
-          <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
             <Avatar
               sx={{
-                width: 62,
-                height: 62,
-                bgcolor: "rgba(255,255,255,.18)",
+                width: 72,
+                height: 72,
+                bgcolor: "rgba(255,255,255,.2)",
               }}
             >
-              <MenuBook />
+              <MenuBook fontSize="large" />
             </Avatar>
 
             <Box>
-              <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 700,
+                  letterSpacing: "-0.5px",
+                }}
+              >
                 {discipline.nome}
               </Typography>
 
-              <Typography variant="body2" sx={{ opacity: 0.9 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  opacity: 0.9,
+                  maxWidth: 600,
+                  mt: 0.5,
+                }}
+              >
                 {discipline.descricao}
               </Typography>
 
-              <Stack spacing={1} sx={{ mt: 1, direction: "row" }}>
+              <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
                 <Chip
-                  color="default"
-                  size="small"
+                  icon={<Person />}
                   label={discipline.professorName ?? "Sem professor"}
+                  sx={{
+                    bgcolor: "rgba(255,255,255,.15)",
+                    color: "white",
+                  }}
                 />
 
-                {/* <Chip
-                  color="default"
-                  size="small"
-                  label={`${discipline.workload} horas`}
-                /> */}
+                <Chip
+                  icon={<AccessTime />}
+                  label={`${discipline.workload ?? 0}h`}
+                  sx={{
+                    bgcolor: "rgba(255,255,255,.15)",
+                    color: "white",
+                  }}
+                />
               </Stack>
             </Box>
           </Stack>
-        </Stack>
+
+          <Button
+            onClick={onClose}
+            sx={{
+              minWidth: 40,
+              color: "white",
+            }}
+          >
+            <Close />
+          </Button>
+        </Box>
       </DialogTitle>
 
       {/* RESUMO */}
@@ -200,13 +234,13 @@ export default function DisciplineViewModal({
             variant="scrollable"
             scrollButtons="auto"
           >
-            <Tab label="Módulos" />
+            <Tab icon={<ViewModule />} label="Módulos" />
 
-            <Tab label="Materiais" />
+            <Tab icon={<Article />} label="Materiais" />
 
-            <Tab label="Quizzes" />
+            <Tab icon={<Quiz />} label="Quizzes" />
 
-            <Tab label="Alunos" />
+            <Tab icon={<Groups />} label="Alunos" />
           </Tabs>
 
           <Divider />
@@ -220,45 +254,66 @@ export default function DisciplineViewModal({
             {tab === 0 && (
               <Stack spacing={2}>
                 {details.modules?.map((module: any) => (
-                  <Paper key={module.id} sx={{ p: 2, borderRadius: 2 }}>
-                    <Stack spacing={1}>
-                      <Typography sx={{ fontWeight: "bold" }}>
-                        {module.nome}
-                      </Typography>
+                  <Accordion
+                    key={module.id}
+                    sx={{
+                      borderRadius: 2,
+                      mb: 1,
+                      "&:before": {
+                        display: "none",
+                      },
+                    }}
+                  >
+                    <AccordionSummary expandIcon={<ExpandMore />}>
+                      <Stack>
+                        <Typography sx={{ fontWeight: 700 }}>
+                          {module.nome}
+                        </Typography>
 
-                      <Typography variant="body2" color="text.secondary">
-                        {module.descricao}
-                      </Typography>
+                        <Stack direction="row" spacing={1}>
+                          <Chip
+                            size="small"
+                            label={`${module.lessons.length} aulas`}
+                          />
 
-                      <Stack direction="row" spacing={2}>
-                        <Chip
-                          size="small"
-                          label={`${module.lessons.length} aulas`}
-                        />
-
-                        <Chip
-                          size="small"
-                          label={`${module.progress}% progresso`}
-                          color="primary"
-                        />
+                          <Chip
+                            size="small"
+                            color="primary"
+                            label={`${module.progress}%`}
+                          />
+                        </Stack>
                       </Stack>
+                    </AccordionSummary>
 
-                      <Box sx={{ pl: 2, mt: 1 }}>
+                    <AccordionDetails>
+                      <Stack spacing={1}>
                         {module.lessons.map((lesson: any) => (
-                          <Typography
+                          <Box
                             key={lesson.id}
-                            variant="body2"
                             sx={{
-                              opacity: lesson.completed ? 1 : 0.5,
+                              display: "flex",
+                              justifyContent: "space-between",
+                              p: 1,
+                              borderRadius: 1,
+                              bgcolor: "background.default",
                             }}
                           >
-                            • {lesson.titulo}
-                            {lesson.completed ? " ✓" : ""}
-                          </Typography>
+                            <Typography variant="body2">
+                              {lesson.titulo}
+                            </Typography>
+
+                            {lesson.completed && (
+                              <Chip
+                                size="small"
+                                color="success"
+                                label="Concluída"
+                              />
+                            )}
+                          </Box>
                         ))}
-                      </Box>
-                    </Stack>
-                  </Paper>
+                      </Stack>
+                    </AccordionDetails>
+                  </Accordion>
                 ))}
               </Stack>
             )}
@@ -266,28 +321,36 @@ export default function DisciplineViewModal({
             {tab === 1 && (
               <Stack spacing={2}>
                 {details.materials?.map((m: any) => (
-                  <Button
+                  <Paper
                     key={m.id}
+                    component="a"
+                    href={m.url}
+                    target="_blank"
                     sx={{
                       p: 2,
-                      borderRadius: 2,
-                      bgcolor: "white",
-                      maxWidth: "200px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      textDecoration: "none",
+                      color: "inherit",
+                      borderRadius: 3,
+                      "&:hover": {
+                        background: "#f5f5f5",
+                      },
                     }}
-                    href={m.url}
                   >
-                    <Stack spacing={1}>
-                      <Typography sx={{ fontWeight: "bold" }}>
+                    <Article />
+
+                    <Box>
+                      <Typography sx={{ fontWeight: 600 }}>
                         {m.nome_arquivo}
                       </Typography>
 
-                      <Stack direction="row" spacing={1}>
-                        <Chip size="small" label={m.tipo} />
-                        <Chip size="small" label={`${m.tamanho_bytes} bytes`} />
-                        {/* <Chip size="small" label={m.moduloNome} /> */}
-                      </Stack>
-                    </Stack>
-                  </Button>
+                      <Typography variant="caption" color="text.secondary">
+                        {m.tipo} • {m.tamanho_bytes} bytes
+                      </Typography>
+                    </Box>
+                  </Paper>
                 ))}
               </Stack>
             )}
@@ -327,29 +390,100 @@ export default function DisciplineViewModal({
 
             {tab === 3 && (
               <Stack spacing={2}>
-                {details.students?.map((s: any) => (
-                  <Paper key={s.id} sx={{ p: 2, borderRadius: 2 }}>
-                    <Stack
+                {details.students?.map((s: any) => {
+                  const percentage = s.percentage ?? 0;
+
+                  let status = "Iniciando";
+                  let color: "default" | "primary" | "success" | "warning" =
+                    "default";
+
+                  if (percentage >= 90) {
+                    status = "Concluído";
+                    color = "success";
+                  } else if (percentage >= 50) {
+                    status = "Em andamento";
+                    color = "primary";
+                  } else if (percentage > 0) {
+                    status = "Pouco progresso";
+                    color = "warning";
+                  }
+
+                  return (
+                    <Paper
+                      key={s.id}
                       sx={{
-                        direction: "row",
-                        justifyContent: "space-between",
-                        alignItems: "center",
+                        p: 2.5,
+                        borderRadius: 3,
+                        transition: "0.2s",
+                        "&:hover": {
+                          boxShadow: 4,
+                        },
                       }}
                     >
-                      <Stack>
-                        <Typography sx={{ fontWeight: "bold" }}>
-                          {s.name}
-                        </Typography>
-                        {/* modificar para calcular a partir do progresso do modulo */}
-                        <Typography variant="body2" color="text.secondary">
-                          {s.completedLessons}/{s.totalLessons} aulas
-                        </Typography>
+                      <Stack spacing={2}>
+                        {/* Cabeçalho */}
+                        <Stack
+                          direction="row"
+                          sx={{
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Stack
+                            direction="row"
+                            sx={{ spacing: 2, alignItems: "center" }}
+                          >
+                            <Avatar>{s.name?.charAt(0)}</Avatar>
+
+                            <Box>
+                              <Typography sx={{ fontWeight: 700 }}>
+                                {s.name}
+                              </Typography>
+
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                {s.completedLessons ?? 0}/{s.totalLessons ?? 0}{" "}
+                                aulas concluídas
+                              </Typography>
+                            </Box>
+                          </Stack>
+
+                          <Chip label={status} color={color} size="small" />
+                        </Stack>
+
+                        {/* Progresso */}
+                        <Box>
+                          <Stack
+                            direction="row"
+                            sx={{ justifyContent: "space-between", mb: 1 }}
+                          >
+                            <Typography variant="body2" color="text.secondary">
+                              Progresso
+                            </Typography>
+
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 700 }}
+                            >
+                              {percentage}%
+                            </Typography>
+                          </Stack>
+
+                          <LinearProgress
+                            variant="determinate"
+                            value={percentage}
+                            sx={{
+                              height: 8,
+                              borderRadius: 5,
+                            }}
+                          />
+                        </Box>
                       </Stack>
-                      {/* a partir do progresso do modulo, calcular o total */}
-                      <Chip label={`${s.percentage}%`} color="primary" />
-                    </Stack>
-                  </Paper>
-                ))}
+                    </Paper>
+                  );
+                })}
               </Stack>
             )}
           </Box>
@@ -380,23 +514,36 @@ interface SummaryProps {
 function SummaryCard({ icon, title, value }: SummaryProps) {
   return (
     <Paper
-      elevation={1}
       sx={{
-        p: 2,
+        p: 2.5,
         borderRadius: 3,
+        display: "flex",
+        alignItems: "center",
+        gap: 2,
+        transition: "0.2s",
+        "&:hover": {
+          transform: "translateY(-3px)",
+          boxShadow: 4,
+        },
       }}
     >
-      <Stack spacing={1}>
+      <Avatar
+        sx={{
+          width: 48,
+          height: 48,
+          bgcolor: "primary.light",
+        }}
+      >
         {icon}
+      </Avatar>
 
+      <Box>
         <Typography variant="body2" color="text.secondary">
           {title}
         </Typography>
 
-        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-          {value}
-        </Typography>
-      </Stack>
+        <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{value}</Typography>
+      </Box>
     </Paper>
   );
 }
