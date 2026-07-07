@@ -2065,6 +2065,24 @@
       "atualizado_em": "2026-02-23T09:00:00Z"
     }
   ],
+  "atividades": [
+  {
+    "id": 1,
+    "modulo_id": 1,
+    "titulo": "Avaliação Inicial",
+    "data_entrega": "2026-07-15", 
+    "descricao": "...",
+    "ativo": true
+  },
+  {
+    "id": 2,
+    "modulo_id": 2,
+    "titulo": "Projeto Prático",
+    "data_entrega": "2026-07-22",
+    "descricao": "...",
+    "ativo": true
+  }
+],
   "tentativas_atividade": [
     {
       "id": 1,

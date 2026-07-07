@@ -1,21 +1,34 @@
 "use client";
 
-import { Box, Container, Grid, Typography, Stack } from "@mui/material";
+import { useUser } from "@/services/auth/AuthContext";
+import { Box, Container, Grid, Typography, Stack, CircularProgress } from "@mui/material";
 import { PendenciasTable } from "@/components/professor/PendenciasTable";
 import { DisciplinaCard } from "@/components/professor/DisciplinaCard";
-import mockData from "@/components/mock.json"; // Garantindo acesso ao mock completo
+import mockData from "@/components/mock.json";
 
-export default function ProfessorPage({ user, data }: { user: any; data: any }) {
-  // Acessa os dados globalmente via mockData ou props
-  const disciplinas = data?.disciplinas || mockData.disciplinas || [];
-  const modulos = data?.modulos || mockData.modulos || [];
-  const atividades = data?.atividades || mockData.atividades || [];
+export default function ProfessorPage() {
+  // Agora o componente busca o usuário logado independentemente da rota de acesso
+  const { user, loading } = useUser();
   
-  // 1. Disciplinas do professor
+  // Usamos mockData como fonte de dados (aqui você pode integrar sua API futura)
+  const disciplinas = mockData.disciplinas || [];
+  const modulos = mockData.modulos || [];
+  const atividades = mockData.atividades || [];
+
+  // Exibe um carregando enquanto o AuthContext valida a sessão
+  if (loading) {
+    return (
+      <Container sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  // 1. Disciplinas do professor (filtrado pelo ID do user vindo do AuthContext)
   const minhasDisciplinas = disciplinas.filter((d: any) => Number(d.professor_id) === Number(user?.id));
   const disciplinaIds = minhasDisciplinas.map((d: any) => d.id);
 
-  // 2. Hierarquia correta: Disciplina -> Módulo -> Atividade
+  // 2. Hierarquia: Disciplina -> Módulo -> Atividade
   const modulosDasDisciplinas = modulos
     .filter((m: any) => disciplinaIds.includes(m.disciplina_id))
     .map((m: any) => m.id);

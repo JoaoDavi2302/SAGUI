@@ -22,7 +22,7 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
     // Menu para o Professor (Centro de Comando)
     if (effectiveRole === "PROFESSOR") {
       return [
-        { icon: <HomeOutlined />, label: "Início", href: "/professorPage" },
+        { icon: <HomeOutlined />, label: "Início", href: "/professor" },
         { icon: <MenuBookOutlined />, label: "Disciplinas", href: "/professor/disciplinas" },
         { icon: <CalendarTodayOutlined />, label: "Calendário", href: "/professor/calendario" },
         { icon: <AssessmentOutlined />, label: "Relatórios", href: "/professor/relatorios" },

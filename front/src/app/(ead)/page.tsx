@@ -7,7 +7,7 @@ import { DashboardProvider } from "@/services/poo/dashboard/dashboardProvider";
 import { DatabaseProvider } from "@/services/poo/databaseProvider";
 
 import StudentPage from "./studentPage";
-import ProfessorPage from "./professorPage";
+import Professor from "@/app/(ead)/professor/page";
 import AdminPage from "./adminPage";
 
 export default function Home() {
@@ -30,7 +30,7 @@ export default function Home() {
   }
 
   if (effectiveRole === "PROFESSOR") {
-    return <ProfessorPage user={user} data={data} />;
+    return <Professor user={user} data={data} />;
   }
 
   if (effectiveRole === "ADMINISTRADOR") {
