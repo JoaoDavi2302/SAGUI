@@ -1,78 +1,86 @@
 "use client";
 
 import { useUser } from "@/services/auth/AuthContext";
-import { Box, Container, Grid, Typography, Stack, CircularProgress } from "@mui/material";
-import { PendenciasTable } from "@/components/professor/PendenciasTable";
-import { DisciplinaCard } from "@/components/professor/DisciplinaCard";
-import mockData from "@/components/mock.json";
+import { 
+  Box, Container, Grid, Typography, Stack, CircularProgress, 
+  Paper, Table, TableBody, TableCell, TableHead, TableRow, Chip, Button, TableContainer 
+} from "@mui/material";
+import { useRouter } from "next/navigation";
+import { useDashboard } from "@/components/DashboardProvider";
 
 export default function ProfessorPage() {
-  // Agora o componente busca o usuário logado independentemente da rota de acesso
   const { user, loading } = useUser();
+  const { data } = useDashboard();
+  const router = useRouter();
   
-  // Usamos mockData como fonte de dados (aqui você pode integrar sua API futura)
-  const disciplinas = mockData.disciplinas || [];
-  const modulos = mockData.modulos || [];
-  const atividades = mockData.atividades || [];
+  if (loading) return <CircularProgress />;
 
-  // Exibe um carregando enquanto o AuthContext valida a sessão
-  if (loading) {
-    return (
-      <Container sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-        <CircularProgress />
-      </Container>
-    );
-  }
-
-  // 1. Disciplinas do professor (filtrado pelo ID do user vindo do AuthContext)
-  const minhasDisciplinas = disciplinas.filter((d: any) => Number(d.professor_id) === Number(user?.id));
-  const disciplinaIds = minhasDisciplinas.map((d: any) => d.id);
-
-  // 2. Hierarquia: Disciplina -> Módulo -> Atividade
-  const modulosDasDisciplinas = modulos
-    .filter((m: any) => disciplinaIds.includes(m.disciplina_id))
-    .map((m: any) => m.id);
-
-  const atividadesPendentes = atividades.filter((a: any) => 
-    modulosDasDisciplinas.includes(a.modulo_id)
-  );
+  const minhasDisciplinas = data.disciplinas.filter((d: any) => Number(d.professor_id) === Number(user?.id));
+  const pendencias = data.tentativas_atividade.filter((t: any) => t.nota === null || t.nota < 70);
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 800 }}>Dashboard de Gestão</Typography>
         <Typography color="text.secondary">
-          Bem-vindo, Prof. {user?.nome}. 
-          {atividadesPendentes.length > 0 ? (
-            <> Você tem <strong>{atividadesPendentes.length} pendências</strong> hoje.</>
-          ) : (
-            <> Tudo certo! Nenhuma correção pendente no momento.</>
-          )}
+          Bem-vindo, Prof. {user?.nome}. Você tem <strong>{pendencias.length} pendências</strong> hoje.
         </Typography>
       </Box>
 
       <Grid container spacing={4}>
-        <Grid xs={12} lg={7}>
+        {/* Tabela de Correções */}
+        <Grid size={{ xs: 12, lg: 7 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>Próximas Correções</Typography>
-          {atividadesPendentes.length > 0 ? (
-            <PendenciasTable atividades={atividadesPendentes.slice(0, 5)} />
-          ) : (
-            <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#f8fafc', borderRadius: 3, border: '1px dashed #cbd5e1' }}>
-              <Typography color="text.secondary">Nenhuma atividade aguardando correção.</Typography>
-            </Box>
-          )}
+          <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 0, border: '1px solid #e2e8f0' }}>
+            <Table>
+              <TableHead sx={{ bgcolor: "#f8fafc" }}>
+                <TableRow>
+                  <TableCell>Atividade</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Ação</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {pendencias.map((p: any) => {
+                  const ativ = data.atividades.find((a: any) => a.id === p.atividade_id);
+                  return (
+                    <TableRow key={p.id}>
+                      <TableCell>{ativ?.titulo}</TableCell>
+                      <TableCell><Chip label="Aguardando" color="warning" size="small" variant="outlined" /></TableCell>
+                      <TableCell>
+                        <Button 
+                          variant="contained" size="small" 
+                          onClick={() => router.push(`/professor/disciplinas/${ativ?.modulo_id}/avaliacoes`)}
+                        >
+                          CORRIGIR
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Grid>
 
-        <Grid xs={12} lg={5}>
+        {/* Lista de Disciplinas */}
+        <Grid size={{ xs: 12, lg: 5 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>Minhas Disciplinas</Typography>
           <Stack spacing={2}>
-            {minhasDisciplinas.length > 0 ? (
-              minhasDisciplinas.map((subject: any) => (
-                <DisciplinaCard key={subject.id} disciplina={subject} />
-              ))
-            ) : (
-              <Typography color="text.secondary">Nenhuma disciplina vinculada.</Typography>
-            )}
+            {minhasDisciplinas.map((disc: any) => (
+              <Paper key={disc.id} sx={{ p: 3, borderRadius: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: 0, border: '1px solid #e2e8f0' }}>
+                <Box>
+                  <Typography sx={{ fontWeight: 700 }}>{disc.nome}</Typography>
+                  <Typography variant="body2" color="text.secondary">{disc.descricao}</Typography>
+                </Box>
+                <Button 
+                  variant="text" 
+                  onClick={() => router.push(`/professor/disciplinas/${disc.id}`)}
+                >
+                  GERENCIAR
+                </Button>
+              </Paper>
+            ))}
           </Stack>
         </Grid>
       </Grid>

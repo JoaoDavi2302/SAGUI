@@ -8,7 +8,7 @@ const DashboardContext = createContext<any>(null);
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState(initialData);
 
-  // Função para atualizar notas e status do aluno
+  // Função para atualizar notas e status do aluno (mantém a lógica de correção)
   const handleUpdateNota = (alunoId: number, atividadeId: number, novaNota: number) => {
     setData((prev: any) => {
       const novasTentativas = prev.tentativas_atividade.map((t: any) =>
@@ -19,7 +19,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
       const novasMatriculas = prev.matriculas.map((m: any) => {
         if (m.aluno_id === alunoId) {
-          const statusCalculado = novaNota >= 7 ? "APROVADA" : "EM_RISCO";
+          const statusCalculado = novaNota >= 70 ? "APROVADA" : "EM_RISCO";
           return { ...m, status: statusCalculado };
         }
         return m;
@@ -87,8 +87,27 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     setData((prev: any) => ({
       ...prev,
       modulos: prev.modulos.filter((m: any) => m.id !== moduloId),
-      // Remove automaticamente todas as aulas vinculadas a este módulo para evitar dados órfãos
       aulas: prev.aulas.filter((a: any) => a.modulo_id !== moduloId)
+    }));
+  };
+
+  // Funções para gerenciar Avaliações (CRUD completo)
+  const handleSaveAvaliacao = (avaliacao: any) => {
+    setData((prev: any) => {
+      const index = prev.atividades.findIndex((a: any) => a.id === avaliacao.id);
+      if (index !== -1) {
+        const novasAtividades = [...prev.atividades];
+        novasAtividades[index] = avaliacao;
+        return { ...prev, atividades: novasAtividades };
+      }
+      return { ...prev, atividades: [...prev.atividades, { ...avaliacao, id: Date.now() }] };
+    });
+  };
+
+  const handleDeleteAvaliacao = (avaliacaoId: number) => {
+    setData((prev: any) => ({
+      ...prev,
+      atividades: prev.atividades.filter((a: any) => a.id !== avaliacaoId)
     }));
   };
 
@@ -102,7 +121,9 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       handleUpdateConteudoAula,
       handleAddModulo, 
       handleEditModulo,
-      handleDeleteModulo
+      handleDeleteModulo,
+      handleSaveAvaliacao,
+      handleDeleteAvaliacao
     }}>
       {children}
     </DashboardContext.Provider>
