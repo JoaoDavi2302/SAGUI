@@ -48,8 +48,8 @@ export default function CoursesPage() {
     return provider.listCourses();
   }, [provider]);
 
-  const enrolled = effectiveRole === "ALUNO" ? courses.filter((c: any) => c.enrolled) : courses;
-  const available = effectiveRole === "ALUNO" ? courses.filter((c: any) => c.available) : [];
+  const enrolled = effectiveRole === "Aluno" ? courses.filter((c: any) => c.enrolled) : courses;
+  const available = effectiveRole === "Aluno" ? courses.filter((c: any) => c.available) : [];
 
   const handleOpen = (course: CourseCard) => {
     const slug = slugify(course.nome);
@@ -71,12 +71,12 @@ export default function CoursesPage() {
       </Typography>
 
       <Typography sx={{ color: "text.secondary", mb: 3 }}>
-        {effectiveRole === "ALUNO" && "Seus cursos matriculados e disponíveis"}
-        {effectiveRole === "PROFESSOR" && "Cursos onde você leciona disciplinas"}
-        {effectiveRole === "ADMINISTRADOR" && "Todos os cursos do sistema"}
+        {effectiveRole === "Aluno" && "Seus cursos matriculados e disponíveis"}
+        {effectiveRole === "Professor" && "Cursos onde você leciona disciplinas"}
+        {effectiveRole === "Admin" && "Todos os cursos do sistema"}
       </Typography>
 
-      {effectiveRole === "ALUNO" && (
+      {effectiveRole === "Aluno" && (
         <Tabs 
           value={tab} 
           onChange={(_, v) => setTab(v)} 
@@ -93,7 +93,7 @@ export default function CoursesPage() {
       )}
 
       <Grid container spacing={3} sx={{ mb: 6 }}> {/* MODIFICAÇÃO (Etapa 4): mb: 6 para respiro */}
-        {(effectiveRole === "ALUNO" ? (tab === 0 ? enrolled : available) : courses).map((c: any) => (
+        {(effectiveRole === "Aluno" ? (tab === 0 ? enrolled : available) : courses).map((c: any) => (
           <Grid key={c.id} size={{ xs: 12, sm: 6, md: 4 }}>
             <Card
               sx={{
@@ -134,7 +134,7 @@ export default function CoursesPage() {
               <Divider />
               <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Typography variant="caption" color="text.secondary">Disciplinas: {c.disciplinesCount ?? 0}</Typography>
-                {effectiveRole === "ALUNO" && !c.enrolled && (
+                {effectiveRole === "Aluno" && !c.enrolled && (
                   <Button variant="outlined" size="small">Matricular-se</Button>
                 )}
               </Box>

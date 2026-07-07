@@ -20,7 +20,7 @@ export default function PerfilPage() {
           <Stack spacing={3}>
             <Box>
               <Typography variant="caption" color="text.secondary">Nome Completo</Typography>
-              <Typography variant="body1">{user.nome}</Typography>
+              <Typography variant="body1">{user.name}</Typography>
             </Box>
             <Divider />
             <Box>

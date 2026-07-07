@@ -56,6 +56,13 @@ interface UserProfileResponse {
   role: Role;
 }
 
+function parseRole(role: string): Role {
+  if (role === "Admin" || role === "Professor" || role === "Aluno") {
+    return role;
+  }
+  return "Aluno";
+}
+
 export function setSessionCookies(role: Role) {
   document.cookie = "token=1; path=/; max-age=86400; SameSite=Lax";
   document.cookie = `role=${role}; path=/; max-age=86400; SameSite=Lax`;
@@ -81,7 +88,7 @@ function mapUserProfile(data: UserProfileResponse): LoggedUser {
     id: data.id,
     name: data.name,
     email: data.email,
-    role: data.role,
+    role: parseRole(data.role),
   };
 }
 

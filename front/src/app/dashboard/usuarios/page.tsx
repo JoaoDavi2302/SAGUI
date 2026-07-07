@@ -35,9 +35,9 @@ export default function GerenciarUsuariosPage() {
       ...usuario,
 
       perfilLabel:
-        usuario.perfil === "ADMINISTRADOR"
+        usuario.perfil === "Admin"
           ? "Administrador"
-          : usuario.perfil === "PROFESSOR"
+          : usuario.perfil === "Professor"
             ? "Professor"
             : "Aluno",
 
@@ -70,9 +70,9 @@ export default function GerenciarUsuariosPage() {
           label={params.value}
           size="small"
           color={
-            params.row.perfil === "ADMINISTRADOR"
+            params.row.perfil === "Admin"
               ? "error"
-              : params.row.perfil === "PROFESSOR"
+              : params.row.perfil === "Professor"
                 ? "primary"
                 : "success"
           }

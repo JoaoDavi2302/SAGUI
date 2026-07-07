@@ -39,7 +39,7 @@ export default function DisciplinasPage() {
 
   if (!provider) return null;
 
-  if (effectiveRole === "ALUNO") {
+  if (effectiveRole === "Aluno") {
     return (
       <StudentDisciplinesPage
         user={user}
@@ -48,7 +48,7 @@ export default function DisciplinasPage() {
     );
   }
 
-  if (effectiveRole === "PROFESSOR") {
+  if (effectiveRole === "Professor") {
     return (
       <ProfessorDisciplinesPage
         user={user}

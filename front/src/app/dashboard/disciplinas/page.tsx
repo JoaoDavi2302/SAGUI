@@ -21,7 +21,7 @@ export default function GerenciarDisciplinasPage() {
 
   const provider = useMemo(() => {
     if (!user) return null;
-    return DisciplineProvider.create("ADMINISTRADOR", database, user);
+    return DisciplineProvider.create("Admin", database, user);
   }, [user]);
 
   const data = useMemo(() => {

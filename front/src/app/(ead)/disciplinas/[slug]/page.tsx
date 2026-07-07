@@ -35,11 +35,11 @@ export default function DisciplinePage() {
 
   if (!data || !provider) return null;
 
-  if (effectiveRole === "ALUNO") {
+  if (effectiveRole === "Aluno") {
     return <StudentDisciplineDetailsPage data={data} user={user} />;
   }
 
-  if (effectiveRole === "PROFESSOR") {
+  if (effectiveRole === "Professor") {
     return <ProfessorDisciplineDetailsPage data={data} user={user} />;
   }
 

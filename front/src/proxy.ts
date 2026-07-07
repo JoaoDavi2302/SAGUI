@@ -1,7 +1,7 @@
 // filtro de rotas/validação pós login
 import { NextRequest, NextResponse } from "next/server";
 
-import { Role } from "@/services/poo/shared/types";
+import type { Role } from "@/services/poo/shared/types";
 import { canAccess } from "@/services/auth/router-acess";
 
 function normalize(path: string) {

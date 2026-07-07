@@ -1,5 +1,7 @@
 // politicas de acesso as rotas baseado em roles
-export type Role = "Admin" | "Professor" | "Aluno";
+import type { Role } from "@/services/poo/shared/types";
+
+export type { Role };
 
 export const routerPolicy: Record<string, Role[]> = {
   "/dashboard": ["Admin"],

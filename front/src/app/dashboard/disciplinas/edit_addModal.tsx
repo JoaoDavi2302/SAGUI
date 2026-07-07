@@ -43,7 +43,7 @@ export default function DisciplineModal({
   const provider = useMemo(() => {
     if (!user) return null;
 
-    return DisciplineProvider.create("ADMINISTRADOR", database, user);
+    return DisciplineProvider.create("Admin", database, user);
   }, [user]);
 
   const professors = useMemo(() => {

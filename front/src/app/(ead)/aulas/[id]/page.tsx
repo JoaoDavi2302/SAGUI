@@ -353,7 +353,7 @@ export default function LessonPage() {
                                   const isRight = selected && alt.correta;
 
                                   const professorCorrect =
-                                    effectiveRole === "PROFESSOR" &&
+                                    effectiveRole === "Professor" &&
                                     alt.correta;
 
                                   return (

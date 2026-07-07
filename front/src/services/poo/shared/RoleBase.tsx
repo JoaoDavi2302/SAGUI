@@ -27,6 +27,10 @@ export abstract class RoleBase {
     protected user: LoggedUser,
   ) {}
 
+  protected matchesUserId(id: string | number): boolean {
+    return String(id) === String(this.user.id);
+  }
+
   /* acessar tabelas */
   protected users() {
     return this.database.usuarios;
@@ -86,7 +90,7 @@ export abstract class RoleBase {
 
   protected getStudentCourseIds(): number[] {
     return this.enrollments()
-      .filter((e) => e.aluno_id === this.user.id)
+      .filter((e) => this.matchesUserId(e.aluno_id))
       .map((e) => e.curso_id);
   }
 
@@ -94,7 +98,7 @@ export abstract class RoleBase {
     return [
       ...new Set(
         this.disciplines()
-          .filter((d) => d.professor_id === this.user.id)
+          .filter((d) => this.matchesUserId(d.professor_id))
           .map((d) => d.curso_id),
       ),
     ];
@@ -129,7 +133,7 @@ export abstract class RoleBase {
   }
 
   protected getProfessors(): UserEntity[] {
-    return this.users().filter((user) => user.perfil === "PROFESSOR");
+    return this.users().filter((user) => user.perfil === "Professor");
   }
   // fim professor
 
@@ -160,7 +164,7 @@ export abstract class RoleBase {
   protected isModuleCompleted(moduleId: number): boolean {
     return this.moduleProgress().some(
       (p) =>
-        p.aluno_id === this.user.id && p.modulo_id === moduleId && p.concluido,
+        this.matchesUserId(p.aluno_id) && p.modulo_id === moduleId && p.concluido,
     );
   }
 
@@ -183,7 +187,7 @@ export abstract class RoleBase {
 
   // CONTINUA
 
-  protected isLessonDone(studentId: number, lessonId: number): boolean {
+  protected isLessonDone(studentId: string | number, lessonId: number): boolean {
     const lesson = this.lessons().find((lesson) => lesson.id === lessonId);
 
     if (!lesson) {
@@ -192,7 +196,7 @@ export abstract class RoleBase {
 
     return this.moduleProgress().some(
       (progress) =>
-        progress.aluno_id === studentId &&
+        String(progress.aluno_id) === String(studentId) &&
         progress.modulo_id === lesson.modulo_id &&
         progress.concluido,
     );
@@ -408,7 +412,7 @@ export abstract class RoleBase {
 
   // para admin
   protected getAllStudents(): UserEntity[] {
-    return this.users().filter((user) => user.perfil === "ALUNO");
+    return this.users().filter((user) => user.perfil === "Aluno");
   }
 
   // não usado

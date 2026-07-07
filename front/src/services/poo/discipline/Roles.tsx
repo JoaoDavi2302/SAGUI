@@ -138,7 +138,7 @@ export class StudentDiscipline extends Discipline {
 /* professor */
 export class ProfessorDiscipline extends Discipline {
   listDisciplines(): DisciplineEntity[] {
-    return this.disciplines().filter((d) => d.professor_id === this.user.id);
+    return this.disciplines().filter((d) => this.matchesUserId(d.professor_id));
   }
 
   listCourses(): CourseEntity[] {
@@ -157,7 +157,7 @@ export class ProfessorDiscipline extends Discipline {
 
     console.log("professor da disciplina", discipline.professor_id);
 
-    return discipline.professor_id === this.user.id ? discipline : null;
+    return this.matchesUserId(discipline.professor_id) ? discipline : null;
   }
 
   listProfessors(): UserEntity[] {
@@ -166,7 +166,7 @@ export class ProfessorDiscipline extends Discipline {
 
   getByCourse(courseId: number): DisciplineEntity[] {
     return this.getDisciplinesByCourse(courseId).filter(
-      (d) => d.professor_id === this.user.id,
+      (d) => this.matchesUserId(d.professor_id),
     );
   }
 

@@ -10,19 +10,19 @@ export class DashboardProvider {
 
     switch (role) {
 
-      case "ALUNO":
+      case "Aluno":
         return new StudentDashboard(
           user,
           database
         );
 
-      case "PROFESSOR":
+      case "Professor":
         return new ProfessorDashboard(
           user,
           database
         );
 
-        case "ADMINISTRADOR":
+        case "Admin":
         return new AdminDashboard(
           user,
           database

@@ -1,0 +1,39 @@
+# Maven
+target/
+
+# Java
+*.class
+
+# Environment
+.env
+
+# IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Build
+build/
+out/
+
+# Docker volumes locais
+postgres_data/
+docker-data/
+
+# Temporários
+*.tmp
+*.swp
+*.swo
+*~
+
+Sistema de ensino requisitos.pdf
+ALINHAMENTO-BACK-FRONT-INTEGRACAO.md

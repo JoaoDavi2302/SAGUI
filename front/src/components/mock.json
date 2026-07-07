@@ -9,7 +9,7 @@
       "logradouro": "Rua A",
       "cidade": "Belém",
       "estado": "PA",
-      "perfil": "ADMINISTRADOR",
+      "perfil": "Admin",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -23,7 +23,7 @@
       "logradouro": "Rua B",
       "cidade": "Belém",
       "estado": "PA",
-      "perfil": "PROFESSOR",
+      "perfil": "Professor",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -37,7 +37,7 @@
       "logradouro": "Rua C",
       "cidade": "Belém",
       "estado": "PA",
-      "perfil": "ALUNO",
+      "perfil": "Aluno",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -51,7 +51,7 @@
       "logradouro": "Rua C",
       "cidade": "Belém",
       "estado": "PA",
-      "perfil": "ALUNO",
+      "perfil": "Aluno",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -65,7 +65,7 @@
       "logradouro": "Rua C",
       "cidade": "Belém",
       "estado": "PA",
-      "perfil": "ALUNO",
+      "perfil": "Aluno",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"

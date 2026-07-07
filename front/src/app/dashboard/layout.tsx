@@ -22,14 +22,14 @@ export default function DashboardLayout({
       return;
     }
 
-    if (effectiveRole !== "ADMINISTRADOR") {
+    if (effectiveRole !== "Admin") {
       router.replace("/not-found");
     }
   }, [user, loading, effectiveRole, router]);
 
   if (loading || !user) return null;
 
-  if (effectiveRole !== "ADMINISTRADOR") return null;
+  if (effectiveRole !== "Admin") return null;
 
   return (
     <DrawerLayout

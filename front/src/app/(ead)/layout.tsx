@@ -20,7 +20,7 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
     if (!user) return [];
 
     // Menu para o Professor (Centro de Comando)
-    if (effectiveRole === "PROFESSOR") {
+    if (effectiveRole === "Professor") {
       return [
         { icon: <HomeOutlined />, label: "Início", href: "/professorPage" },
         { icon: <MenuBookOutlined />, label: "Disciplinas", href: "/professor/disciplinas" },
@@ -41,7 +41,7 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
   const settings: HeaderItem[] = useMemo(
     () => [
       { label: "Perfil", href: "/perfil" },
-      ...(effectiveRole === "ADMINISTRADOR" ? [{ label: "Dashboard", href: "/dashboard" }] : []),
+      ...(effectiveRole === "Admin" ? [{ label: "Dashboard", href: "/dashboard" }] : []),
       { label: "Sair", action: "logout" },
     ],
     [effectiveRole],

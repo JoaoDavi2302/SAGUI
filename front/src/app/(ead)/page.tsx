@@ -25,15 +25,15 @@ export default function Home() {
 
   const data = dashboard.getData();
 
-  if (effectiveRole === "ALUNO") {
+  if (effectiveRole === "Aluno") {
     return <StudentPage user={user} data={data} />;
   }
 
-  if (effectiveRole === "PROFESSOR") {
+  if (effectiveRole === "Professor") {
     return <ProfessorPage user={user} data={data} />;
   }
 
-  if (effectiveRole === "ADMINISTRADOR") {
+  if (effectiveRole === "Admin") {
     return <AdminPage user={user} data={data} />;
   }
 

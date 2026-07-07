@@ -15,12 +15,12 @@ export default function ProfileInfo({ user, role }: ProfileInfoProps) {
       <Avatar 
         sx={{ width: 80, height: 80, bgcolor: 'primary.main', fontSize: '2rem' }}
       >
-        {user.nome.charAt(0).toUpperCase()}
+        {user.name.charAt(0).toUpperCase()}
       </Avatar>
       
       <Stack spacing={0.5}>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          {user.nome}
+          {user.name}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {user.email}

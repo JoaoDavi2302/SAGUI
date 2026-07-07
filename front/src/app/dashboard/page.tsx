@@ -28,7 +28,7 @@ export default function DashboardPage() {
   const alunosFiltrados = useMemo(() => {
     return database.usuarios
       // ALTERAÇÃO: Filtra estritamente os usuários que possuem a tag 'ALUNO' no perfil[cite: 16].
-      .filter((a: any) => a.perfil === 'ALUNO')
+      .filter((a: any) => a.perfil === 'Aluno')
       // Filtra pela busca de texto digitada pelo administrador
       .filter((a: any) => a.nome.toLowerCase().includes(busca.toLowerCase()))
       // Ordena alfabeticamente
@@ -53,7 +53,7 @@ export default function DashboardPage() {
     <div className="p-6 space-y-6">
       <div className="grid grid-cols-4 gap-6">
         {/* Mantive o filtro aqui também para garantir que o número de cards bata com a tabela[cite: 16] */}
-        <MetricCard title="Total de Alunos" value={database.usuarios.filter(u => u.perfil === 'ALUNO').length} icon={Users} />
+        <MetricCard title="Total de Alunos" value={database.usuarios.filter(u => u.perfil === 'Aluno').length} icon={Users} />
         <MetricCard title="Cursos Ativos" value={database.cursos.length} icon={BookOpen} />
         <MetricCard title="Disciplinas" value={database.disciplinas.length} icon={Layers} />
         <MetricCard title="Total de Matrículas" value={database.matriculas.length} icon={GraduationCap} />

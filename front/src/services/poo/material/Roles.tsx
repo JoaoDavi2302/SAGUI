@@ -85,7 +85,7 @@ export class StudentMaterial extends Material {
 export class ProfessorMaterial extends Material {
   listMaterials(): MaterialCard[] {
     const disciplineIds = this.database.disciplinas
-      .filter((d) => d.professor_id === this.user.id)
+      .filter((d) => this.matchesUserId(d.professor_id))
       .map((d) => d.id);
 
     return this.database.anexos
@@ -106,7 +106,7 @@ export class ProfessorMaterial extends Material {
     if (!card) return null;
 
     const allowed = this.database.disciplinas.some(
-      (d) => d.id === card.disciplineId && d.professor_id === this.user.id,
+      (d) => d.id === card.disciplineId && this.matchesUserId(d.professor_id),
     );
 
     return allowed ? attachment : null;

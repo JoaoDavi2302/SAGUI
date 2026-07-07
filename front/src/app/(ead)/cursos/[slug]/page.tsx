@@ -49,8 +49,8 @@ export default function CourseDetailPage() {
   console.log("id", id);
 
   const { user, effectiveRole } = useUser();
-  const isTeacher = effectiveRole === "PROFESSOR";
-  const isStudent = effectiveRole === "ALUNO";
+  const isTeacher = effectiveRole === "Professor";
+  const isStudent = effectiveRole === "Aluno";
 
   const provider = useMemo(() => {
     if (!user) return null;
@@ -78,7 +78,7 @@ export default function CourseDetailPage() {
   const enrolled =
     isStudent &&
     database.matriculas?.some(
-      (m) => m.aluno_id === user?.id && m.curso_id === course.id,
+      (m) => String(m.aluno_id) === String(user?.id) && m.curso_id === course.id,
     );
 
   const goDiscipline = (d: any) => {
