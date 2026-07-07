@@ -1,16 +1,16 @@
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper, 
-  Chip, 
-  Button 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
 } from "@mui/material";
+import type { ActivityDTO } from "@/new-services/poo/shared/api/activities";
 
-export function PendenciasTable({ atividades }: { atividades: any[] }) {
+export function PendenciasTable({ atividades }: { atividades: ActivityDTO[] }) {
   return (
     <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
       <Table>
@@ -18,18 +18,19 @@ export function PendenciasTable({ atividades }: { atividades: any[] }) {
           <TableRow>
             <TableCell>Atividade</TableCell>
             <TableCell>Status</TableCell>
-            <TableCell align="center">Ação</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {atividades.map((ativ: any) => (
+          {atividades.map((ativ) => (
             <TableRow key={ativ.id} hover>
-              <TableCell>{ativ.titulo}</TableCell>
+              <TableCell>{ativ.title}</TableCell>
               <TableCell>
-                <Chip label="Aguardando" color="warning" size="small" variant="outlined" />
-              </TableCell>
-              <TableCell align="center">
-                <Button variant="contained" size="small">Corrigir</Button>
+                <Chip
+                  label={ativ.status === "Active" ? "Ativa" : "Inativa"}
+                  color={ativ.status === "Active" ? "success" : "default"}
+                  size="small"
+                  variant="outlined"
+                />
               </TableCell>
             </TableRow>
           ))}

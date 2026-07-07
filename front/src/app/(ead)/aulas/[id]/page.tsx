@@ -33,8 +33,19 @@ import { Slider, IconButton } from "@mui/material";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import database from "@/components/mock.json";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useUser } from "@/services/auth/AuthContext";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useUser } from "@/new-services/auth/AuthContext";
+import { AttachmentList } from "@/components/lesson/AttachmentList";
+import { AttachmentForm } from "@/components/lesson/AttachmentForm";
+import {
+  listAttachments,
+  type AttachmentDTO,
+} from "@/new-services/poo/shared/api/attachments";
+import { getYouTubeId } from "@/utils/youtube";
+import { ApiError } from "@/new-services/poo/shared/api/client";
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export default function LessonPage() {
   const params = useParams();
@@ -44,24 +55,55 @@ export default function LessonPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
 
   const lessonId = Number(params.id);
+  const lessonUuid = String(params.id);
+  const isApiLesson = UUID_PATTERN.test(lessonUuid);
   const activityId = searchParams.get("atividade");
 
-  const getYouTubeId = (text?: string) => {
-    if (!text) return null;
-
-    const urlMatch = text.match(/https?:\/\/[^\s]+/);
-    const url = urlMatch?.[0];
-
-    if (!url) return null;
-
-    const match = url.match(/v=([^&]+)/);
-    return match ? match[1] : null;
-  };
+  const [attachments, setAttachments] = useState<AttachmentDTO[]>([]);
+  const [attachmentsLoading, setAttachmentsLoading] = useState(false);
+  const [attachmentsError, setAttachmentsError] = useState<string | null>(null);
 
   // aulas
   const lesson = database.aulas.find((l: any) => l.id === lessonId);
 
   const videoId = getYouTubeId(lesson?.conteudo);
+
+  const loadAttachments = useCallback(async () => {
+    if (!isApiLesson) {
+      setAttachments([]);
+      return;
+    }
+
+    setAttachmentsLoading(true);
+    setAttachmentsError(null);
+
+    try {
+      const active = await listAttachments(lessonUuid);
+
+      if (effectiveRole === "Professor" || effectiveRole === "Admin") {
+        const inactive = await listAttachments(lessonUuid, "Inactive");
+        setAttachments([...active, ...inactive]);
+      } else {
+        setAttachments(active);
+      }
+    } catch (err) {
+      setAttachments([]);
+      setAttachmentsError(
+        err instanceof ApiError ? err.message : "Não foi possível carregar os materiais",
+      );
+    } finally {
+      setAttachmentsLoading(false);
+    }
+  }, [effectiveRole, isApiLesson, lessonUuid]);
+
+  useEffect(() => {
+    void loadAttachments();
+  }, [loadAttachments]);
+
+  const activeAttachments = useMemo(
+    () => attachments.filter((attachment) => attachment.status === "Active"),
+    [attachments],
+  );
 
   const playerRef = useRef<any>(null);
 
@@ -157,10 +199,7 @@ export default function LessonPage() {
     router.push(`/aulas/${lessonId}?atividade=${id}`);
   };
 
-  const lessonMaterials = useMemo(() => {
-    return null;
-    // return database.anexos.filter((a) => a.aula_id === lesson.id);
-  }, [lesson.id]);
+  const lessonMaterials = activeAttachments;
 
   const quizQuestions = activeActivity
     ? database.questoes
@@ -459,10 +498,32 @@ export default function LessonPage() {
                     Material da aula
                   </Typography>
 
-                  {/* <Chip size="small" label={lessonMaterials.length} /> */}
+                  <Chip size="small" label={lessonMaterials.length} />
                 </Box>
 
-                <Typography>A desenvolver materiais</Typography>
+                <AttachmentList
+                  attachments={lessonMaterials}
+                  loading={isApiLesson && attachmentsLoading}
+                  error={isApiLesson ? attachmentsError : null}
+                />
+
+                {!isApiLesson && (
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                    Materiais da API ficam disponíveis quando a aula é acessada pelo
+                    identificador do backend.
+                  </Typography>
+                )}
+
+                {(effectiveRole === "Professor" || effectiveRole === "Admin") &&
+                  isApiLesson && (
+                    <Box sx={{ mt: 3, pt: 3, borderTop: "1px solid", borderColor: "divider" }}>
+                      <AttachmentForm
+                        lessonId={lessonUuid}
+                        attachments={attachments}
+                        onChanged={loadAttachments}
+                      />
+                    </Box>
+                  )}
               </CardContent>
             </Card>
           )}

@@ -1,8 +1,27 @@
 import { apiFetch } from "./client";
-import { fetchAllPages } from "./pagination";
+
+export type EntityStatus = "Active" | "Inactive";
+
+export interface ActivityDTO {
+  id: string;
+  moduleId: string;
+  title: string;
+  description: string | null;
+  attemptLimit: number;
+  minimumScore: number;
+  status: EntityStatus;
+}
 
 export async function listActivities(moduleId?: string) {
-  return fetchAllPages("/activities", moduleId ? { moduleId } : {});
+  const params = new URLSearchParams();
+  if (moduleId) {
+    params.set("moduleId", moduleId);
+  }
+
+  const query = params.toString();
+  return apiFetch<ActivityDTO[]>(
+    query ? `/activities?${query}` : "/activities",
+  );
 }
 
 export async function createActivity(data: unknown) {

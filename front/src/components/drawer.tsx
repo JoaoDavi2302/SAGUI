@@ -26,7 +26,7 @@ import DashboardHeader from "./dashboard-header";
 import Footer from "./footer";
 
 import type { SidebarItem, HeaderItem } from "./layout/types";
-import { getAdminHeaderConfig } from "./layout/headerConfig";
+import { getAdminHeaderConfig, getProfessorHeaderConfig } from "./layout/headerConfig";
 import { useUser } from "@/new-services/auth/AuthContext";
 
 type Props = {
@@ -50,9 +50,14 @@ export default function DrawerLayout({
   const theme = useTheme();
   const { effectiveRole } = useUser();
 
-  const adminHeader = effectiveRole === "Admin" ? getAdminHeaderConfig(pathname) : null;
-  const headerTitle = adminHeader?.title ?? title;
-  const searchType = adminHeader?.searchType ?? null;
+  const headerConfig =
+    effectiveRole === "Admin"
+      ? getAdminHeaderConfig(pathname)
+      : effectiveRole === "Professor"
+        ? getProfessorHeaderConfig(pathname)
+        : null;
+  const headerTitle = headerConfig?.title ?? title;
+  const searchType = headerConfig?.searchType ?? null;
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [open, setOpen] = React.useState(false);

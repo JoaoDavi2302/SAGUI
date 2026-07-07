@@ -37,6 +37,41 @@ export function getAdminHeaderConfig(pathname: string): AdminHeaderConfig | null
   return null;
 }
 
+export interface ProfessorHeaderConfig {
+  title: string;
+  searchType?: HeaderSearchType;
+}
+
+export function getProfessorHeaderConfig(
+  pathname: string,
+): ProfessorHeaderConfig | null {
+  if (pathname === "/" || pathname === "/professorPage") {
+    return { title: "Início" };
+  }
+
+  if (pathname === "/professor/disciplinas") {
+    return { title: "Disciplinas", searchType: "professor-disciplines" };
+  }
+
+  if (pathname.startsWith("/professor/disciplinas/")) {
+    return { title: "Disciplina" };
+  }
+
+  if (pathname.startsWith("/professor/calendario")) {
+    return { title: "Calendário" };
+  }
+
+  if (pathname.startsWith("/professor/relatorios")) {
+    return { title: "Relatórios" };
+  }
+
+  if (pathname.startsWith("/perfil")) {
+    return { title: "Perfil" };
+  }
+
+  return null;
+}
+
 export function slugify(text: string) {
   return text
     .toLowerCase()

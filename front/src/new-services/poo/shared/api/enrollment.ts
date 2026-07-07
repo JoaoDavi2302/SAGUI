@@ -11,6 +11,7 @@ export interface EnrollmentDetailDTO {
   status: EnrollmentStatus;
   studentId: string;
   studentName: string;
+  studentEmail?: string;
   disciplineId: string;
   disciplineName: string;
   courseId: string | null;
@@ -89,4 +90,17 @@ export async function listMyEnrollmentsPage(params?: {
   });
 
   return apiFetch<EnrollmentPageDTO>(`/enrollments/my?${searchParams}`);
+}
+
+export async function listEnrollmentsByDiscipline(
+  disciplineId: string,
+  params?: { page?: number; size?: number },
+) {
+  const searchParams = new URLSearchParams({
+    disciplineId,
+    page: String(params?.page ?? 0),
+    size: String(params?.size ?? 20),
+  });
+
+  return apiFetch<EnrollmentPageDTO>(`/enrollments?${searchParams}`);
 }

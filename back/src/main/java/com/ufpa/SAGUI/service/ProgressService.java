@@ -15,6 +15,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.ufpa.SAGUI.dto.progress.DisciplineProgressResponse;
 import com.ufpa.SAGUI.dto.progress.ModuleProgressResponse;
 import com.ufpa.SAGUI.enums.EnrollmentStatus;
+import com.ufpa.SAGUI.enums.EntityStatus;
+import com.ufpa.SAGUI.enums.UserRole;
 import com.ufpa.SAGUI.models.Enrollment;
 import com.ufpa.SAGUI.models.Module;
 import com.ufpa.SAGUI.models.User;
@@ -42,7 +44,11 @@ public class ProgressService {
 
     @Transactional(readOnly = true)
     public void validateSequentialAccessForCurrentUser(UUID moduleId) {
-        validateSequentialAccess(getCurrentStudentId(), moduleId);
+        User user = findAuthenticatedUser();
+        if (user.getRole() == UserRole.Admin || user.getRole() == UserRole.Professor) {
+            return;
+        }
+        validateSequentialAccess(user.getId(), moduleId);
     }
 
     @Transactional(readOnly = true)
@@ -150,7 +156,7 @@ public class ProgressService {
     // ==========================================================
 
     private int calculateLessonProgressPercentage(UUID studentId, UUID moduleId) {
-        long totalLessons = lessonRepository.countByModule_Id(moduleId);
+        long totalLessons = lessonRepository.countByModule_IdAndStatus(moduleId, EntityStatus.Active);
         if (totalLessons == 0) {
             return 0;
         }
@@ -162,7 +168,7 @@ public class ProgressService {
     }
 
     private boolean isModuleCompletedByLessons(UUID studentId, UUID moduleId) {
-        long totalLessons = lessonRepository.countByModule_Id(moduleId);
+        long totalLessons = lessonRepository.countByModule_IdAndStatus(moduleId, EntityStatus.Active);
         if (totalLessons == 0) {
             return false;
         }

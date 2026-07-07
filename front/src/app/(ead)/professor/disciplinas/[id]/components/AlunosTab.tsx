@@ -1,28 +1,116 @@
 "use client";
 
-import { 
-  Box, Table, TableBody, TableCell, TableContainer, TableHead, 
-  TableRow, Paper, Avatar, Typography, Chip 
+import { useEffect, useState } from "react";
+import {
+  Alert,
+  Avatar,
+  Box,
+  Chip,
+  CircularProgress,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
 } from "@mui/material";
-import mockData from "@/components/mock.json"; // Ajuste o caminho conforme seu projeto
+import { listEnrollmentsByDiscipline } from "@/new-services/poo/shared/api/enrollment";
+import { ApiError } from "@/new-services/poo/shared/api/client";
+
+const STATUS_LABELS: Record<string, string> = {
+  APPROVED: "Aprovada",
+  PENDING: "Pendente",
+  REJECTED: "Rejeitada",
+  CANCELLED: "Cancelada",
+};
+
+const STATUS_COLORS: Record<string, "success" | "warning" | "error" | "default"> =
+  {
+    APPROVED: "success",
+    PENDING: "warning",
+    REJECTED: "error",
+    CANCELLED: "default",
+  };
 
 export function AlunosTab({ disciplinaId }: { disciplinaId: string }) {
-  // 1. Encontrar a disciplina atual para saber qual o curso_id dela
-  const disciplina = mockData.disciplinas.find(d => d.id === Number(disciplinaId));
-  
-  // 2. Filtrar as matrículas que pertencem ao curso da disciplina
-  const matriculasDoCurso = mockData.matriculas.filter(
-    (m: any) => m.curso_id === disciplina?.curso_id
-  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [students, setStudents] = useState<
+    Array<{
+      id: string;
+      name: string;
+      email?: string;
+      status: string;
+    }>
+  >([]);
 
-  // 3. Mapear os usuários encontrados nessas matrículas
-  const alunos = matriculasDoCurso.map((m: any) => {
-    const usuario = mockData.usuarios.find((u: any) => u.id === m.aluno_id);
-    return { ...usuario, status: m.status };
-  });
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const page = await listEnrollmentsByDiscipline(disciplinaId, {
+          page: 0,
+          size: 20,
+        });
+
+        if (!cancelled) {
+          setStudents(
+            (page.content ?? []).map((enrollment) => ({
+              id: enrollment.studentId,
+              name: enrollment.studentName,
+              email: enrollment.studentEmail,
+              status: enrollment.status,
+            })),
+          );
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setStudents([]);
+          if (err instanceof ApiError && err.status === 404) {
+            setError(null);
+          } else {
+            setError(
+              err instanceof ApiError
+                ? err.message
+                : "Não foi possível carregar os alunos.",
+            );
+          }
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [disciplinaId]);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return <Alert severity="error">{error}</Alert>;
+  }
 
   return (
-    <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 0, border: '1px solid #e2e8f0' }}>
+    <TableContainer
+      component={Paper}
+      sx={{ borderRadius: 3, boxShadow: 0, border: "1px solid #e2e8f0" }}
+    >
       <Table>
         <TableHead sx={{ bgcolor: "#f8fafc" }}>
           <TableRow>
@@ -32,26 +120,33 @@ export function AlunosTab({ disciplinaId }: { disciplinaId: string }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {alunos.length > 0 ? (
-            alunos.map((aluno: any) => (
+          {students.length > 0 ? (
+            students.map((aluno) => (
               <TableRow key={aluno.id} hover>
-                <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar sx={{ bgcolor: '#1976d2', width: 32, height: 32, fontSize: '0.8rem' }}>
-                    {aluno.nome?.charAt(0)}
+                <TableCell sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: "#1976d2",
+                      width: 32,
+                      height: 32,
+                      fontSize: "0.8rem",
+                    }}
+                  >
+                    {aluno.name?.charAt(0)}
                   </Avatar>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {aluno.nome}
+                    {aluno.name}
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Chip 
-                    label={aluno.status} 
-                    color={aluno.status === "APROVADA" ? "success" : "warning"} 
-                    size="small" 
-                    variant="outlined" 
+                  <Chip
+                    label={STATUS_LABELS[aluno.status] ?? aluno.status}
+                    color={STATUS_COLORS[aluno.status] ?? "default"}
+                    size="small"
+                    variant="outlined"
                   />
                 </TableCell>
-                <TableCell>{aluno.email}</TableCell>
+                <TableCell>{aluno.email ?? "—"}</TableCell>
               </TableRow>
             ))
           ) : (

@@ -122,17 +122,24 @@ export class ProfessorDashboard extends Dashboard {
     ]);
 
     const myDisciplines = disciplines.filter(
-      (d: any) => d.professor_id === this.user.id,
+      (d: { responsibleProfessorId?: string; id: string }) =>
+        d.responsibleProfessorId === this.user.id,
     );
 
-    const disciplineIds = myDisciplines.map((d: any) => d.id);
+    const disciplineIds = myDisciplines.map((d: { id: string }) => d.id);
 
-    const courseIds = [...new Set(myDisciplines.map((d: any) => d.curso_id))];
+    const courseIds = [
+      ...new Set(
+        myDisciplines.map((d: { courseId?: string }) => d.courseId).filter(Boolean),
+      ),
+    ];
 
-    const myCourses = courses.filter((c: any) => courseIds.includes(c.id));
+    const myCourses = courses.filter((c: { id: string }) =>
+      courseIds.includes(c.id),
+    );
 
-    const myModules = modules.filter((m: any) =>
-      disciplineIds.includes(m.disciplina_id),
+    const myModules = modules.filter((m: { disciplineId?: string }) =>
+      disciplineIds.includes(m.disciplineId ?? ""),
     );
 
     return {

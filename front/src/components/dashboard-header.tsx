@@ -27,6 +27,7 @@ import AdminCourseSearch from "./admin/AdminCourseSearch";
 import AdminDisciplineSearch from "./admin/AdminDisciplineSearch";
 import AdminActivitySearch from "./admin/AdminActivitySearch";
 import { AdminUserSearch } from "./admin/AdminUserSearch";
+import ProfessorDisciplineSearch from "./professor/ProfessorDisciplineSearch";
 
 type Props = {
   title?: string;
@@ -48,6 +49,8 @@ function HeaderSearch({ searchType }: { searchType: HeaderSearchType }) {
       return <AdminActivitySearch />;
     case "users":
       return <AdminUserSearch variant="header" />;
+    case "professor-disciplines":
+      return <ProfessorDisciplineSearch />;
     default:
       return null;
   }

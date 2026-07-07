@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.ufpa.SAGUI.enums.EnrollmentStatus;
@@ -27,6 +28,10 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, UUID> {
             EnrollmentStatus enrollmentStatus, EntityStatus status, Pageable pageable);
 
     Page<Enrollment> findByStudent_IdAndStatus(UUID studentId, EntityStatus status, Pageable pageable);
+
+    @EntityGraph(attributePaths = { "student", "discipline" })
+    Page<Enrollment> findByDiscipline_IdAndEnrollmentStatusAndStatus(
+            UUID disciplineId, EnrollmentStatus enrollmentStatus, EntityStatus status, Pageable pageable);
 
     Optional<Enrollment> findByIdAndStudent_IdAndStatus(UUID id, UUID studentId, EntityStatus status);
 }

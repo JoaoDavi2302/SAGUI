@@ -50,6 +50,13 @@ export interface DisciplineRequestDTO {
   responsibleProfessorId: string;
 }
 
+export interface ModuleRequestDTO {
+  name: string;
+  description?: string;
+  orderIndex: number;
+  disciplineId: string;
+}
+
 export async function listCourses(status?: EntityStatus) {
   return fetchAllPages<CourseDTO>(
     "/courses",
@@ -126,6 +133,29 @@ export async function listModules(disciplineId?: string) {
     "/modules",
     disciplineId ? { disciplineId } : {},
   );
+}
+
+export async function createModule(data: ModuleRequestDTO) {
+  return apiFetch<ModuleDTO>("/modules", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateModule(id: string, data: ModuleRequestDTO) {
+  return apiFetch<ModuleDTO>(`/modules/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function changeModuleStatus(
+  moduleId: string,
+  status: EntityStatus,
+) {
+  return apiFetch<void>(`/modules/${moduleId}/status?status=${status}`, {
+    method: "PATCH",
+  });
 }
 
 export async function listProfessors() {

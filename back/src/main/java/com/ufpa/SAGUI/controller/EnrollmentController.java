@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ufpa.SAGUI.dto.enrollment.EnrollmentPageResponse;
@@ -56,6 +57,14 @@ public class EnrollmentController {
     @PreAuthorize("hasRole('Aluno')")
     public ResponseEntity<EnrollmentResponse> cancelEnrollment(@PathVariable UUID id) {
         return ResponseEntity.ok(enrollmentService.cancelEnrollment(id));
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
+    public ResponseEntity<EnrollmentPageResponse> listByDiscipline(
+            @RequestParam UUID disciplineId,
+            @PageableDefault(size = 20, sort = "createdATt") Pageable pageable) {
+        return ResponseEntity.ok(enrollmentService.listByDiscipline(disciplineId, pageable));
     }
 
     @GetMapping("/pending")

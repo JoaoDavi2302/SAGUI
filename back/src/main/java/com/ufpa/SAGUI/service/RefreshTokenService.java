@@ -3,6 +3,7 @@ package com.ufpa.SAGUI.service;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +43,7 @@ public class RefreshTokenService {
     public RefreshToken verificaExpiracao(RefreshToken token){
         if(token.getExpiryDate().isBefore(Instant.now())){
             refreshTokenRepository.delete(token);
-            throw new RuntimeException("Sessão expirada! faça login novamente");
+            throw new BadCredentialsException("Credenciais inválidas");
         }
 
         return token;

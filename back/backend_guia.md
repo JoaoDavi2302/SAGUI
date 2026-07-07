@@ -99,7 +99,20 @@ SPRING_DATASOURCE_USERNAME
 SPRING_DATASOURCE_PASSWORD
 JWT_SECRET
 JWT_EXPIRATION
+SAGUI_ADMIN_EMAIL
+SAGUI_ADMIN_PASSWORD
+SAGUI_ADMIN_NAME
 ```
+
+Na primeira subida (quando não existe nenhum usuário Admin), o backend cria automaticamente um administrador usando as variáveis `SAGUI_ADMIN_*`. Valores padrão em desenvolvimento:
+
+| Variável | Default | Descrição |
+|----------|---------|-----------|
+| `SAGUI_ADMIN_EMAIL` | `admin@sagui.local` | Email do admin inicial |
+| `SAGUI_ADMIN_PASSWORD` | `Admin@123` | Senha do admin inicial |
+| `SAGUI_ADMIN_NAME` | `Administrador` | Nome exibido do admin |
+
+Se já existir um usuário com role Admin, o seeder não faz nada (idempotente).
 
 Crie o arquivo `.env` conforme as configurações necessárias para execução local.
 

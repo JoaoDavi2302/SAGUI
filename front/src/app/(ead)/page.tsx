@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { useUser } from "@/new-services/auth/AuthContext";
@@ -8,7 +8,7 @@ import { DashboardProvider } from "@/services/poo/dashboard/dashboardProvider";
 import { DatabaseProvider } from "@/services/poo/databaseProvider";
 
 import StudentPage from "./studentPage";
-import ProfessorPage from "./professorPage";
+import ProfessorHome from "./ProfessorHome";
 
 export default function Home() {
   const router = useRouter();
@@ -21,15 +21,7 @@ export default function Home() {
   }, [loading, effectiveRole, router]);
 
   const database = DatabaseProvider.getDatabase();
-
-  const dashboard = useMemo(() => {
-    return DashboardProvider.create(
-      effectiveRole,
-      user,
-      database
-    );
-  }, [effectiveRole, user]);
-
+  const dashboard = DashboardProvider.create(effectiveRole, user, database);
   const data = dashboard.getData();
 
   if (effectiveRole === "Aluno") {
@@ -37,7 +29,7 @@ export default function Home() {
   }
 
   if (effectiveRole === "Professor") {
-    return <ProfessorPage user={user} data={data} />;
+    return <ProfessorHome />;
   }
 
   return null;

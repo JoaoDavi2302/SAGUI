@@ -23,4 +23,9 @@ export type HeaderItem =
       action: "logout";
     };
 
-export type HeaderSearchType = "courses" | "disciplines" | "activities" | "users";
+export type HeaderSearchType =
+  | "courses"
+  | "disciplines"
+  | "activities"
+  | "users"
+  | "professor-disciplines";

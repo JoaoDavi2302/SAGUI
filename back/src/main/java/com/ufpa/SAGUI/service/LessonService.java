@@ -44,12 +44,9 @@ public class LessonService {
         enrollmentService.validateContentAccessForCurrentUser(module.getDiscipline().getId());
         progressService.validateSequentialAccessForCurrentUser(moduleId);
 
-        if (status != null) {
-            return lessonRepository.findAllByModule_IdAndStatus(moduleId, status, pageable)
-                    .map(LessonResponse::from);
-        }
-
-        return lessonRepository.findAllByModule_Id(moduleId, pageable).map(LessonResponse::from);
+        EntityStatus filterStatus = status != null ? status : EntityStatus.Active;
+        return lessonRepository.findAllByModule_IdAndStatus(moduleId, filterStatus, pageable)
+                .map(LessonResponse::from);
     }
 
     @Transactional
@@ -101,6 +98,10 @@ public class LessonService {
         Module module = lesson.getModule();
         if (module == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Aula sem módulo associado");
+        }
+
+        if (lesson.getStatus() != EntityStatus.Active) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Aula inativa não pode ser concluída");
         }
 
         enrollmentService.validateContentAccess(student.getId(), module.getDiscipline().getId());
