@@ -75,12 +75,14 @@ export default function AtividadesPage() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         sx={{ mb: 4, "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchOutlined sx={{ color: "gray" }} />
-            </InputAdornment>
-          ),
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchOutlined sx={{ color: "gray" }} />
+              </InputAdornment>
+            ),
+          },
         }}
       /> 
 

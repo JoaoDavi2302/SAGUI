@@ -8,17 +8,17 @@ import {
   ReactNode,
 } from "react";
 
-import { LoggedUser, Role } from "@/new-services/poo/shared/types";
-import { apiAuth, apiUsers } from "@/new-services/poo/shared/api";
+import { LoggedUser, Role } from "@/services/poo/shared/types";
 
-/* CONTEXT */
 interface AuthContextType {
   user: LoggedUser | null;
   loading: boolean;
+
   effectiveRole: Role;
 
   login(email: string, password: string): Promise<boolean>;
   logout(): Promise<void>;
+
   refreshUser(): Promise<void>;
 }
 
@@ -26,12 +26,15 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const API = "http://localhost:8080/api";
 
-/* PROVIDER */
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<LoggedUser | null>(null);
+export function AuthProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [loading, setLoading] = useState(true);
 
-  /* REFRESH USER */
+  const [user, setUser] = useState<LoggedUser | null>(null);
+
   async function refreshUser() {
     try {
       const token = localStorage.getItem("accessToken");
@@ -41,34 +44,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const data = await apiUsers.me();
+      const response = await fetch(`${API}/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        setUser(null);
+        return;
+      }
+
+      const data = await response.json();
 
       setUser({
-        id: data.id, // resolve erro number/string
-        name: data.name,
+        id: data.id,
+        nome: data.nome,
         email: data.email,
-        perfil: data.perfil as Role,
+        perfil: data.perfil,
       });
     } catch {
       setUser(null);
     }
   }
 
-  /* INIT */
   useEffect(() => {
-    (async () => {
+    async function init() {
       await refreshUser();
       setLoading(false);
-    })();
+    }
+
+    init();
   }, []);
 
-  /* LOGIN */
-  async function login(email: string, password: string): Promise<boolean> {
+  async function login(
+    email: string,
+    password: string,
+  ): Promise<boolean> {
     try {
-      const data = await apiAuth.login({ email, password });
+      const response = await fetch(`${API}/auth/login`, {
+        method: "POST",
 
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const data = await response.json();
+
+      localStorage.setItem(
+        "accessToken",
+        data.accessToken,
+      );
+
+      localStorage.setItem(
+        "refreshToken",
+        data.refreshToken,
+      );
 
       await refreshUser();
 
@@ -78,24 +119,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  /* LOGOUT */
-  async function logout(): Promise<void> {
-    const refreshToken = localStorage.getItem("refreshToken");
-
+  async function logout() {
     try {
+      const refreshToken =
+        localStorage.getItem("refreshToken");
+
       if (refreshToken) {
-        await apiAuth.logout(refreshToken);
+        await fetch(`${API}/auth/logout`, {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            refreshToken,
+          }),
+        });
       }
     } finally {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
+
       setUser(null);
 
       window.location.href = "/login";
     }
   }
 
-  const effectiveRole: Role = user?.perfil ?? "ALUNO";
+  const effectiveRole = user?.perfil ?? "ALUNO";
 
   return (
     <AuthContext.Provider
@@ -113,12 +165,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/* HOOK */
 export function useUser() {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error("useUser deve ser usado dentro de AuthProvider");
+    throw new Error(
+      "useUser deve ser usado dentro de AuthProvider",
+    );
   }
 
   return context;

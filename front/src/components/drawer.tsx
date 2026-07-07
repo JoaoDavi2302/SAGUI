@@ -17,7 +17,6 @@ import {
   ListItemIcon,
   ListItemText,
   Toolbar,
-  Typography,
   useMediaQuery,
 } from "@mui/material";
 
@@ -32,7 +31,7 @@ import { useUser } from "@/services/auth/AuthContext";
 type Props = {
   title: string;
   avatarSrc?: string;
-  items: SidebarItem[];
+  items?: SidebarItem[]; // Definido como opcional
   settings?: HeaderItem[];
   children: React.ReactNode;
   drawerWidth?: number;
@@ -41,7 +40,7 @@ type Props = {
 export default function DrawerLayout({
   title,
   avatarSrc,
-  items,
+  items = [], // Valor padrão para evitar erro de undefined
   settings = [],
   children,
   drawerWidth = 260,
@@ -50,10 +49,7 @@ export default function DrawerLayout({
   const theme = useTheme();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
   const [open, setOpen] = React.useState(false);
-
-  const { logout } = useUser();
 
   const isActive = (href?: string) =>
     !!href && (pathname === href || pathname.startsWith(href + "/"));
@@ -73,18 +69,8 @@ export default function DrawerLayout({
             src={Logo}
             alt="logo"
             style={{ width: "180px", marginTop: "-10px", alignSelf: "center" }}
+            priority
           />
-          {/* <Typography
-            variant="body2"
-            sx={{
-              fontSize: "12px",
-              fontWeight: "200",
-              fontFamily: "system-ui",
-              color: "#1f2937",
-            }}
-          >
-            Plataforma academica
-          </Typography> */}
         </Box>
       </Toolbar>
 
@@ -144,7 +130,6 @@ export default function DrawerLayout({
         isMobile={isMobile}
       />
 
-      {/* DRAWER RESPONSIVO */}
       <Drawer
         variant={isMobile ? "temporary" : "permanent"}
         open={isMobile ? open : true}
@@ -163,56 +148,19 @@ export default function DrawerLayout({
         {drawerContent}
       </Drawer>
 
-      {/*
-
-      MAIS BONITINHO...
-      
-      <Drawer
-        variant={isMobile ? "temporary" : "permanent"}
-        open={isMobile ? open : true}
-        onClose={() => setOpen(false)}
-        ModalProps={{
-          keepMounted: true,
-        }}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-            // ==========================================
-            // MODIFICAÇÕES DE DESIGN 
-            // ==========================================
-            backgroundColor: "#ffffff", // Altera a cor de fundo para branco puro
-            borderRight: "none",        // Remove a linha divisória vertical padrão do MUI
-            boxShadow: "4px 0px 24px rgba(24, 49, 83, 0.04)", // Sombra lateral ultra suave visível no protótipo
-            
-            // Aplica os cantos arredondados do lado direito se não estiver no celular
-            ...(!isMobile && {
-              borderTopRightRadius: "24px",
-              borderBottomRightRadius: "24px",
-              height: "calc(100vh - 16px)", // Descolado levemente do teto/chão para dar o efeito de card
-              margin: "8px 0 8px 8px",      // Afasta um pouco das bordas da tela
-            }),
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-
-      
-      
-      */}
-
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           width: "100%",
           ml: isMobile ? 0 : `${drawerWidth}px`,
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh"
         }}
       >
         <Toolbar />
-        <Box sx={{ p: 4 }}>{children}</Box>
-        <Divider sx={{ mt: 3 }} />
+        <Box sx={{ p: 4, flexGrow: 1 }}>{children}</Box>
         <Footer />
       </Box>
     </Box>

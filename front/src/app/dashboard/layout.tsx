@@ -38,6 +38,7 @@ export default function DashboardLayout({
       items={[
         { label: "Dashboard", href: "/dashboard" },
         { label: "Disciplinas", href: "/dashboard/disciplinas" },
+        { label: "Usuarios", href: "/dashboard/usuarios" },
       ]}
       settings={[
         { label: "Site", href: "/" },

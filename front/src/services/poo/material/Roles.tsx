@@ -84,37 +84,35 @@ export class StudentMaterial extends Material {
 /* professor */
 export class ProfessorMaterial extends Material {
   listMaterials(): MaterialCard[] {
-    // return this.database.materials
-    //   .map((material: any) => buildMaterialCard(this.database, material))
-    //   .filter(
-    //     (material): material is MaterialCard =>
-    //       material !== null &&
-    //       this.database.disciplinas.some(
-    //         (d: any) =>
-    //           d.id === material.disciplineId && d.professor_id === this.user.id,
-    //       ),
-    //   );
+    const disciplineIds = this.database.disciplinas
+      .filter((d) => d.professor_id === this.user.id)
+      .map((d) => d.id);
+
+    return this.database.anexos
+      .map((attachment) => buildMaterialCard(this.database, attachment))
+      .filter(
+        (material): material is MaterialCard =>
+          material !== null && disciplineIds.includes(material.disciplineId),
+      );
   }
 
-  getMaterial(id: string) {
-    const material = buildMaterialCard(
-      this.database,
-      this.database.materials.find((m: any) => m.id === id),
-    );
+  getMaterial(id: number) {
+    const attachment =
+      this.database.anexos.find((a) => a.id === id) ?? null;
 
-    if (!material) return null;
+    if (!attachment) return null;
+
+    const card = buildMaterialCard(this.database, attachment);
+    if (!card) return null;
 
     const allowed = this.database.disciplinas.some(
-      (d: any) =>
-        d.id === material.disciplineId && d.professor_id === this.user.id,
+      (d) => d.id === card.disciplineId && d.professor_id === this.user.id,
     );
 
-    return allowed
-      ? (this.database.materials.find((m: any) => m.id === id) ?? null)
-      : null;
+    return allowed ? attachment : null;
   }
 
-  updateMaterial(id: string, data: Partial<AttachmentEntity>) {
+  updateMaterial(id: number, data: Partial<AttachmentEntity>) {
     const material = this.getMaterial(id);
 
     if (!material) return null;
@@ -128,17 +126,17 @@ export class ProfessorMaterial extends Material {
 /* admin */
 export class AdminMaterial extends Material {
   listMaterials(): MaterialCard[] {
-    return this.database.materials
-      .map((material: any) => buildMaterialCard(this.database, material))
+    return this.database.anexos
+      .map((attachment) => buildMaterialCard(this.database, attachment))
       .filter((material): material is MaterialCard => material !== null);
   }
 
-  getMaterial(id: string) {
-    return this.database.materials.find((m: any) => m.id === id) ?? null;
+  getMaterial(id: number) {
+    return this.database.anexos.find((attachment) => attachment.id === id) ?? null;
   }
 
-  updateMaterial(id: string, data: Partial<AttachmentEntity>) {
-    const material = this.database.materials.find((m: any) => m.id === id);
+  updateMaterial(id: number, data: Partial<AttachmentEntity>) {
+    const material = this.getMaterial(id);
 
     if (!material) return null;
 

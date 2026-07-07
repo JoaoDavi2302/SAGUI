@@ -1,5 +1,3 @@
-import { CourseService } from "../course/course";
-import { DisciplineProgressResponse, ModuleProgressResponse } from "../shared/responses";
 import { CourseEntity, DisciplineEntity, LessonEntity, ModuleEntity, UserEntity } from "../shared/types";
 
 export interface StatCard {
@@ -17,28 +15,22 @@ export interface StudentPerformance {
 
 export interface DashboardData {
   stats: StatCard[];
-
   courses: CourseEntity[];
-  disciplines: DisciplineEntity[];
+  subjects: DisciplineEntity[];
   modules: ModuleEntity[];
-
   lessons?: LessonEntity[];
-  users?: UserEntity[];
-
-  disciplineProgress?: DisciplineProgressResponse;
-  moduleProgress?: ModuleProgressResponse[];
-
+  module_progress?: any[];
   progressPercent?: number;
   completedModules?: number;
+  student_performance?: StudentPerformance[];
+  users?: UserEntity[];
 }
 
 export abstract class Dashboard {
   protected user: UserEntity;
-  protected courseService: CourseService;
 
-  constructor(user: UserEntity, courseService: CourseService) {
+  constructor(user: UserEntity) {
     this.user = user;
-    this.courseService = courseService;
   }
 
   abstract getData(): Promise<DashboardData>;

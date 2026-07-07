@@ -1,8 +1,10 @@
-import { CourseRequest } from "../shared/requests";
+import { RoleBase } from "../shared/roles";
 import { CourseResponse, DisciplineResponse } from "../shared/responses";
+
+import { CourseRequest } from "../shared/requests";
 import { CourseCard } from "../shared/cards";
 
-export abstract class CourseService {
+export abstract class Course extends RoleBase {
   abstract listCourses(): Promise<CourseCard[]>;
 
   abstract getCourse(id: string): Promise<CourseResponse | null>;

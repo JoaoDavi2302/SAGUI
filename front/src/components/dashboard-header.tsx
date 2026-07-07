@@ -106,10 +106,10 @@ export default function DashboardHeader({
         >
           <Box sx={{ px: 2, py: 1.5 }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-              {user?.name ?? "Usuário"}
+              {user?.nome ?? "Usuário"}
             </Typography>
             <Typography variant="caption" sx={{ opacity: 0.7 }}>
-              {user?.role ?? "Sem perfil"}
+              {user?.perfil ?? "Sem perfil"}
             </Typography>
           </Box>
           <Divider />

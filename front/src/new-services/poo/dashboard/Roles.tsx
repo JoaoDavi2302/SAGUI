@@ -1,105 +1,106 @@
 import { Dashboard, DashboardData } from "./dashboard";
-import {
-  apiCourses,
-  apiDisciplines,
-  apiModules,
-  apiLessons,
-  apiEnrollments,
-  apiUsers,
-} from "../shared/api";
-
+import { apiDashboard } from "../shared/api";
 import {
   AssignmentOutlined,
   EmojiEventsOutlined,
   ShowChartOutlined,
 } from "@mui/icons-material";
 
-
 export class StudentDashboard extends Dashboard {
   async getData(): Promise<DashboardData> {
-    const [enrollments, courses, disciplines, modules] =
+    const [enrollments, courses, disciplines, modules, progress, activities] =
       await Promise.all([
-        apiEnrollments.my(),
-        apiCourses.list(),
-        apiDisciplines.list(),
-        apiModules.list(),
+        apiDashboard.enrollments(),
+        apiDashboard.courses(),
+        apiDashboard.disciplines(),
+        apiDashboard.modules(),
+        apiDashboard.progress(),
+        apiDashboard.activities(),
       ]);
 
     const enrollment = enrollments.find(
-      (e: any) => e.studentId === this.user.id
+      (e: any) => e.aluno_id === this.user.id
     );
 
     if (!enrollment) {
       return {
         stats: [],
         courses: [],
-        disciplines: [],
+        subjects: [],
         modules: [],
-        moduleProgress: [],
+        module_progress: [],
         progressPercent: 0,
         completedModules: 0,
       };
     }
 
     const course = courses.find(
-      (c) => c.id === enrollment.courseId
+      (c: any) => c.id === enrollment.curso_id
     );
 
     const courseDisciplines = disciplines.filter(
-      (d) => d.courseId === course?.id
+      (d: any) => d.curso_id === course?.id
     );
 
-    const courseModules = modules.filter((m) =>
-      courseDisciplines.some((d) => d.id === m.disciplineId)
+    const courseModules = modules.filter((m: any) =>
+      courseDisciplines.some((d: any) => d.id === m.disciplina_id)
     );
 
-    const moduleProgress = await Promise.all(
-      courseModules.map((m) => apiModules.progress(m.id))
+    const moduleProgress = progress.filter(
+      (p: any) => p.aluno_id === this.user.id
     );
 
     const completedModules = moduleProgress.filter(
-      (p: any) => p.completed
+      (p: any) =>
+        p.concluido &&
+        courseModules.some((m: any) => m.id === p.modulo_id)
     ).length;
+
+    const quizzes = activities.filter((a: any) =>
+      courseModules.some((m: any) => m.id === a.modulo_id)
+    );
+
+    const progressQuizzes = `${quizzes.length}/${quizzes.length}`;
+
+    const moduleScores = moduleProgress.filter((p: any) => p.nota != null);
+
+    const media =
+      moduleScores.length > 0
+        ? (
+            moduleScores.reduce((sum: number, p: any) => sum + Number(p.nota), 0) /
+            moduleScores.length
+          ).toFixed(1)
+        : "0";
 
     const progressPercent =
       courseModules.length > 0
         ? Math.round((completedModules / courseModules.length) * 100)
         : 0;
 
-    const lessons = await Promise.all(
-      courseModules.map((m) =>
-        apiLessons.listByModule(m.id)
-      )
-    );
-
-    const totalLessons = lessons.flat().length;
-
-    const stats = [
-      {
-        icon: <AssignmentOutlined sx={{ color: "#1976d2" }} />,
-        label: "Aulas",
-        value: totalLessons,
-      },
-      {
-        icon: <ShowChartOutlined sx={{ color: "#1976d2" }} />,
-        label: "Progresso",
-        value: `${progressPercent}%`,
-      },
-      {
-        icon: <EmojiEventsOutlined sx={{ color: "#1976d2" }} />,
-        label: "Módulos concluídos",
-        value: completedModules,
-      },
-    ];
-
     return {
-      stats,
+      stats: [
+        {
+          icon: <AssignmentOutlined sx={{ color: "#1976d2" }} />,
+          label: "Atividades",
+          value: progressQuizzes,
+        },
+        {
+          icon: <ShowChartOutlined sx={{ color: "#1976d2" }} />,
+          label: "Média de atividades",
+          value: media,
+        },
+        {
+          icon: <EmojiEventsOutlined sx={{ color: "#1976d2" }} />,
+          label: "Conclusão de curso",
+          value: `${progressPercent}%`,
+        },
+      ],
       courses: course ? [course] : [],
-      disciplines: courseDisciplines,
+      subjects: courseDisciplines,
       modules: courseModules,
-      moduleProgress,
-      progressPercent,
+      module_progress: moduleProgress,
       completedModules,
+      progressPercent,
     };
   }
 }
@@ -107,25 +108,25 @@ export class StudentDashboard extends Dashboard {
 export class ProfessorDashboard extends Dashboard {
   async getData(): Promise<DashboardData> {
     const [disciplines, courses, modules] = await Promise.all([
-      apiDisciplines.list(),
-      apiCourses.list(),
-      apiModules.list(),
+      apiDashboard.disciplines(),
+      apiDashboard.courses(),
+      apiDashboard.modules(),
     ]);
 
     const myDisciplines = disciplines.filter(
-      (d: any) => d.professorId === this.user.id
+      (d: any) => d.professor_id === this.user.id
     );
 
-    const disciplineIds = myDisciplines.map((d) => d.id);
+    const disciplineIds = myDisciplines.map((d: any) => d.id);
 
-    const courseIds = [...new Set(myDisciplines.map((d) => d.courseId))];
+    const courseIds = [...new Set(myDisciplines.map((d: any) => d.curso_id))];
 
-    const myCourses = courses.filter((c) =>
+    const myCourses = courses.filter((c: any) =>
       courseIds.includes(c.id)
     );
 
-    const myModules = modules.filter((m) =>
-      disciplineIds.includes(m.disciplineId)
+    const myModules = modules.filter((m: any) =>
+      disciplineIds.includes(m.disciplina_id)
     );
 
     return {
@@ -135,7 +136,7 @@ export class ProfessorDashboard extends Dashboard {
         { label: "Módulos", value: myModules.length },
       ],
       courses: myCourses,
-      disciplines: myDisciplines,
+      subjects: myDisciplines,
       modules: myModules,
     };
   }
@@ -143,31 +144,28 @@ export class ProfessorDashboard extends Dashboard {
 
 export class AdminDashboard extends Dashboard {
   async getData(): Promise<DashboardData> {
-    const [courses, disciplines, modules, users] = await Promise.all([
-      apiCourses.list(),
-      apiDisciplines.list(),
-      apiModules.list(),
-      apiUsers.list(),
-    ]);
-
-    const lessonsNested = await Promise.all(
-      modules.map((m) => apiLessons.listByModule(m.id))
-    );
-
-    const lessons = lessonsNested.flat();
+    const [courses, disciplines, modules, lessons, users] =
+      await Promise.all([
+        apiDashboard.courses(),
+        apiDashboard.disciplines(),
+        apiDashboard.modules(),
+        apiDashboard.lessons(),
+        apiDashboard.users(),
+      ]);
 
     return {
       stats: [
         { label: "Cursos", value: courses.length },
         { label: "Disciplinas", value: disciplines.length },
         { label: "Módulos", value: modules.length },
-        { label: "Usuários", value: users.totalElements ?? users.content.length },
+        { label: "Aulas", value: lessons.length },
+        { label: "Usuários", value: users.length },
       ],
       courses,
-      disciplines,
+      subjects: disciplines,
       modules,
       lessons,
-      users: users.content,
+      users,
     };
   }
 }

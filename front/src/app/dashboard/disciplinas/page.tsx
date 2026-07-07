@@ -25,7 +25,15 @@ export default function GerenciarDisciplinasPage() {
   }, [user]);
 
   const data = useMemo(() => {
-    if (!provider) return { grouped: [] };
+    if (!provider) {
+      return {
+        disciplines: [],
+        modules: [],
+        lessons: [],
+        moduleProgress: [],
+      };
+    }
+
     return provider.getPageData();
   }, [provider]);
 
@@ -34,33 +42,51 @@ export default function GerenciarDisciplinasPage() {
   const [selectedId, setSelectedId] = useState<number>();
 
   const rows = useMemo(() => {
-    return data.grouped.flatMap((g) =>
-      g.subjects.map((s) => ({
-        ...s,
-        course: g.course ?? null,
-      })),
-    );
-  }, [data.grouped]);
+    return data.disciplines.map((discipline) => {
+      const course = database.cursos.find((c) => c.id === discipline.curso_id);
+
+      const professor = database.usuarios.find(
+        (u) => u.id === discipline.professor_id,
+      );
+
+      const modules = database.modulos.filter(
+        (m) => m.disciplina_id === discipline.id,
+      );
+
+      const lessons = database.aulas.filter((aula) =>
+        modules.some((m) => m.id === aula.modulo_id),
+      );
+
+      return {
+        ...discipline,
+
+        courseName: course?.nome ?? "-",
+
+        professorName: professor?.nome ?? "-",
+
+        modulesCount: modules.length,
+
+        workload: lessons.length,
+      };
+    });
+  }, [data.disciplines]);
 
   const columns: GridColDef[] = [
     { field: "nome", headerName: "Disciplina", flex: 1 },
     {
-      field: "workload",
-      headerName: "Carga horária",
-      width: 140,
-      valueGetter: (_, row) => `${row.workload}h`,
+      field: "professorName",
+      headerName: "Professor",
+      flex: 1,
     },
     {
-      field: "modules",
+      field: "modulesCount",
       headerName: "Módulos",
       width: 120,
-      valueGetter: (_, row) => row.modules?.length ?? 0,
     },
     {
-      field: "course",
+      field: "courseName",
       headerName: "Curso",
       flex: 1,
-      valueGetter: (_, row) => row.course?.name ?? "-",
     },
     {
       field: "actions",

@@ -1,17 +1,7 @@
-import { Role } from "./types";
-
 // payloads de entrada (POST/PUT/PATCH)
 export interface LoginRequest {
   email: string;
   password: string;
-}
-
-export interface RefreshTokenRequest {
-    refreshToken: string;
-}
-
-export interface ChangeRoleRequest {
-    role: Role;
 }
 
 export interface RegisterRequest {

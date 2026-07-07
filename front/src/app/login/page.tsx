@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "../../new-services/auth/AuthContext";
+import { useUser } from "../../services/auth/AuthContext";
 import Image from "next/image";
 import Logo from "../../../public/Longa-logo.svg";
 
 // USO DO UI/BUTTON
 import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 
 import {
   Box,
@@ -53,9 +54,10 @@ export default function LoginPage() {
         return;
       }
 
+      // teste de login, redirecionando
+      console.log("LOGIN SUCCESS");
+
       router.replace("/");
-    } catch (err) {
-      setError("Erro ao conectar com servidor");
     } finally {
       setLoading(false);
     }

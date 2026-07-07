@@ -2,7 +2,7 @@ import { Role, Status } from "./types";
 
 /* AUTH */
 export interface LoginResponse {
-  accessToken: string;
+  accesToken: string;
   refreshToken: string;
 }
 
@@ -11,12 +11,12 @@ export interface RefreshTokenResponse {
   refreshToken: string;
 }
 
-/* USER */
+/* usuarios */
 export interface UserProfileResponse {
-  id: number;
+  id: string;
   name: string;
   email: string;
-  perfil: Role;
+  role: Role;
   status: Status;
   birthDate?: string;
   address?: string;
@@ -24,7 +24,7 @@ export interface UserProfileResponse {
   updatedAt: string;
 }
 
-/* COURSE */
+/* cursos */
 export interface CourseResponse {
   id: string;
   name: string;
@@ -32,7 +32,7 @@ export interface CourseResponse {
   status: Status;
 }
 
-/* DISCIPLINE */
+/* disciplinas */
 export interface DisciplineResponse {
   id: string;
   name: string;
@@ -42,7 +42,7 @@ export interface DisciplineResponse {
   responsibleProfessorId: string;
 }
 
-/* MODULE */
+/* modulos */
 export interface ModuleResponse {
   id: string;
   name: string;
@@ -52,7 +52,7 @@ export interface ModuleResponse {
   disciplineId: string;
 }
 
-/* LESSON */
+/* aulas */
 export interface LessonResponse {
   id: string;
   name: string;
@@ -65,16 +65,14 @@ export interface LessonResponse {
 export interface LessonCompletionResponse {
   lessonId: string;
   completed: boolean;
-  moduleProgress: ModuleProgressResponse;
+  moduleProgress: any;
 }
 
-/* ENROLLMENT */
-// incompleto no back
+/* enrollement */
 export interface EnrollmentResponse {
   id: string;
-  studentId: string;
-  courseId: string;
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  status: string;
+  message?: string;
 }
 
 export interface EnrollmentDetailResponse {
@@ -87,7 +85,7 @@ export interface EnrollmentDetailResponse {
   courseId: string;
 }
 
-/* PROGRESS */
+/* progressos */
 export interface ModuleProgressResponse {
   moduleId: string;
   moduleName: string;
@@ -106,7 +104,7 @@ export interface DisciplineProgressResponse {
   modules: ModuleProgressResponse[];
 }
 
-/* PAGINATION */
+/* paginação */
 export interface Page<T> {
   content: T[];
   totalElements: number;

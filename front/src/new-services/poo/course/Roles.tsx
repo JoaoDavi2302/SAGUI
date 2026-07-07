@@ -1,11 +1,10 @@
-import { CourseService } from "./course";
+import { Course } from "./course";
 import { LoggedUser } from "../shared/types";
 import { CourseRequest } from "../shared/requests";
 
 import { CourseResponse, DisciplineResponse } from "../shared/responses";
 
 import { apiCourses, apiDisciplines } from "../shared/api";
-import { CourseCard } from "../shared/cards";
 
 /* util opcional */
 async function safeRequest<T>(fn: () => Promise<T>): Promise<T> {
@@ -17,9 +16,8 @@ async function safeRequest<T>(fn: () => Promise<T>): Promise<T> {
 }
 
 /* STUDENT */
-// OK
-export class StudentCourse extends CourseService {
-  async listCourses(): Promise<CourseCard[]> {
+export class StudentCourse extends Course {
+  async listCourses(): Promise<CourseResponse[]> {
     return safeRequest(() => apiCourses.list());
   }
 
@@ -39,14 +37,14 @@ export class StudentCourse extends CourseService {
 }
 
 /* PROFESSOR */
-// OK
-export class ProfessorCourse extends CourseService {
-  async listCourses(): Promise<CourseCard[]> {
+export class ProfessorCourse extends Course {
+  async listCourses(): Promise<CourseResponse[]> {
     return apiCourses.list();
   }
 
   async getCourse(id: string): Promise<CourseResponse | null> {
-    return (await apiCourses.get(id)) ?? null;
+    const course = await apiCourses.get(id);
+    return course ?? null;
   }
 
   async getDisciplines(courseId: string): Promise<DisciplineResponse[]> {
@@ -60,9 +58,8 @@ export class ProfessorCourse extends CourseService {
 }
 
 /* ADMIN */
-// OK
-export class AdminCourse extends CourseService {
-  async listCourses(): Promise<CourseCard[]> {
+export class AdminCourse extends Course {
+  async listCourses(): Promise<CourseResponse[]> {
     return apiCourses.list();
   }
 
