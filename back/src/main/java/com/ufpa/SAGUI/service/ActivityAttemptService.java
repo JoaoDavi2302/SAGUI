@@ -7,15 +7,19 @@ import com.ufpa.SAGUI.enums.AttemptStatus;
 import com.ufpa.SAGUI.models.Activity;
 import com.ufpa.SAGUI.models.ActivityAttempt;
 import com.ufpa.SAGUI.models.Alternative;
+import com.ufpa.SAGUI.models.Module;
 import com.ufpa.SAGUI.models.Question;
 import com.ufpa.SAGUI.models.StudentAnswer;
 import com.ufpa.SAGUI.models.User;
 import com.ufpa.SAGUI.repository.ActivityAttemptRepository;
 import com.ufpa.SAGUI.repository.ActivityRepository;
 import com.ufpa.SAGUI.repository.AlternativeRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,19 +31,23 @@ public class ActivityAttemptService {
     private final ActivityAttemptRepository activityAttemptRepository;
     private final AlternativeRepository alternativeRepository;
     private final AutoCorrectionService autoCorrectionService;
+    private final EnrollmentService enrollmentService;
 
     public ActivityAttemptService(
             ActivityRepository activityRepository,
             ActivityAttemptRepository activityAttemptRepository,
             AlternativeRepository alternativeRepository,
-            AutoCorrectionService autoCorrectionService
+            AutoCorrectionService autoCorrectionService,
+            EnrollmentService enrollmentService
     ) {
         this.activityRepository = activityRepository;
         this.activityAttemptRepository = activityAttemptRepository;
         this.alternativeRepository = alternativeRepository;
         this.autoCorrectionService = autoCorrectionService;
+        this.enrollmentService = enrollmentService;
     }
 
+    @Transactional
     public ActivityAttemptResultResponse submitActivity(
             UUID activityId,
             ActivitySubmissionRequest request
@@ -48,6 +56,8 @@ public class ActivityAttemptService {
 
         Activity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new RuntimeException("Atividade não encontrada."));
+
+        validateEnrollmentForActivity(student, activity);
 
         long previousAttempts = activityAttemptRepository
                 .countByStudentIdAndActivityId(student.getId(), activity.getId());
@@ -124,6 +134,18 @@ public class ActivityAttemptService {
         studentAnswer.setCorrect(false);
 
         return studentAnswer;
+    }
+
+    private void validateEnrollmentForActivity(User student, Activity activity) {
+        Module module = activity.getModule();
+
+        if (module == null || module.getDiscipline() == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Atividade sem módulo ou disciplina associada.");
+        }
+
+        enrollmentService.validateContentAccess(student.getId(), module.getDiscipline().getId());
     }
 
     private User getAuthenticatedStudent() {
