@@ -9,8 +9,11 @@ import { ConteudoTab } from "./components/ConteudoTab";
 import { AvaliacoesTab } from "./components/AvaliacoesTab";
 
 export default function TurmaDetalhesPage({ params }: { params: Promise<{ id: string }> }) {
-  // Desembrulhando os parâmetros de forma assíncrona conforme padrão Next.js 15+
+  // Desembrulhando os parâmetros conforme padrão Next.js 15+
   const { id } = use(params);
+  
+  // Convertendo id para número para garantir compatibilidade com os filtros do mock.json
+  const disciplinaId = parseInt(id, 10);
   
   const [tabValue, setTabValue] = useState(0);
 
@@ -45,14 +48,12 @@ export default function TurmaDetalhesPage({ params }: { params: Promise<{ id: st
 
       {/* Conteúdo Dinâmico das Abas */}
       <Box sx={{ minHeight: '400px' }}>
-        {/* Aba 0: Gestão de Pessoas */}
-        {tabValue === 0 && <AlunosTab disciplinaId={id} />}
+        {/* Passamos disciplinaId convertido para garantir que o filtro no AlunosTab funcione */}
+        {tabValue === 0 && <AlunosTab disciplinaId={disciplinaId} />}
         
-        {/* Aba 1: Gestão de Conteúdo */}
-        {tabValue === 1 && <ConteudoTab disciplinaId={id} />}
+        {tabValue === 1 && <ConteudoTab disciplinaId={disciplinaId} />}
         
-        {/* Aba 2: Central de Avaliações */}
-        {tabValue === 2 && <AvaliacoesTab disciplinaId={id} />}
+        {tabValue === 2 && <AvaliacoesTab disciplinaId={disciplinaId} />}
       </Box>
     </Container>
   );

@@ -1,8 +1,10 @@
 "use client";
 
+import { Toaster } from 'react-hot-toast'; // Importação do componente de notificação
 import DrawerLayout from "@/components/drawer";
 import { HeaderItem } from "@/components/layout/types";
 import { useUser } from "@/services/auth/AuthContext";
+import { DashboardProvider } from "@/components/DashboardProvider";
 import {
   AssignmentOutlined,
   HomeOutlined,
@@ -51,8 +53,17 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
   if (!user) return null;
 
   return (
-    <DrawerLayout title="Centro de Comando" avatarSrc="/avatar.png" items={menuItems} settings={settings}>
-      {children}
-    </DrawerLayout>
+    <DashboardProvider>
+      <DrawerLayout 
+        title="Centro de Comando" 
+        avatarSrc="/avatar.png" 
+        items={menuItems} 
+        settings={settings}
+      >
+        {children}
+        {/* Componente Toaster adicionado para exibir as notificações[cite: 6] */}
+        <Toaster position="top-right" reverseOrder={false} /> 
+      </DrawerLayout>
+    </DashboardProvider>
   );
 }

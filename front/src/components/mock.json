@@ -2086,7 +2086,7 @@
   "tentativas_atividade": [
     {
       "id": 1,
-      "aluno_id": 1,
+      "aluno_id": 3,
       "atividade_id": 1,
       "numero": 1,
       "nota": 82.50,
@@ -2094,7 +2094,7 @@
     },
     {
       "id": 2,
-      "aluno_id": 1,
+      "aluno_id": 3,
       "atividade_id": 2,
       "numero": 1,
       "nota": 55.00,
@@ -2102,7 +2102,7 @@
     },
     {
       "id": 3,
-      "aluno_id": 1,
+      "aluno_id": 3,
       "atividade_id": 2,
       "numero": 2,
       "nota": 76.00,
@@ -2110,7 +2110,7 @@
     },
     {
       "id": 4,
-      "aluno_id": 2,
+      "aluno_id": 4,
       "atividade_id": 1,
       "numero": 1,
       "nota": 43.00,
@@ -2118,7 +2118,7 @@
     },
     {
       "id": 5,
-      "aluno_id": 2,
+      "aluno_id": 4,
       "atividade_id": 1,
       "numero": 2,
       "nota": 61.00,
@@ -2126,7 +2126,7 @@
     },
     {
       "id": 6,
-      "aluno_id": 2,
+      "aluno_id": 4,
       "atividade_id": 1,
       "numero": 3,
       "nota": 78.50,
