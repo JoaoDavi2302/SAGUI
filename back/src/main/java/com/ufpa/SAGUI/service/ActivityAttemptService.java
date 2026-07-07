@@ -12,7 +12,6 @@ import com.ufpa.SAGUI.models.Question;
 import com.ufpa.SAGUI.models.StudentAnswer;
 import com.ufpa.SAGUI.models.User;
 import com.ufpa.SAGUI.repository.ActivityAttemptRepository;
-import com.ufpa.SAGUI.repository.ActivityRepository;
 import com.ufpa.SAGUI.repository.AlternativeRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -27,24 +26,24 @@ import java.util.UUID;
 @Service
 public class ActivityAttemptService {
 
-    private final ActivityRepository activityRepository;
     private final ActivityAttemptRepository activityAttemptRepository;
     private final AlternativeRepository alternativeRepository;
     private final AutoCorrectionService autoCorrectionService;
     private final EnrollmentService enrollmentService;
+    private final ActivityService activityService;
 
     public ActivityAttemptService(
-            ActivityRepository activityRepository,
             ActivityAttemptRepository activityAttemptRepository,
             AlternativeRepository alternativeRepository,
             AutoCorrectionService autoCorrectionService,
-            EnrollmentService enrollmentService
+            EnrollmentService enrollmentService,
+            ActivityService activityService
     ) {
-        this.activityRepository = activityRepository;
         this.activityAttemptRepository = activityAttemptRepository;
         this.alternativeRepository = alternativeRepository;
         this.autoCorrectionService = autoCorrectionService;
         this.enrollmentService = enrollmentService;
+        this.activityService = activityService;
     }
 
     @Transactional
@@ -54,8 +53,7 @@ public class ActivityAttemptService {
     ) {
         User student = getAuthenticatedStudent();
 
-        Activity activity = activityRepository.findById(activityId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada."));
+        Activity activity = activityService.findActiveActivityById(activityId);
 
         validateEnrollmentForActivity(student, activity);
 

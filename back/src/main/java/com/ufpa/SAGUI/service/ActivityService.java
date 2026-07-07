@@ -4,34 +4,33 @@ import com.ufpa.SAGUI.dto.activity.ActivityRequest;
 import com.ufpa.SAGUI.dto.activity.ActivityResponse;
 import com.ufpa.SAGUI.dto.activity.AlternativeResponse;
 import com.ufpa.SAGUI.dto.activity.QuestionResponse;
+import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.models.Activity;
 import com.ufpa.SAGUI.models.Alternative;
 import com.ufpa.SAGUI.models.Module;
 import com.ufpa.SAGUI.models.Question;
 import com.ufpa.SAGUI.repository.ActivityRepository;
-import com.ufpa.SAGUI.repository.ActivityAttemptRepository;
 import com.ufpa.SAGUI.repository.ModuleRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
-    private final ActivityAttemptRepository activityAttemptRepository;
     private final ModuleRepository moduleRepository;
 
     public ActivityService(
             ActivityRepository activityRepository,
-            ActivityAttemptRepository activityAttemptRepository,
             ModuleRepository moduleRepository
     ) {
         this.activityRepository = activityRepository;
-        this.activityAttemptRepository = activityAttemptRepository;
         this.moduleRepository = moduleRepository;
     }
 
@@ -48,6 +47,7 @@ public class ActivityService {
         activity.setAttemptLimit(3);
         activity.setMinimumScore(70.0);
         activity.setModule(module);
+        activity.setStatus(EntityStatus.Active);
 
         List<Question> questions = request.questions()
                 .stream()
@@ -83,8 +83,18 @@ public class ActivityService {
     }
 
     // READ - Listar todas as atividades
-    public List<ActivityResponse> getAllActivities() {
-        return activityRepository.findAll()
+    @Transactional(readOnly = true)
+    public List<ActivityResponse> getAllActivities(EntityStatus status, UUID moduleId) {
+        EntityStatus filterStatus = status != null ? status : EntityStatus.Active;
+
+        if (moduleId != null) {
+            return activityRepository.findAllByModule_IdAndStatus(moduleId, filterStatus)
+                    .stream()
+                    .map(this::toActivityResponse)
+                    .toList();
+        }
+
+        return activityRepository.findAllByStatus(filterStatus)
                 .stream()
                 .map(this::toActivityResponse)
                 .toList();
@@ -101,6 +111,7 @@ public class ActivityService {
         validateActivityRequest(request);
 
         Activity activity = findActivityById(id);
+        ensureActivityIsActive(activity);
 
         Module module = moduleRepository.findById(request.moduleId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Módulo não encontrado."));
@@ -147,14 +158,14 @@ public class ActivityService {
     // DELETE - Remover atividade
     public void deleteActivity(UUID id) {
         Activity activity = findActivityById(id);
+        activity.setStatus(EntityStatus.Inactive);
+        activityRepository.save(activity);
+    }
 
-        if (activityAttemptRepository.countByActivityId(id) > 0) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Não é possível excluir uma atividade que já possui tentativas registradas.");
-        }
-
-        activityRepository.delete(activity);
+    @Transactional(readOnly = true)
+    public Activity findActiveActivityById(UUID id) {
+        return activityRepository.findByIdAndStatus(id, EntityStatus.Active)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada."));
     }
 
     private Activity findActivityById(UUID id) {
@@ -162,6 +173,15 @@ public class ActivityService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada."));
     }
 
+    private void ensureActivityIsActive(Activity activity) {
+        if (activity.getStatus() != EntityStatus.Active) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Não é possível alterar uma atividade inativa.");
+        }
+    }
+
+    // Valida os dados recebidos para criar/atualizar atividade
     private void validateActivityRequest(ActivityRequest request) {
         if (request.moduleId() == null) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "O módulo da atividade é obrigatório.");
@@ -265,6 +285,7 @@ public class ActivityService {
                 activity.getDescription(),
                 activity.getAttemptLimit(),
                 activity.getMinimumScore(),
+                activity.getStatus(),
                 questionResponses
         );
     }

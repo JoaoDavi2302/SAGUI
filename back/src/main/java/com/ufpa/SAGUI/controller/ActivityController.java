@@ -6,6 +6,7 @@ import com.ufpa.SAGUI.dto.activity.ActivitySubmissionRequest;
 import com.ufpa.SAGUI.dto.activity.ActivityAttemptResultResponse;
 import com.ufpa.SAGUI.service.ActivityService;
 import com.ufpa.SAGUI.service.ActivityAttemptService;
+import com.ufpa.SAGUI.enums.EntityStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -38,11 +39,14 @@ public class ActivityController {
         return ResponseEntity.ok(response);
     }
 
-    // Listar todas as atividades
+    // Listar atividades (por padrão, apenas ativas)
     @GetMapping
     @PreAuthorize("hasRole('Professor')")
-    public ResponseEntity<List<ActivityResponse>> getAllActivities() {
-        List<ActivityResponse> response = activityService.getAllActivities();
+    public ResponseEntity<List<ActivityResponse>> getAllActivities(
+            @RequestParam(required = false) EntityStatus status,
+            @RequestParam(required = false) UUID moduleId
+    ) {
+        List<ActivityResponse> response = activityService.getAllActivities(status, moduleId);
         return ResponseEntity.ok(response);
     }
 
@@ -67,7 +71,7 @@ public class ActivityController {
         return ResponseEntity.ok(response);
     }
 
-    // Remover ou inativar atividade
+    // Inativar atividade (exclusão lógica)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('Professor')")
     public ResponseEntity<Void> deleteActivity(
