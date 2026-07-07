@@ -1,5 +1,5 @@
-import { API_BASE_URL } from "@/services/auth/config";
-import { getAccessToken } from "@/services/auth/authApi";
+import { getAccessToken } from "@/new-services/auth/authApi";
+import { API_BASE_URL } from "@/new-services/poo/shared/config";
 
 function messageFromBody(body: unknown): string | undefined {
   if (body && typeof body === "object" && "message" in body) {

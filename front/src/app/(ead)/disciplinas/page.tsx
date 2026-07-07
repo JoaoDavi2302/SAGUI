@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
+import { CircularProgress, Box } from "@mui/material";
 
 import { useUser } from "@/new-services/auth/AuthContext";
 import { DatabaseProvider } from "@/services/poo/databaseProvider";
@@ -58,9 +59,14 @@ export default function DisciplinasPage() {
   }
 
   return (
-    <AdminDisciplinesPage
-      user={user}
-      data={data}
-    />
+    <Suspense
+      fallback={
+        <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+          <CircularProgress />
+        </Box>
+      }
+    >
+      <AdminDisciplinesPage />
+    </Suspense>
   );
 }

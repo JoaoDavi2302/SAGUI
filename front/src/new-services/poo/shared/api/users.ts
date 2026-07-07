@@ -1,9 +1,45 @@
 import { apiFetch } from "./client";
 import { fetchAllPages } from "./pagination";
 import type { UserProfileDTO } from "./catalog";
-import type { Role } from "@/services/poo/shared/types";
+import type { Role } from "@/new-services/poo/shared/types";
 
 export type UserRoleDTO = Role;
+
+export interface CreateUserRequestDTO {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRoleDTO;
+  birthDate?: string;
+  address?: string;
+}
+
+export interface UserPageDTO {
+  content: UserProfileDTO[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
+
+export async function listUsersPage(params?: {
+  page?: number;
+  size?: number;
+  role?: UserRoleDTO;
+  search?: string;
+}) {
+  const searchParams = new URLSearchParams({
+    page: String(params?.page ?? 0),
+    size: String(params?.size ?? 10),
+  });
+
+  if (params?.role) searchParams.set("role", params.role);
+  if (params?.search?.trim()) searchParams.set("search", params.search.trim());
+
+  return apiFetch<UserPageDTO>(`/users?${searchParams}`);
+}
 
 export async function listUsers(params?: {
   role?: UserRoleDTO;
@@ -14,6 +50,13 @@ export async function listUsers(params?: {
   if (params?.search) query.search = params.search;
 
   return fetchAllPages<UserProfileDTO>("/users", query);
+}
+
+export async function createUser(data: CreateUserRequestDTO) {
+  return apiFetch<UserProfileDTO>("/users", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }
 
 export async function changeUserRole(userId: string, role: UserRoleDTO) {

@@ -19,8 +19,8 @@ import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 
 import { Button } from "@/components/ui/Button";
 import CadastroShell from "@/components/auth/CadastroShell";
-import { useUser } from "@/services/auth/AuthContext";
-import { AuthRequestError } from "@/services/auth/authApi";
+import { useUser } from "@/new-services/auth/AuthContext";
+import { AuthRequestError } from "@/new-services/auth/authApi";
 
 function FieldLabel({
   label,

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
@@ -14,44 +15,29 @@ import {
   List,
   ListItem,
   ListItemText,
-  Tab,
-  Tabs,
   Typography,
 } from "@mui/material";
 import {
-  Add,
   AdminPanelSettingsOutlined,
   ArrowRightAltOutlined,
-  EditOutlined,
+  ChevronRight,
   PeopleOutlined,
   PersonOutlineOutlined,
+  HowToRegOutlined,
   SchoolOutlined,
   TimelineOutlined,
 } from "@mui/icons-material";
-import { useUser } from "@/services/auth/AuthContext";
-import { ApiError } from "@/services/api/client";
+import { useUser } from "@/new-services/auth/AuthContext";
 import {
-  changeCourseStatus,
-  changeDisciplineStatus,
-  CourseDTO,
-  DisciplineDTO,
-  EntityStatus,
   listCourses,
   listDisciplines,
-  listModules,
-  ModuleDTO,
   UserProfileDTO,
-} from "@/services/api/catalog";
-import { listUsers } from "@/services/api/users";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Card, CardActions, CardContent } from "@/components/ui/Card";
-import { CreateCourseModal } from "@/components/catalog/CreateCourseModal";
-import { CreateDisciplineModal } from "@/components/catalog/CreateDisciplineModal";
-import { EditCourseModal } from "@/components/catalog/EditCourseModal";
-import { EditDisciplineModal } from "@/components/catalog/EditDisciplineModal";
-import { EntityStatusToggle } from "@/components/admin/EntityStatusToggle";
+} from "@/new-services/poo/shared/api/catalog";
+import { listUsers } from "@/new-services/poo/shared/api/users";
+import { listPendingEnrollmentsPage } from "@/new-services/poo/shared/api/enrollment";
 import { getRoleOption } from "@/components/admin/RoleSelect";
+import { Badge } from "@/components/ui/Badge";
+import { Card, CardContent } from "@/components/ui/Card";
 
 const ROLE_CHIP_COLOR: Record<string, "primary" | "secondary" | "default"> = {
   Admin: "primary",
@@ -60,57 +46,34 @@ const ROLE_CHIP_COLOR: Record<string, "primary" | "secondary" | "default"> = {
 };
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { user } = useUser();
 
-  const [courses, setCourses] = useState<CourseDTO[]>([]);
-  const [disciplines, setDisciplines] = useState<DisciplineDTO[]>([]);
-  const [modules, setModules] = useState<ModuleDTO[]>([]);
+  const [courses, setCourses] = useState<Awaited<ReturnType<typeof listCourses>>>([]);
+  const [disciplines, setDisciplines] = useState<Awaited<ReturnType<typeof listDisciplines>>>([]);
   const [users, setUsers] = useState<UserProfileDTO[]>([]);
+  const [pendingEnrollments, setPendingEnrollments] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [tab, setTab] = useState(0);
-  const [courseModalOpen, setCourseModalOpen] = useState(false);
-  const [editingCourse, setEditingCourse] = useState<CourseDTO | null>(null);
-  const [editingDiscipline, setEditingDiscipline] = useState<DisciplineDTO | null>(
-    null,
-  );
-  const [disciplineModalOpen, setDisciplineModalOpen] = useState(false);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [updatingType, setUpdatingType] = useState<"course" | "discipline" | null>(
-    null,
-  );
 
   const loadData = useCallback(async () => {
     setLoading(true);
     setError("");
 
-    const [coursesResult, disciplinesResult, modulesResult, usersResult] =
+    const [coursesResult, disciplinesResult, usersResult, enrollmentsResult] =
       await Promise.allSettled([
         listCourses(),
         listDisciplines(),
-        listModules(),
         listUsers(),
+        listPendingEnrollmentsPage({ page: 0, size: 1 }),
       ]);
 
     if (coursesResult.status === "fulfilled") {
-      setCourses(
-        coursesResult.value.sort((a, b) =>
-          (a.name ?? "").localeCompare(b.name ?? "", "pt-BR"),
-        ),
-      );
+      setCourses(coursesResult.value);
     }
 
     if (disciplinesResult.status === "fulfilled") {
-      setDisciplines(
-        disciplinesResult.value.sort((a, b) =>
-          (a.name ?? "").localeCompare(b.name ?? "", "pt-BR"),
-        ),
-      );
-    }
-
-    if (modulesResult.status === "fulfilled") {
-      setModules(modulesResult.value);
+      setDisciplines(disciplinesResult.value);
     }
 
     if (usersResult.status === "fulfilled") {
@@ -119,6 +82,10 @@ export default function DashboardPage() {
           (a.name ?? "").localeCompare(b.name ?? "", "pt-BR"),
         ),
       );
+    }
+
+    if (enrollmentsResult.status === "fulfilled") {
+      setPendingEnrollments(enrollmentsResult.value.totalElements);
     }
 
     if (
@@ -136,83 +103,21 @@ export default function DashboardPage() {
     loadData();
   }, [loadData]);
 
-  const coursesMap = useMemo(
-    () => Object.fromEntries(courses.map((course) => [course.id, course])),
-    [courses],
-  );
-
   const activeCourses = courses.filter((course) => course.status !== "Inactive");
-  const activeDisciplines = disciplines.filter(
-    (discipline) => discipline.status !== "Inactive",
-  );
   const adminCount = users.filter((item) => item.role === "Admin").length;
   const recentUsers = users.slice(0, 5);
-  const previewCourses = courses.slice(0, 3);
+  const recentCourses = useMemo(() => courses.slice(0, 3), [courses]);
 
-  async function handleCourseStatusChange(courseId: string, status: EntityStatus) {
-    setUpdatingId(courseId);
-    setUpdatingType("course");
-    setFeedback("");
-    setError("");
-
-    try {
-      await changeCourseStatus(courseId, status);
-      setCourses((prev) =>
-        prev.map((course) =>
-          course.id === courseId ? { ...course, status } : course,
-        ),
+  const disciplinesByCourse = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const discipline of disciplines) {
+      counts.set(
+        discipline.courseId,
+        (counts.get(discipline.courseId) ?? 0) + 1,
       );
-      setFeedback(
-        status === "Active"
-          ? "Curso ativado com sucesso."
-          : "Curso inativado com sucesso.",
-      );
-    } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "Não foi possível alterar o status do curso.",
-      );
-      await loadData();
-    } finally {
-      setUpdatingId(null);
-      setUpdatingType(null);
     }
-  }
-
-  async function handleDisciplineStatusChange(
-    disciplineId: string,
-    status: EntityStatus,
-  ) {
-    setUpdatingId(disciplineId);
-    setUpdatingType("discipline");
-    setFeedback("");
-    setError("");
-
-    try {
-      await changeDisciplineStatus(disciplineId, status);
-      setDisciplines((prev) =>
-        prev.map((discipline) =>
-          discipline.id === disciplineId ? { ...discipline, status } : discipline,
-        ),
-      );
-      setFeedback(
-        status === "Active"
-          ? "Disciplina ativada com sucesso."
-          : "Disciplina inativada com sucesso.",
-      );
-    } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "Não foi possível alterar o status da disciplina.",
-      );
-      await loadData();
-    } finally {
-      setUpdatingId(null);
-      setUpdatingType(null);
-    }
-  }
+    return counts;
+  }, [disciplines]);
 
   if (loading) {
     return (
@@ -241,7 +146,7 @@ export default function DashboardPage() {
       </Typography>
 
       <Typography sx={{ color: "text.secondary", mb: 4 }}>
-        Gerencie usuários, cursos e acompanhe os indicadores da plataforma.
+        Acompanhe os indicadores e acesse a gestão da plataforma.
       </Typography>
 
       {error && (
@@ -250,13 +155,6 @@ export default function DashboardPage() {
         </Alert>
       )}
 
-      {feedback && (
-        <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
-          {feedback}
-        </Alert>
-      )}
-
-      {/* Indicadores */}
       <Grid container spacing={3} sx={{ mb: 5 }}>
         {[
           {
@@ -279,9 +177,22 @@ export default function DashboardPage() {
             value: adminCount,
             icon: <AdminPanelSettingsOutlined />,
           },
+          {
+            label: "Matrículas pendentes",
+            value: pendingEnrollments,
+            icon: <HowToRegOutlined />,
+            href: "/dashboard/matriculas",
+          },
         ].map((item) => (
           <Grid key={item.label} size={{ xs: 12, sm: 6, md: 3 }}>
-            <MuiCard sx={{ borderRadius: 3, height: "100%" }}>
+            <MuiCard
+              sx={{
+                borderRadius: 3,
+                height: "100%",
+                cursor: "href" in item ? "pointer" : "default",
+              }}
+              onClick={"href" in item ? () => router.push(item.href) : undefined}
+            >
               <MuiCardContent>
                 <Box
                   sx={{
@@ -304,96 +215,110 @@ export default function DashboardPage() {
         ))}
       </Grid>
 
-      {/* Prévia de cursos */}
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           mb: 2,
+          mt: 1,
         }}
       >
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          Cursos cadastrados
+          Gerenciamento de cursos
         </Typography>
-        <Box
-          component="button"
-          onClick={() => setTab(0)}
-          sx={{
+        <Link
+          href="/dashboard/cursos"
+          style={{
             display: "inline-flex",
             alignItems: "center",
-            gap: 0.5,
-            border: "none",
-            bgcolor: "transparent",
-            color: "primary.main",
-            cursor: "pointer",
-            fontSize: "0.875rem",
+            gap: 4,
+            color: "inherit",
+            textDecoration: "none",
             fontWeight: 600,
-            p: 0,
-            "&:hover": { textDecoration: "underline" },
+            fontSize: "0.875rem",
           }}
         >
-          Gerenciar
+          Ver todos
           <ArrowRightAltOutlined fontSize="small" />
-        </Box>
+        </Link>
       </Box>
 
-      {previewCourses.length === 0 ? (
-        <Alert
-          severity="info"
-          sx={{ mb: 5, borderRadius: 2 }}
-          action={
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<Add />}
-              onClick={() => setCourseModalOpen(true)}
-            >
-              Cadastrar
-            </Button>
-          }
-        >
-          Nenhum curso cadastrado ainda.
-        </Alert>
-      ) : (
-        <Grid container spacing={3} sx={{ mb: 5 }}>
-          {previewCourses.map((course) => {
-            const isActive = course.status !== "Inactive";
+      <MuiCard sx={{ borderRadius: 3, mb: 5 }}>
+        {recentCourses.length === 0 ? (
+          <MuiCardContent>
+            <Typography color="text.secondary">
+              Nenhum curso cadastrado. Acesse o gerenciamento para criar o primeiro.
+            </Typography>
+          </MuiCardContent>
+        ) : (
+          <Grid container spacing={2} sx={{ p: 2 }}>
+            {recentCourses.map((course) => {
+              const status = course.status === "Inactive" ? "Inactive" : "Active";
+              const disciplineCount = disciplinesByCourse.get(course.id) ?? 0;
 
-            return (
-              <Grid key={course.id} size={{ xs: 12, md: 4 }}>
-                <MuiCard sx={{ borderRadius: 3, height: "100%" }}>
-                  <MuiCardContent>
-                    <Typography sx={{ fontWeight: 700 }}>{course.name}</Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mt: 1 }}
-                    >
-                      {course.description || "Sem descrição"}
-                    </Typography>
-                    <Box sx={{ mt: 3 }}>
-                      <Chip
-                        label={isActive ? "Ativo" : "Inativo"}
-                        color={isActive ? "success" : "default"}
-                        size="small"
-                      />
-                    </Box>
-                  </MuiCardContent>
-                </MuiCard>
-              </Grid>
-            );
-          })}
-        </Grid>
-      )}
+              return (
+                <Grid size={{ xs: 12, md: 4 }} key={course.id}>
+                  <Card
+                    hoverable
+                    className={status === "Inactive" ? "opacity-70" : ""}
+                    onClick={() => router.push(`/dashboard/cursos/${course.id}`)}
+                  >
+                    <CardContent>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          gap: 1,
+                          mb: 1,
+                        }}
+                      >
+                        <Typography sx={{ fontWeight: 700, color: "#1f2937" }}>
+                          {course.name}
+                        </Typography>
+                        <ChevronRight sx={{ color: "#9ca3af", fontSize: 20 }} />
+                      </Box>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          mb: 2,
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {course.description || "Sem descrição"}
+                      </Typography>
+                      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                        <Badge
+                          color={status === "Active" ? "success" : "neutral"}
+                          label={status === "Active" ? "Ativo" : "Inativo"}
+                          dot
+                        />
+                        <Badge
+                          color="info"
+                          label={`${disciplineCount} disciplinas`}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
+      </MuiCard>
 
-      {/* Últimos usuários */}
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           mb: 2,
+          mt: 1,
         }}
       >
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
@@ -451,12 +376,11 @@ export default function DashboardPage() {
         </List>
       </MuiCard>
 
-      {/* Status da plataforma */}
       <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
         Status da plataforma
       </Typography>
 
-      <Grid container spacing={3} sx={{ mb: 5 }}>
+      <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 6 }}>
           <MuiCard sx={{ borderRadius: 3 }}>
             <MuiCardContent>
@@ -478,310 +402,6 @@ export default function DashboardPage() {
           </MuiCard>
         </Grid>
       </Grid>
-
-      <Divider sx={{ mb: 4 }} />
-
-      {/* Gestão completa */}
-      <Typography variant="h6" sx={{ fontWeight: "bold", mb: 0.5 }}>
-        Gestão do catálogo
-      </Typography>
-      <Typography sx={{ fontSize: 14, color: "text.secondary", mb: 3 }}>
-        Crie, edite e altere o status de cursos e disciplinas.
-      </Typography>
-
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <Card>
-            <CardContent className="!p-4">
-              <Typography variant="caption" color="text.secondary">
-                Cursos ativos
-              </Typography>
-              <Typography sx={{ fontWeight: 700, fontSize: 28, color: "#1f2937" }}>
-                {activeCourses.length}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                de {courses.length} cadastrados
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <Card>
-            <CardContent className="!p-4">
-              <Typography variant="caption" color="text.secondary">
-                Disciplinas ativas
-              </Typography>
-              <Typography sx={{ fontWeight: 700, fontSize: 28, color: "#1f2937" }}>
-                {activeDisciplines.length}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                de {disciplines.length} cadastradas
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <Card>
-            <CardContent className="!p-4">
-              <Typography variant="caption" color="text.secondary">
-                Módulos
-              </Typography>
-              <Typography sx={{ fontWeight: 700, fontSize: 28, color: "#1f2937" }}>
-                {modules.length}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Tabs value={tab} onChange={(_, value) => setTab(value)} sx={{ mb: 3 }}>
-        <Tab label="Cursos" />
-        <Tab label="Disciplinas" />
-      </Tabs>
-
-      {tab === 0 && (
-        <Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 2,
-            }}
-          >
-            <Typography sx={{ fontWeight: 600 }}>Gestão de cursos</Typography>
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              onClick={() => setCourseModalOpen(true)}
-            >
-              Novo curso
-            </Button>
-          </Box>
-
-          {courses.length === 0 ? (
-            <Alert
-              severity="info"
-              action={
-                <Button
-                  variant="contained"
-                  size="small"
-                  startIcon={<Add />}
-                  onClick={() => setCourseModalOpen(true)}
-                >
-                  Cadastrar curso
-                </Button>
-              }
-            >
-              Nenhum curso cadastrado. Clique para criar o primeiro.
-            </Alert>
-          ) : (
-            <Grid container spacing={2}>
-              {courses.map((course) => {
-                const isUpdating =
-                  updatingId === course.id && updatingType === "course";
-                const status = course.status === "Inactive" ? "Inactive" : "Active";
-
-                return (
-                  <Grid size={{ xs: 12, md: 6 }} key={course.id}>
-                    <Card className={status === "Inactive" ? "opacity-70" : ""}>
-                      <CardContent>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                            gap: 2,
-                            mb: 1,
-                          }}
-                        >
-                          <Typography sx={{ fontWeight: 700, color: "#1f2937" }}>
-                            {course.name}
-                          </Typography>
-                          <Badge
-                            color={status === "Active" ? "success" : "neutral"}
-                            label={status === "Active" ? "Ativo" : "Inativo"}
-                            dot
-                          />
-                        </Box>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          {course.description || "Sem descrição"}
-                        </Typography>
-                        <Badge
-                          color="info"
-                          label={`${disciplines.filter((d) => d.courseId === course.id).length} disciplinas`}
-                        />
-                      </CardContent>
-                      <CardActions className="!justify-between !items-center !flex-wrap !gap-2">
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          startIcon={<EditOutlined />}
-                          onClick={() => setEditingCourse(course)}
-                        >
-                          Editar
-                        </Button>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <Typography variant="caption" color="text.secondary">
-                            Status
-                          </Typography>
-                          <EntityStatusToggle
-                            status={status}
-                            loading={isUpdating}
-                            onToggle={(next) =>
-                              handleCourseStatusChange(course.id!, next)
-                            }
-                          />
-                        </Box>
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          )}
-        </Box>
-      )}
-
-      {tab === 1 && (
-        <Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 2,
-            }}
-          >
-            <Typography sx={{ fontWeight: 600 }}>Gestão de disciplinas</Typography>
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              onClick={() => setDisciplineModalOpen(true)}
-            >
-              Nova disciplina
-            </Button>
-          </Box>
-
-          {disciplines.length === 0 ? (
-            <Alert
-              severity="info"
-              action={
-                <Button
-                  variant="contained"
-                  size="small"
-                  startIcon={<Add />}
-                  onClick={() => setDisciplineModalOpen(true)}
-                  disabled={activeCourses.length === 0}
-                >
-                  Cadastrar disciplina
-                </Button>
-              }
-            >
-              {activeCourses.length === 0
-                ? "Cadastre um curso ativo antes de criar disciplinas."
-                : "Nenhuma disciplina cadastrada. Clique para criar a primeira."}
-            </Alert>
-          ) : (
-            <Grid container spacing={2}>
-              {disciplines.map((discipline) => {
-                const isUpdating =
-                  updatingId === discipline.id && updatingType === "discipline";
-                const status =
-                  discipline.status === "Inactive" ? "Inactive" : "Active";
-
-                return (
-                  <Grid size={{ xs: 12, md: 6 }} key={discipline.id}>
-                    <Card className={status === "Inactive" ? "opacity-70" : ""}>
-                      <CardContent>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                            gap: 2,
-                            mb: 0.5,
-                          }}
-                        >
-                          <Typography sx={{ fontWeight: 700, color: "#1f2937" }}>
-                            {discipline.name}
-                          </Typography>
-                          <Badge
-                            color={status === "Active" ? "success" : "neutral"}
-                            label={status === "Active" ? "Ativo" : "Inativo"}
-                            dot
-                          />
-                        </Box>
-                        <Typography variant="body2" color="primary" sx={{ mb: 1 }}>
-                          {coursesMap[discipline.courseId ?? ""]?.name ??
-                            "Curso não encontrado"}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          {discipline.description || "Sem descrição"}
-                        </Typography>
-                        <Badge
-                          color="info"
-                          label={`${modules.filter((m) => m.disciplineId === discipline.id).length} módulos`}
-                        />
-                      </CardContent>
-                      <CardActions className="!justify-between !items-center !flex-wrap !gap-2">
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          startIcon={<EditOutlined />}
-                          onClick={() => setEditingDiscipline(discipline)}
-                        >
-                          Editar
-                        </Button>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <Typography variant="caption" color="text.secondary">
-                            Status
-                          </Typography>
-                          <EntityStatusToggle
-                            status={status}
-                            loading={isUpdating}
-                            onToggle={(next) =>
-                              handleDisciplineStatusChange(discipline.id!, next)
-                            }
-                          />
-                        </Box>
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          )}
-        </Box>
-      )}
-
-      <CreateCourseModal
-        open={courseModalOpen}
-        onClose={() => setCourseModalOpen(false)}
-        onSuccess={loadData}
-      />
-
-      <EditCourseModal
-        open={Boolean(editingCourse)}
-        course={editingCourse}
-        onClose={() => setEditingCourse(null)}
-        onSuccess={loadData}
-      />
-
-      <EditDisciplineModal
-        open={Boolean(editingDiscipline)}
-        discipline={editingDiscipline}
-        courses={courses}
-        onClose={() => setEditingDiscipline(null)}
-        onSuccess={loadData}
-      />
-
-      <CreateDisciplineModal
-        open={disciplineModalOpen}
-        onClose={() => setDisciplineModalOpen(false)}
-        onSuccess={loadData}
-        courses={activeCourses}
-      />
     </Box>
   );
 }

@@ -26,33 +26,42 @@ import DashboardHeader from "./dashboard-header";
 import Footer from "./footer";
 
 import type { SidebarItem, HeaderItem } from "./layout/types";
-import { useUser } from "@/services/auth/AuthContext";
+import { getAdminHeaderConfig } from "./layout/headerConfig";
+import { useUser } from "@/new-services/auth/AuthContext";
 
 type Props = {
-  title: string;
+  title?: string;
   avatarSrc?: string;
-  items?: SidebarItem[]; // Definido como opcional
+  items?: SidebarItem[];
   settings?: HeaderItem[];
   children: React.ReactNode;
   drawerWidth?: number;
 };
 
 export default function DrawerLayout({
-  title,
+  title = "",
   avatarSrc,
-  items = [], // Valor padrão para evitar erro de undefined
+  items = [],
   settings = [],
   children,
   drawerWidth = 260,
 }: Props) {
   const pathname = usePathname();
   const theme = useTheme();
+  const { effectiveRole } = useUser();
+
+  const adminHeader = effectiveRole === "Admin" ? getAdminHeaderConfig(pathname) : null;
+  const headerTitle = adminHeader?.title ?? title;
+  const searchType = adminHeader?.searchType ?? null;
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [open, setOpen] = React.useState(false);
 
-  const isActive = (href?: string) =>
-    !!href && (pathname === href || pathname.startsWith(href + "/"));
+  const isActive = (href?: string, exact?: boolean) => {
+    if (!href) return false;
+    if (exact) return pathname === href;
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   const drawerContent = (
     <>
@@ -89,7 +98,7 @@ export default function DrawerLayout({
                   if (!isLink) item.onClick?.();
                   if (isMobile) setOpen(false);
                 }}
-                selected={isLink ? isActive(item.href) : false}
+                selected={isLink ? isActive(item.href, "exact" in item ? item.exact : false) : false}
                 sx={{
                   borderRadius: 2,
                   mb: 0.5,
@@ -122,12 +131,13 @@ export default function DrawerLayout({
       <CssBaseline />
 
       <DashboardHeader
-        title={title}
+        title={headerTitle}
         avatarSrc={avatarSrc}
         settings={settings}
         onMenuClick={() => setOpen(true)}
         drawerWidth={drawerWidth}
         isMobile={isMobile}
+        searchType={searchType}
       />
 
       <Drawer
@@ -159,8 +169,8 @@ export default function DrawerLayout({
           minHeight: "100vh"
         }}
       >
-        <Toolbar />
-        <Box sx={{ p: 4, flexGrow: 1 }}>{children}</Box>
+        <Toolbar sx={{ minHeight: { xs: 56, sm: 64 } }} />
+        <Box sx={{ px: 4, pt: 2, pb: 4, flexGrow: 1 }}>{children}</Box>
         <Footer />
       </Box>
     </Box>

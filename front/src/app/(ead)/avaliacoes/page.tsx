@@ -1,7 +1,6 @@
-// para modificar para atividades
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, Suspense } from "react";
 import {
   Box,
   Typography,
@@ -14,6 +13,7 @@ import {
   TextField,
   Divider,
   InputAdornment,
+  CircularProgress,
 } from "@mui/material";
 import {
   QuizOutlined,
@@ -22,21 +22,21 @@ import {
   SearchOutlined,
   CheckCircleOutlineOutlined,
 } from "@mui/icons-material";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ModuleActivityCard } from "@/services/poo/shared/types";
 import { DatabaseProvider } from "@/services/poo/databaseProvider";
 import { useUser } from "@/new-services/auth/AuthContext";
 import { ActivityProvider } from "@/services/poo/activity/activityProvider";
+import { slugify } from "@/components/layout/headerConfig";
 
 const database = DatabaseProvider.getDatabase();
 
-export default function AtividadesPage() {
+function AtividadesPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, effectiveRole } = useUser();
-  const [search, setSearch] = useState("");
-
-  const slugify = (text: string) =>
-    text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  const isAdmin = effectiveRole === "Admin";
+  const search = searchParams.get("q") ?? "";
 
   const handleOpen = (module: ModuleActivityCard) => {
     if (!module?.moduleId) return;
@@ -65,26 +65,50 @@ export default function AtividadesPage() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography sx={{ fontSize: 24, fontWeight: 700, mb: 1 }}>Atividades</Typography>
-      <Typography color="text.secondary" sx={{ mb: 4 }}>Quizzes e exercícios organizados por disciplina.</Typography>
+      <Typography sx={{ fontSize: 24, fontWeight: 700, mb: 1 }}>
+        {isAdmin ? "Avaliações" : "Atividades"}
+      </Typography>
+      <Typography color="text.secondary" sx={{ mb: 4 }}>
+        {search.trim()
+          ? `Exibindo ${filtered.length} resultado(s) para "${search}".`
+          : "Quizzes e exercícios organizados por disciplina."}
+      </Typography>
 
-      {/* MODIFICAÇÃO (Etapa 3): Busca centralizada e limpa com InputAdornment corrigido */}
-      <TextField
-        fullWidth
-        placeholder="Buscar por disciplina ou módulo..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        sx={{ mb: 4, "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchOutlined sx={{ color: "gray" }} />
-              </InputAdornment>
-            ),
-          },
-        }}
-      /> 
+      {!isAdmin ? (
+        <TextField
+          fullWidth
+          placeholder="Buscar por disciplina ou módulo..."
+          value={search}
+          onChange={(e) => {
+            const value = e.target.value;
+            router.push(
+              value.trim()
+                ? `/avaliacoes?q=${encodeURIComponent(value)}`
+                : "/avaliacoes",
+            );
+          }}
+          sx={{ mb: 4, "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchOutlined sx={{ color: "gray" }} />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+      ) : search.trim() ? (
+        <Box sx={{ mb: 4 }}>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => router.push("/avaliacoes")}
+          >
+            Limpar busca
+          </Button>
+        </Box>
+      ) : null}
 
       {/* MODIFICAÇÃO (Etapa 1): Grid responsivo de cards agrupados */}
       {groups.map(([discipline, activities]) => (
@@ -141,5 +165,19 @@ export default function AtividadesPage() {
         </Typography>
       </Box>
     </Box>
+  );
+}
+
+export default function AtividadesPage() {
+  return (
+    <Suspense
+      fallback={
+        <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+          <CircularProgress />
+        </Box>
+      }
+    >
+      <AtividadesPageContent />
+    </Suspense>
   );
 }

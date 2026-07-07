@@ -14,35 +14,53 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-  Badge, // Adicionado
+  Badge,
 } from "@mui/material";
 
 import MenuIcon from "@mui/icons-material/Menu";
-import NotificationsIcon from "@mui/icons-material/Notifications"; // Adicionado
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useRouter } from "next/navigation";
-import SearchIcon from "@mui/icons-material/Search";
-import { useTheme } from "@mui/material/styles";
 
-import type { HeaderItem } from "./layout/types";
+import type { HeaderItem, HeaderSearchType } from "./layout/types";
 import { useUser } from "@/new-services/auth/AuthContext";
-import { Search, SearchIconWrapper, StyledInputBase } from "./components";
+import AdminCourseSearch from "./admin/AdminCourseSearch";
+import AdminDisciplineSearch from "./admin/AdminDisciplineSearch";
+import AdminActivitySearch from "./admin/AdminActivitySearch";
+import { AdminUserSearch } from "./admin/AdminUserSearch";
 
 type Props = {
-  title: string;
+  title?: string;
   avatarSrc?: string;
   settings?: HeaderItem[];
   onMenuClick?: () => void;
   drawerWidth?: number;
   isMobile?: boolean;
+  searchType?: HeaderSearchType | null;
 };
 
+function HeaderSearch({ searchType }: { searchType: HeaderSearchType }) {
+  switch (searchType) {
+    case "courses":
+      return <AdminCourseSearch />;
+    case "disciplines":
+      return <AdminDisciplineSearch />;
+    case "activities":
+      return <AdminActivitySearch />;
+    case "users":
+      return <AdminUserSearch variant="header" />;
+    default:
+      return null;
+  }
+}
+
 export default function DashboardHeader({
-  title,
+  title = "",
   avatarSrc,
   settings = [],
   onMenuClick,
   drawerWidth = 260,
   isMobile = false,
+  searchType = null,
 }: Props) {
   const router = useRouter();
   const { logout, user } = useUser();
@@ -50,7 +68,7 @@ export default function DashboardHeader({
   const [anchorUser, setAnchorUser] =
     React.useState<HTMLElement | null>(null);
 
-  const theme = useTheme();
+  const hasSearch = Boolean(searchType);
 
   return (
     <AppBar
@@ -64,29 +82,75 @@ export default function DashboardHeader({
         }),
       })}
     >
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Toolbar
+        sx={{
+          display: "grid",
+          alignItems: "center",
+          gap: { xs: 1.5, sm: 2 },
+          minHeight: { xs: 56, sm: 64 },
+          px: { xs: 1.5, sm: 2 },
+          gridTemplateColumns: hasSearch
+            ? {
+                xs: "auto 1fr",
+                sm: "minmax(0, 1fr) minmax(320px, 480px) minmax(0, 1fr)",
+              }
+            : "1fr auto",
+          gridTemplateRows: hasSearch
+            ? { xs: "auto auto", sm: "auto" }
+            : "auto",
+          gridTemplateAreas: hasSearch
+            ? {
+                xs: `"menu actions" "search search"`,
+                sm: `"left search actions"`,
+              }
+            : `"left actions"`,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            minWidth: 0,
+            gridArea: "left",
+            justifySelf: "start",
+          }}
+        >
           {isMobile && onMenuClick && (
             <IconButton color="inherit" onClick={onMenuClick} edge="start">
               <MenuIcon />
             </IconButton>
           )}
-          <Typography variant="h6" sx={{ ml: 2, color: "#fff" }}>
-            {title}
-          </Typography>
+          {title ? (
+            <Typography variant="h6" sx={{ ml: isMobile ? 1 : 2, color: "#fff" }}>
+              {title}
+            </Typography>
+          ) : null}
         </Box>
 
-        <Search sx={{ width: '40%' }}>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Pesquisar cursos..."
-            inputProps={{ "aria-label": "search" }}
-          />
-        </Search>
+        {hasSearch && searchType ? (
+          <Box
+            sx={{
+              gridArea: "search",
+              width: "100%",
+              justifySelf: "center",
+              maxWidth: { xs: "100%", sm: 480 },
+            }}
+          >
+            <React.Suspense fallback={null}>
+              <HeaderSearch searchType={searchType} />
+            </React.Suspense>
+          </Box>
+        ) : null}
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            gridArea: "actions",
+            justifySelf: "end",
+          }}
+        >
           <IconButton color="inherit">
             <Badge badgeContent={3} color="error">
               <NotificationsIcon />

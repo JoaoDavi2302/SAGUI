@@ -8,7 +8,7 @@ import {
 } from "@/new-services/poo/shared/api/catalog";
 import { DisciplineRequest } from "../shared/requests";
 import { DisciplineEntity, LoggedUser } from "../shared/types";
-import { listCourses } from "@/services/api/catalog";
+import { listCourses } from "@/new-services/poo/shared/api/catalog";
 
 export class StudentDiscipline extends DisciplineService {
   async list() {

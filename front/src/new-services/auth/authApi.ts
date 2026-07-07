@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../poo/shared/config";
-import type { LoggedUser, Role } from "@/services/poo/shared/types";
+import type { LoggedUser, Role } from "@/new-services/poo/shared/types";
 
 interface LoginResponse {
   accessToken: string;

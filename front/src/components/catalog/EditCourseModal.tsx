@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { Alert, Stack, TextField } from "@mui/material";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/services/api/client";
+import { ApiError } from "@/new-services/poo/shared/api/client";
 import {
   type CourseDTO,
   updateCourse,
-} from "@/services/api/catalog";
+} from "@/new-services/poo/shared/api/catalog";
 
 interface EditCourseModalProps {
   open: boolean;

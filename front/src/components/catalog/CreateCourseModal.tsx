@@ -8,8 +8,8 @@ import {
 } from "@mui/material";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/services/api/client";
-import { createCourse } from "@/services/api/catalog";
+import { ApiError } from "@/new-services/poo/shared/api/client";
+import { createCourse } from "@/new-services/poo/shared/api/catalog";
 
 interface CreateCourseModalProps {
   open: boolean;

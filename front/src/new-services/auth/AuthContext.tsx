@@ -8,7 +8,7 @@ import {
   ReactNode,
 } from "react";
 
-import type { LoggedUser, Role } from "@/services/poo/shared/types";
+import type { LoggedUser, Role } from "@/new-services/poo/shared/types";
 
 import {
   clearSessionCookies,

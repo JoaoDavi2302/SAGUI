@@ -9,19 +9,18 @@ import {
 } from "@mui/material";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/services/api/client";
+import { ApiError } from "@/new-services/poo/shared/api/client";
 import {
-  type CourseDTO,
   type DisciplineDTO,
   listProfessors,
   updateDiscipline,
   type UserProfileDTO,
-} from "@/services/api/catalog";
+} from "@/new-services/poo/shared/api/catalog";
 
 interface EditDisciplineModalProps {
   open: boolean;
   discipline: DisciplineDTO | null;
-  courses: CourseDTO[];
+  courseId: string;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -29,13 +28,12 @@ interface EditDisciplineModalProps {
 export function EditDisciplineModal({
   open,
   discipline,
-  courses,
+  courseId,
   onClose,
   onSuccess,
 }: EditDisciplineModalProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [courseId, setCourseId] = useState("");
   const [professorId, setProfessorId] = useState("");
   const [professors, setProfessors] = useState<UserProfileDTO[]>([]);
   const [loading, setLoading] = useState(false);
@@ -45,7 +43,6 @@ export function EditDisciplineModal({
     if (!open || !discipline) return;
     setName(discipline.name ?? "");
     setDescription(discipline.description ?? "");
-    setCourseId(discipline.courseId ?? "");
     setProfessorId(discipline.responsibleProfessorId ?? "");
     setError("");
   }, [open, discipline]);
@@ -97,9 +94,7 @@ export function EditDisciplineModal({
           <Button
             variant="contained"
             onClick={handleSubmit}
-            disabled={
-              loading || !name.trim() || !courseId || !professorId
-            }
+            disabled={loading || !name.trim() || !professorId}
             isLoading={loading}
           >
             Salvar
@@ -126,21 +121,6 @@ export function EditDisciplineModal({
           multiline
           minRows={2}
         />
-        <TextField
-          select
-          label="Curso"
-          value={courseId}
-          onChange={(e) => setCourseId(e.target.value)}
-          required
-          fullWidth
-          size="small"
-        >
-          {courses.map((course) => (
-            <MenuItem key={course.id} value={course.id}>
-              {course.name}
-            </MenuItem>
-          ))}
-        </TextField>
         <TextField
           select
           label="Professor responsável"

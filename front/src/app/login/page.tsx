@@ -143,7 +143,7 @@ export default function LoginPage() {
 
           <Typography
             component={Link}
-            href="/register"
+            href="/cadastro"
             variant="caption"
             sx={{ fontWeight: 600, textDecoration: "none", color: "primary.main" }}
           >

@@ -23,7 +23,7 @@ import {
   ModuleEntity,
   ActivityEntity,
   UserEntity,
-} from "@/services/poo/shared/types";
+} from "@/new-services/poo/shared/types";
 
 interface DataContextType {
   loading: boolean;

@@ -9,30 +9,28 @@ import {
 } from "@mui/material";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/services/api/client";
+import { ApiError } from "@/new-services/poo/shared/api/client";
 import {
   createDiscipline,
   listProfessors,
-  type CourseDTO,
   type UserProfileDTO,
-} from "@/services/api/catalog";
+} from "@/new-services/poo/shared/api/catalog";
 
 interface CreateDisciplineModalProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  courses: CourseDTO[];
+  courseId: string;
 }
 
 export function CreateDisciplineModal({
   open,
   onClose,
   onSuccess,
-  courses,
+  courseId,
 }: CreateDisciplineModalProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [courseId, setCourseId] = useState("");
   const [professorId, setProfessorId] = useState("");
   const [professors, setProfessors] = useState<UserProfileDTO[]>([]);
   const [loading, setLoading] = useState(false);
@@ -40,6 +38,11 @@ export function CreateDisciplineModal({
 
   useEffect(() => {
     if (!open) return;
+
+    setName("");
+    setDescription("");
+    setProfessorId("");
+    setError("");
 
     listProfessors()
       .then((items) => setProfessors(items))
@@ -57,10 +60,6 @@ export function CreateDisciplineModal({
         courseId,
         responsibleProfessorId: professorId,
       });
-      setName("");
-      setDescription("");
-      setCourseId("");
-      setProfessorId("");
       onSuccess();
       onClose();
     } catch (err) {
@@ -87,9 +86,7 @@ export function CreateDisciplineModal({
           <Button
             variant="contained"
             onClick={handleSubmit}
-            disabled={
-              loading || !name.trim() || !courseId || !professorId
-            }
+            disabled={loading || !name.trim() || !professorId}
             isLoading={loading}
           >
             Cadastrar
@@ -116,21 +113,6 @@ export function CreateDisciplineModal({
           multiline
           minRows={2}
         />
-        <TextField
-          select
-          label="Curso"
-          value={courseId}
-          onChange={(e) => setCourseId(e.target.value)}
-          required
-          fullWidth
-          size="small"
-        >
-          {courses.map((course) => (
-            <MenuItem key={course.id} value={course.id}>
-              {course.name}
-            </MenuItem>
-          ))}
-        </TextField>
         <TextField
           select
           label="Professor responsável"

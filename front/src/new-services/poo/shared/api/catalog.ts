@@ -1,7 +1,7 @@
 // disciplinas, cursos e modulos
 import { apiFetch } from "./client";
 import { fetchAllPages } from "./pagination";
-import type { Role } from "@/services/poo/shared/types";
+import type { Role } from "@/new-services/poo/shared/types";
 
 export type EntityStatus = "Active" | "Inactive";
 

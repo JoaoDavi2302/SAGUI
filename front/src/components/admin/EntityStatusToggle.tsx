@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, CircularProgress } from "@mui/material";
-import type { EntityStatus } from "@/services/api/catalog";
+import type { EntityStatus } from "@/new-services/poo/shared/api/catalog";
 
 type EntityStatusToggleProps = {
   status: EntityStatus;

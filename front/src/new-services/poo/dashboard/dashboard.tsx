@@ -3,7 +3,7 @@ import type {
   DisciplineDTO,
   ModuleDTO,
   UserProfileDTO,
-} from "@/services/api/catalog";
+} from "@/new-services/poo/shared/api/catalog";
 import type { LessonDTO } from "@/new-services/poo/shared/api/lessons";
 import type { LoggedUser } from "@/new-services/poo/shared/types";
 

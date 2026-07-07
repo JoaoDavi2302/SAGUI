@@ -1,16 +1,15 @@
 "use client";
 
 import DrawerLayout from "@/components/drawer";
+import { adminSidebarItems } from "@/components/layout/adminSidebar";
 import { HeaderItem } from "@/components/layout/types";
 import { useUser } from "@/new-services/auth/AuthContext";
 import {
   AssignmentOutlined,
-  DashboardOutlined,
   HomeOutlined,
   MenuBookOutlined,
   CalendarTodayOutlined,
   AssessmentOutlined,
-  PeopleOutlined,
   SchoolOutlined,
 } from "@mui/icons-material";
 import React, { useMemo } from "react";
@@ -22,14 +21,7 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
     if (!user) return [];
 
     if (effectiveRole === "Admin") {
-      return [
-        { icon: <DashboardOutlined />, label: "Painel", href: "/dashboard" },
-        {
-          icon: <PeopleOutlined />,
-          label: "Usuários",
-          href: "/dashboard/usuarios",
-        },
-      ];
+      return adminSidebarItems;
     }
 
     // Menu para o Professor (Centro de Comando)
@@ -63,7 +55,7 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
   if (!user) return null;
 
   return (
-    <DrawerLayout title="Centro de Comando" avatarSrc="/avatar.png" items={menuItems} settings={settings}>
+    <DrawerLayout avatarSrc="/avatar.png" items={menuItems} settings={settings}>
       {children}
     </DrawerLayout>
   );
