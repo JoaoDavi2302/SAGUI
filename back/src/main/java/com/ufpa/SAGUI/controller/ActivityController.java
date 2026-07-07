@@ -7,6 +7,7 @@ import com.ufpa.SAGUI.dto.activity.ActivityAttemptResultResponse;
 import com.ufpa.SAGUI.service.ActivityService;
 import com.ufpa.SAGUI.service.ActivityAttemptService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class ActivityController {
 
     // Criar atividade com questões e alternativas
     @PostMapping
+    @PreAuthorize("hasRole('Professor')")
     public ResponseEntity<ActivityResponse> createActivity(
             @RequestBody ActivityRequest request
     ) {
@@ -38,6 +40,7 @@ public class ActivityController {
 
     // Listar todas as atividades
     @GetMapping
+    @PreAuthorize("hasRole('Professor')")
     public ResponseEntity<List<ActivityResponse>> getAllActivities() {
         List<ActivityResponse> response = activityService.getAllActivities();
         return ResponseEntity.ok(response);
@@ -45,6 +48,7 @@ public class ActivityController {
 
     // Buscar atividade por ID
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('Professor')")
     public ResponseEntity<ActivityResponse> getActivityById(
             @PathVariable UUID id
     ) {
@@ -54,6 +58,7 @@ public class ActivityController {
 
     // Atualizar atividade
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('Professor')")
     public ResponseEntity<ActivityResponse> updateActivity(
             @PathVariable UUID id,
             @RequestBody ActivityRequest request
@@ -64,6 +69,7 @@ public class ActivityController {
 
     // Remover ou inativar atividade
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('Professor')")
     public ResponseEntity<Void> deleteActivity(
             @PathVariable UUID id
     ) {
@@ -73,6 +79,7 @@ public class ActivityController {
 
     // Aluno submete respostas da atividade
     @PostMapping("/{id}/submissions")
+    @PreAuthorize("hasRole('Aluno')")
     public ResponseEntity<ActivityAttemptResultResponse> submitActivity(
             @PathVariable UUID id,
             @RequestBody ActivitySubmissionRequest request
