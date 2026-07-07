@@ -38,14 +38,14 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const success = await login(email, password);
+      const profile = await login(email, password);
 
-      if (!success) {
+      if (!profile) {
         setError("Email ou senha inválidos");
         return;
       }
 
-      router.replace("/");
+      router.replace(profile.role === "Admin" ? "/dashboard" : "/");
     } catch {
       setError("Não foi possível conectar ao servidor. Tente novamente.");
     } finally {

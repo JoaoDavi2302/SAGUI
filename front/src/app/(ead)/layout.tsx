@@ -5,10 +5,12 @@ import { HeaderItem } from "@/components/layout/types";
 import { useUser } from "@/services/auth/AuthContext";
 import {
   AssignmentOutlined,
+  DashboardOutlined,
   HomeOutlined,
   MenuBookOutlined,
   CalendarTodayOutlined,
   AssessmentOutlined,
+  PeopleOutlined,
   SchoolOutlined,
 } from "@mui/icons-material";
 import React, { useMemo } from "react";
@@ -18,6 +20,17 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
 
   const menuItems = useMemo(() => {
     if (!user) return [];
+
+    if (effectiveRole === "Admin") {
+      return [
+        { icon: <DashboardOutlined />, label: "Painel", href: "/dashboard" },
+        {
+          icon: <PeopleOutlined />,
+          label: "Usuários",
+          href: "/dashboard/usuarios",
+        },
+      ];
+    }
 
     // Menu para o Professor (Centro de Comando)
     if (effectiveRole === "Professor") {
@@ -41,7 +54,6 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
   const settings: HeaderItem[] = useMemo(
     () => [
       { label: "Perfil", href: "/perfil" },
-      ...(effectiveRole === "Admin" ? [{ label: "Dashboard", href: "/dashboard" }] : []),
       { label: "Sair", action: "logout" },
     ],
     [effectiveRole],

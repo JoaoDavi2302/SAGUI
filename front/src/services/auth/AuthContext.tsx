@@ -25,7 +25,7 @@ interface AuthContextType {
   user: LoggedUser | null;
   loading: boolean;
   effectiveRole: Role;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<LoggedUser | null>;
   register: (data: RegisterInput) => Promise<boolean>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -77,14 +77,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSessionCookies(profile.role);
   }
 
-  async function login(email: string, password: string): Promise<boolean> {
+  async function login(email: string, password: string): Promise<LoggedUser | null> {
     try {
       const tokens = await loginRequest(email, password);
       await establishSession(tokens);
-      return true;
+      const accessToken = getAccessToken();
+      if (!accessToken) return null;
+      return await fetchMe(accessToken);
     } catch (error) {
       if (error instanceof Error && error.message === "INVALID_CREDENTIALS") {
-        return false;
+        return null;
       }
 
       if (error instanceof Error && error.message === "INVALID_AUTH_RESPONSE") {

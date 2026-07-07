@@ -5,6 +5,7 @@ export type { Role };
 
 export const routerPolicy: Record<string, Role[]> = {
   "/dashboard": ["Admin"],
+  "/dashboard/usuarios": ["Admin"],
   "/cursos": ["Admin", "Professor", "Aluno"],
   "/disciplinas": ["Admin", "Professor", "Aluno"],
   "/materiais": ["Admin", "Professor", "Aluno"],
