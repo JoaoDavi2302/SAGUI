@@ -6,6 +6,7 @@ target/
 
 # Environment
 .env
+.env.neon
 
 # IntelliJ
 .idea/
