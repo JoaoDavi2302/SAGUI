@@ -122,3 +122,109 @@ export async function submitActivity(
     }
   );
 }
+
+// ===== TIPOS PARA PROFESSOR =====
+
+export interface PendingActivityDTO {
+  studentId: string;
+  studentName: string;
+  activityId: string;
+  activityTitle: string;
+  moduleId: string;
+  moduleName: string;
+  attemptsUsed: number;
+  attemptLimit: number;
+  bestScore: number | null;
+}
+
+export interface PendingActivityPageResponse {
+  content: PendingActivityDTO[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
+
+/**
+ * Lista atividades pendentes de correção/avaliação em uma disciplina (para professor)
+ * GET /disciplines/{disciplineId}/pending-activities
+ */
+export async function listPendingActivities(
+  disciplineId: string,
+  page: number = 0,
+  size: number = 20
+): Promise<PendingActivityPageResponse> {
+  return apiFetch<PendingActivityPageResponse>(
+    `/disciplines/${disciplineId}/pending-activities?page=${page}&size=${size}`
+  );
+}
+
+/**
+ * Lista tentativas de uma atividade (para professor/admin)
+ * GET /activities/{id}/attempts
+ */
+export async function listActivityAttempts(
+  activityId: string,
+  page: number = 0,
+  size: number = 20,
+  studentId?: string,
+  approved?: boolean
+): Promise<{
+  content: Array<{
+    attemptId: string;
+    studentId: string;
+    studentName: string;
+    attemptNumber: number;
+    score: number | null;
+    approved: boolean | null;
+    status: string;
+    submittedAt: string;
+  }>;
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}> {
+  const params = new URLSearchParams();
+  params.append('page', String(page));
+  params.append('size', String(size));
+  if (studentId) params.append('studentId', studentId);
+  if (approved !== undefined) params.append('approved', String(approved));
+
+  return apiFetch(`/activities/${activityId}/attempts?${params.toString()}`);
+}
+
+/**
+ * Obtém detalhe de uma tentativa com gabarito (para professor/admin)
+ * GET /activities/{id}/attempts/{attemptId}
+ */
+export async function getAttemptDetail(
+  activityId: string,
+  attemptId: string
+): Promise<{
+  attemptId: string;
+  activityId: string;
+  activityTitle: string;
+  minimumScore: number;
+  studentId: string;
+  studentName: string;
+  attemptNumber: number;
+  score: number | null;
+  approved: boolean | null;
+  status: string;
+  submittedAt: string;
+  answers: Array<{
+    questionId: string;
+    statement: string;
+    selectedAlternatives: Array<{ id: string; text: string }>;
+    correctAlternatives: Array<{ id: string; text: string }>;
+    correct: boolean;
+    questionScore: number;
+  }>;
+}> {
+  return apiFetch(`/activities/${activityId}/attempts/${attemptId}`);
+}
