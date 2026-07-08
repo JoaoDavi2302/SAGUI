@@ -36,15 +36,44 @@ import {
   ExpandMore,
 } from "@mui/icons-material";
 
-import { useUser } from "@/services/auth/AuthContext";
-import { DatabaseProvider } from "@/services/poo/databaseProvider";
-import { DisciplineProvider } from "@/services/poo/discipline/disciplineProvider";
+import {
+  getDiscipline,
+  listCourses,
+  listProfessors,
+  listModules,
+} from "@/new-services/poo/shared/api/catalog";
 
-const database = DatabaseProvider.getDatabase();
+import { listEnrollmentsByDiscipline } from "@/new-services/poo/shared/api/enrollment";
+
+import type {
+  CourseDTO,
+  DisciplineDTO,
+  ModuleDTO,
+  UserProfileDTO,
+} from "@/new-services/poo/shared/api/catalog";
+
+import {
+  listAttachments,
+  type AttachmentDTO,
+} from "@/new-services/poo/shared/api/attachments";
+
+import {
+  listLessons,
+  type LessonDTO,
+} from "@/new-services/poo/shared/api/lessons";
+
+import {
+  listActivities,
+  type ActivityDTO,
+} from "@/new-services/poo/shared/api/activities";
+
+import type { EnrollmentDetailDTO } from "@/new-services/poo/shared/api/enrollment";
+
+import { useUser } from "@/new-services/auth/AuthContext";
 
 interface Props {
   open: boolean;
-  disciplineId?: number;
+  disciplineId?: string;
   onClose: () => void;
 }
 
@@ -54,31 +83,97 @@ export default function DisciplineViewModal({
   onClose,
 }: Props) {
   const { user, effectiveRole } = useUser();
-
-  const provider = useMemo(() => {
-    if (!user) return null;
-
-    return DisciplineProvider.create(effectiveRole, database, user);
-  }, [user, effectiveRole]);
-
+  const [discipline, setDiscipline] = useState<DisciplineDTO | null>(null);
+  const [course, setCourse] = useState<CourseDTO | null>(null);
+  const [professor, setProfessor] = useState<UserProfileDTO | null>(null);
   const [tab, setTab] = useState(0);
 
-  const [details, setDetails] = useState<any>(null);
+  // ok
+  const [modules, setModules] = useState<
+    (ModuleDTO & {
+      lessons: (LessonDTO & {
+        attachments: AttachmentDTO[];
+      })[];
+      activities: ActivityDTO[];
+    })[]
+  >([]);
 
-  useEffect(() => {
-    if (!provider || !disciplineId || !open) return;
+  const [students, setStudents] = useState<EnrollmentDetailDTO[]>([]);
 
-    setDetails(provider.getDetails(disciplineId));
-  }, [provider, disciplineId, open]);
-
-  if (!details) return null;
-
-  const discipline = details.discipline;
-
-  const totalLessons = details.modules.reduce(
+  const totalLessons = modules.reduce(
     (total: number, m: any) => total + m.lessons.length,
     0,
   );
+
+  const totalActivities = modules.reduce(
+    (total, module) => total + module.activities.length,
+    0,
+  );
+
+  const materials = modules.flatMap((module) =>
+    module.lessons.flatMap((lesson) => lesson.attachments),
+  );
+
+  useEffect(() => {
+    if (!open || !disciplineId) return;
+
+    async function load() {
+      try {
+        if (!disciplineId) return;
+
+        const disciplineData = await getDiscipline(disciplineId);
+
+        const [coursesData, professorsData, modulesData, enrollmentsData] =
+          await Promise.all([
+            listCourses(),
+            listProfessors(),
+            listModules(disciplineData.id),
+            listEnrollmentsByDiscipline(disciplineData.id),
+          ]);
+
+        const modulesComplete = await Promise.all(
+          modulesData.map(async (module) => {
+            const lessons = await listLessons(module.id);
+
+            const lessonsComplete = await Promise.all(
+              lessons.map(async (lesson) => ({
+                ...lesson,
+                attachments: await listAttachments(lesson.id),
+              })),
+            );
+
+            const activities = await listActivities(module.id);
+
+            return {
+              ...module,
+              lessons: lessonsComplete,
+              activities,
+            };
+          }),
+        );
+
+        setDiscipline(disciplineData);
+
+        setCourse(
+          coursesData.find((c) => c.id === disciplineData.courseId) ?? null,
+        );
+
+        setProfessor(
+          professorsData.find(
+            (p) => p.id === disciplineData.responsibleProfessorId,
+          ) ?? null,
+        );
+
+        setModules(modulesComplete);
+
+        setStudents(enrollmentsData.content ?? []);
+      } catch (error) {
+        console.error("Erro carregando disciplina", error);
+      }
+    }
+
+    load();
+  }, [open, disciplineId]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
@@ -118,7 +213,7 @@ export default function DisciplineViewModal({
                   letterSpacing: "-0.5px",
                 }}
               >
-                {discipline.nome}
+                {discipline?.name}
               </Typography>
 
               <Typography
@@ -129,27 +224,27 @@ export default function DisciplineViewModal({
                   mt: 0.5,
                 }}
               >
-                {discipline.descricao}
+                {discipline?.description}
               </Typography>
 
               <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
                 <Chip
                   icon={<Person />}
-                  label={discipline.professorName ?? "Sem professor"}
+                  label={professor?.name ?? "Sem professor"}
                   sx={{
                     bgcolor: "rgba(255,255,255,.15)",
                     color: "white",
                   }}
                 />
 
-                <Chip
+                {/* <Chip
                   icon={<AccessTime />}
                   label={`${discipline.workload ?? 0}h`}
                   sx={{
                     bgcolor: "rgba(255,255,255,.15)",
                     color: "white",
                   }}
-                />
+                /> */}
               </Stack>
             </Box>
           </Stack>
@@ -185,13 +280,13 @@ export default function DisciplineViewModal({
           <SummaryCard
             icon={<School color="primary" />}
             title="Curso"
-            value={discipline.courseName}
+            value={course?.name}
           />
 
           <SummaryCard
             icon={<ViewModule color="primary" />}
             title="Módulos"
-            value={details.modules.length}
+            value={modules.length}
           />
 
           <SummaryCard
@@ -203,13 +298,13 @@ export default function DisciplineViewModal({
           <SummaryCard
             icon={<Quiz color="primary" />}
             title="Quizzes"
-            value={details.activities?.length ?? 0}
+            value={totalActivities}
           />
 
           <SummaryCard
             icon={<Groups color="primary" />}
             title="Alunos"
-            value={details.students.length}
+            value={students.length}
           />
 
           {/* <SummaryCard
@@ -253,7 +348,7 @@ export default function DisciplineViewModal({
           >
             {tab === 0 && (
               <Stack spacing={2}>
-                {details.modules?.map((module: any) => (
+                {modules.map((module: any) => (
                   <Accordion
                     key={module.id}
                     sx={{
@@ -267,7 +362,7 @@ export default function DisciplineViewModal({
                     <AccordionSummary expandIcon={<ExpandMore />}>
                       <Stack>
                         <Typography sx={{ fontWeight: 700 }}>
-                          {module.nome}
+                          {module.name}
                         </Typography>
 
                         <Stack direction="row" spacing={1}>
@@ -276,11 +371,7 @@ export default function DisciplineViewModal({
                             label={`${module.lessons.length} aulas`}
                           />
 
-                          <Chip
-                            size="small"
-                            color="primary"
-                            label={`${module.progress}%`}
-                          />
+                          <Chip size="small" color="primary" label={0} />
                         </Stack>
                       </Stack>
                     </AccordionSummary>
@@ -299,7 +390,7 @@ export default function DisciplineViewModal({
                             }}
                           >
                             <Typography variant="body2">
-                              {lesson.titulo}
+                              {lesson.name}
                             </Typography>
 
                             {lesson.completed && (
@@ -320,11 +411,11 @@ export default function DisciplineViewModal({
 
             {tab === 1 && (
               <Stack spacing={2}>
-                {details.materials?.map((m: any) => (
+                {materials.map((m: any) => (
                   <Paper
                     key={m.id}
                     component="a"
-                    href={m.url}
+                    href={m.fileUrl}
                     target="_blank"
                     sx={{
                       p: 2,
@@ -342,12 +433,10 @@ export default function DisciplineViewModal({
                     <Article />
 
                     <Box>
-                      <Typography sx={{ fontWeight: 600 }}>
-                        {m.nome_arquivo}
-                      </Typography>
+                      <Typography sx={{ fontWeight: 600 }}>{m.name}</Typography>
 
                       <Typography variant="caption" color="text.secondary">
-                        {m.tipo} • {m.tamanho_bytes} bytes
+                        {m.attachmentType} • {m.tamanho_bytes} bytes
                       </Typography>
                     </Box>
                   </Paper>
@@ -357,56 +446,43 @@ export default function DisciplineViewModal({
 
             {tab === 2 && (
               <Stack spacing={2}>
-                {details.activities?.map((q: any) => (
-                  <Paper key={q.id} sx={{ p: 2, borderRadius: 2 }}>
-                    <Stack spacing={1}>
-                      <Typography sx={{ fontWeight: "bold" }}>
-                        {q.titulo}
-                      </Typography>
+                {modules
+                  .flatMap((module) => module.activities)
+                  .map((q: any) => (
+                    <Paper key={q.id} sx={{ p: 2, borderRadius: 2 }}>
+                      <Stack spacing={1}>
+                        <Typography sx={{ fontWeight: "bold" }}>
+                          {q.title}
+                        </Typography>
 
-                      <Typography variant="body2" color="text.secondary">
-                        {q.descricao}
-                      </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {q.description}
+                        </Typography>
 
-                      <Stack direction="row" spacing={1}>
-                        <Chip
-                          size="small"
-                          label={`${q.questionCount} questões`}
-                        />
-                        <Chip
-                          size="small"
-                          label={`nota de aprovação: ${q.nota_aprovacao}`}
-                        />
-                        <Chip
-                          size="small"
-                          label={`tentativas: ${q.max_tentativas}`}
-                        />
+                        <Stack direction="row" spacing={1}>
+                          <Chip
+                            size="small"
+                            label={`${q.questionCount} questões`}
+                          />
+                          <Chip
+                            size="small"
+                            label={`nota de aprovação: ${q.minimumScore}`}
+                          />
+                          <Chip
+                            size="small"
+                            label={`tentativas: ${q.attemptLimit}`}
+                          />
+                        </Stack>
                       </Stack>
-                    </Stack>
-                  </Paper>
-                ))}
+                    </Paper>
+                  ))}
               </Stack>
             )}
 
             {tab === 3 && (
               <Stack spacing={2}>
-                {details.students?.map((s: any) => {
-                  const percentage = s.percentage ?? 0;
-
-                  let status = "Iniciando";
-                  let color: "default" | "primary" | "success" | "warning" =
-                    "default";
-
-                  if (percentage >= 90) {
-                    status = "Concluído";
-                    color = "success";
-                  } else if (percentage >= 50) {
-                    status = "Em andamento";
-                    color = "primary";
-                  } else if (percentage > 0) {
-                    status = "Pouco progresso";
-                    color = "warning";
-                  }
+                {students.map((s) => {
+                  const percentage = 0;
 
                   return (
                     <Paper
@@ -414,59 +490,43 @@ export default function DisciplineViewModal({
                       sx={{
                         p: 2.5,
                         borderRadius: 3,
-                        transition: "0.2s",
-                        "&:hover": {
-                          boxShadow: 4,
-                        },
                       }}
                     >
                       <Stack spacing={2}>
-                        {/* Cabeçalho */}
                         <Stack
                           direction="row"
-                          sx={{
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
+                          sx={{justifyContent:"space-between",
+                          alignItems:"center"}}
                         >
                           <Stack
                             direction="row"
-                            sx={{ spacing: 2, alignItems: "center" }}
+                            spacing={2}
+                            sx={{alignItems:"center"}}
                           >
-                            <Avatar>{s.name?.charAt(0)}</Avatar>
+                            <Avatar>{s.studentName.charAt(0)}</Avatar>
 
                             <Box>
-                              <Typography sx={{ fontWeight: 700 }}>
-                                {s.name}
+                              <Typography sx={{fontWeight:700}}>
+                                {s.studentName}
                               </Typography>
 
                               <Typography
                                 variant="body2"
                                 color="text.secondary"
                               >
-                                {s.completedLessons ?? 0}/{s.totalLessons ?? 0}{" "}
-                                aulas concluídas
+                                {s.studentEmail}
                               </Typography>
                             </Box>
                           </Stack>
 
-                          <Chip label={status} color={color} size="small" />
+                          <Chip label={s.status} size="small" />
                         </Stack>
 
-                        {/* Progresso */}
                         <Box>
-                          <Stack
-                            direction="row"
-                            sx={{ justifyContent: "space-between", mb: 1 }}
-                          >
-                            <Typography variant="body2" color="text.secondary">
-                              Progresso
-                            </Typography>
+                          <Stack direction="row" sx={{justifyContent:"space-between"}}>
+                            <Typography variant="body2">Progresso</Typography>
 
-                            <Typography
-                              variant="body2"
-                              sx={{ fontWeight: 700 }}
-                            >
+                            <Typography sx={{fontWeight:700}}>
                               {percentage}%
                             </Typography>
                           </Stack>
@@ -474,10 +534,6 @@ export default function DisciplineViewModal({
                           <LinearProgress
                             variant="determinate"
                             value={percentage}
-                            sx={{
-                              height: 8,
-                              borderRadius: 5,
-                            }}
                           />
                         </Box>
                       </Stack>

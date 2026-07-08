@@ -6,9 +6,7 @@ import {
   type DisciplineDTO,
   type DisciplineRequestDTO,
 } from "@/new-services/poo/shared/api/catalog";
-import { DisciplineRequest } from "../shared/requests";
-import { DisciplineEntity, LoggedUser } from "../shared/types";
-import { listCourses } from "@/new-services/poo/shared/api/catalog";
+import { LoggedUser } from "../shared/types";
 
 export class StudentDiscipline extends DisciplineService {
   async list() {
