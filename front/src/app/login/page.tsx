@@ -135,12 +135,11 @@ export default function LoginPage() {
         <Stack
           direction="row"
           spacing={0.5}
-          sx={{ mt: 2, justifyContent: "space-between", alignItems: "center" }}
+          sx={{ mt: 2, justifyContent: "center", alignItems: "center" }}
         >
-          <Typography variant="caption" sx={{ cursor: "pointer" }}>
-            Esqueci minha senha
+          <Typography variant="caption" color="text.secondary">
+            Não tem conta?
           </Typography>
-
           <Typography
             component={Link}
             href="/cadastro"

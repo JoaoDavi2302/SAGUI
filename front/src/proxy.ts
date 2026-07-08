@@ -18,7 +18,6 @@ const PUBLIC_ROUTES = new Set([
   "/",
   "/login",
   "/cadastro",
-  "/recuperar-senha",
   "/register"
 ]);
 

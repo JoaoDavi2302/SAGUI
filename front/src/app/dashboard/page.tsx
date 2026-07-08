@@ -191,7 +191,11 @@ export default function DashboardPage() {
                 height: "100%",
                 cursor: "href" in item ? "pointer" : "default",
               }}
-              onClick={"href" in item ? () => router.push(item.href) : undefined}
+              onClick={
+                "href" in item && item.href
+                  ? () => router.push(item.href)
+                  : undefined
+              }
             >
               <MuiCardContent>
                 <Box
