@@ -316,11 +316,15 @@ export default function RelatoriosProfessorPage() {
                                 color={act.approved ? 'success' : 'error'}
                                 size="small"
                               />
-                              <Typography variant="caption" display="block" color="text.secondary">
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{ display: "block" }}
+                              >
                                 {act.attemptsUsed}/{act.attemptLimit} tentativas
                               </Typography>
                               {act.bestScore !== null && (
-                                <Typography variant="caption" fontWeight="bold">
+                                <Typography variant="caption" sx={{ fontWeight: "bold" }}>
                                   Nota: {act.bestScore.toFixed(1)}
                                 </Typography>
                               )}

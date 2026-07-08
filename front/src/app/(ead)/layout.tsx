@@ -8,7 +8,6 @@ import {
   AssignmentOutlined,
   HomeOutlined,
   MenuBookOutlined,
-  CalendarTodayOutlined,
   AssessmentOutlined,
   SchoolOutlined,
 } from "@mui/icons-material";
@@ -29,7 +28,6 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
       return [
         { icon: <HomeOutlined />, label: "Início", href: "/", exact: true },
         { icon: <MenuBookOutlined />, label: "Disciplinas", href: "/professor/disciplinas" },
-        { icon: <CalendarTodayOutlined />, label: "Calendário", href: "/professor/calendario" },
         { icon: <AssessmentOutlined />, label: "Relatórios", href: "/professor/relatorios" },
       ];
     }

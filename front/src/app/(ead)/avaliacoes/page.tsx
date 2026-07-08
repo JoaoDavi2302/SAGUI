@@ -105,6 +105,7 @@ function AvaliacoesPageContent() {
                     ...a,
                     disciplineId: enrollment.disciplineId,
                     disciplineName: enrollment.disciplineName,
+                    moduleName: mod.moduleName,
                   }))
                 );
               } catch {
@@ -271,7 +272,11 @@ function AvaliacoesPageContent() {
                       </Typography>
                     </Box>
 
-                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ display: "block", mb: 2 }}
+                    >
                       {group.moduleName}
                     </Typography>
 

@@ -328,7 +328,7 @@ export default function DashboardPage() {
                         <Box sx={{ mt: 2 }}>
                           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                             <Typography variant="caption">Progresso médio</Typography>
-                            <Typography variant="caption" fontWeight="bold">
+                            <Typography variant="caption" sx={{ fontWeight: "bold" }}>
                               {discipline.averageProgress}%
                             </Typography>
                           </Box>
@@ -339,7 +339,7 @@ export default function DashboardPage() {
                           />
                           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                             <Typography variant="caption">Aprovação</Typography>
-                            <Typography variant="caption" fontWeight="bold">
+                            <Typography variant="caption" sx={{ fontWeight: "bold" }}>
                               {discipline.approvalRate}%
                             </Typography>
                           </Box>
