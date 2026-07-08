@@ -53,13 +53,13 @@ public class ModuleController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('Professor')")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
     public ResponseEntity<ModuleResponse> createModule(@RequestBody @Valid ModuleRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(moduleService.create(request));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('Professor')")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
     public ResponseEntity<ModuleResponse> updateModule(
             @PathVariable UUID id,
             @RequestBody @Valid ModuleRequest request) {
@@ -67,7 +67,7 @@ public class ModuleController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasRole('Professor')")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
     public ResponseEntity<Void> changeStatus(
             @PathVariable UUID id,
             @RequestParam EntityStatus status) {

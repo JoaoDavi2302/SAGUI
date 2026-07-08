@@ -56,7 +56,7 @@ public class ActivityController {
 
     // Criar atividade com questões e alternativas
     @PostMapping
-    @PreAuthorize("hasRole('Professor')")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
     public ResponseEntity<ActivityResponse> createActivity(
             @RequestBody ActivityRequest request
     ) {
@@ -64,9 +64,9 @@ public class ActivityController {
         return ResponseEntity.ok(response);
     }
 
-    // Listar atividades (professor: com gabarito; aluno: resumo sem questões)
+    // Listar atividades (professor/admin: com gabarito; aluno: resumo sem questões)
     @GetMapping
-    @PreAuthorize("hasAnyRole('Professor', 'Aluno')")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin', 'Aluno')")
     public ResponseEntity<?> getAllActivities(
             @RequestParam(required = false) EntityStatus status,
             @RequestParam(required = false) UUID moduleId
@@ -145,7 +145,7 @@ public class ActivityController {
 
     // Atualizar atividade
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('Professor')")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
     public ResponseEntity<ActivityResponse> updateActivity(
             @PathVariable UUID id,
             @RequestBody ActivityRequest request
@@ -156,7 +156,7 @@ public class ActivityController {
 
     // Inativar atividade (exclusão lógica)
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('Professor')")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
     public ResponseEntity<Void> deleteActivity(
             @PathVariable UUID id
     ) {
