@@ -14,11 +14,9 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-  Badge,
 } from "@mui/material";
 
 import MenuIcon from "@mui/icons-material/Menu";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useRouter } from "next/navigation";
 
 import type { HeaderItem, HeaderSearchType } from "./layout/types";
@@ -154,11 +152,6 @@ export default function DashboardHeader({
             justifySelf: "end",
           }}
         >
-          <IconButton color="inherit">
-            <Badge badgeContent={3} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
           <Tooltip title="Conta">
             <IconButton onClick={(e) => setAnchorUser(e.currentTarget)}>
               <Avatar src={avatarSrc} />
