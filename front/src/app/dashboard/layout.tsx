@@ -39,6 +39,14 @@ export default function DashboardLayout({
         { label: "Dashboard", href: "/dashboard" },
         { label: "Cursos", href: "/dashboard/cursos" },
         { label: "Disciplinas", href: "/dashboard/disciplinas" },
+        { label: "Modulos", href: "/dashboard/modulos" },
+        { label: "Aulas", href: "/dashboard/aulas" },
+        // { label: "Materiais", href: "/dashboard/materiais" },
+
+        {
+          label: "Matrículas",
+          href: "/dashboard/matriculas",
+        },
         { label: "Usuarios", href: "/dashboard/usuarios" },
       ]}
       settings={[
