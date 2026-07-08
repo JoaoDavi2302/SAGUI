@@ -88,8 +88,6 @@ export default function DrawerLayout({
         </Box>
       </Toolbar>
 
-      <Divider />
-
       <List sx={{ px: 1 }}>
         {items.map((item) => {
           const isLink = "href" in item;
