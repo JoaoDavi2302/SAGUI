@@ -111,6 +111,11 @@ public class ModuleService {
 
     private void validateResponsibleProfessor(Discipline discipline) {
         User authenticatedUser = findAuthenticatedUser();
+
+        if (authenticatedUser.getRole() == UserRole.Admin) {
+            return;
+        }
+
         User responsibleProfessor = discipline.getResponsibleProfessor();
 
         if (responsibleProfessor == null || !responsibleProfessor.getId().equals(authenticatedUser.getId())) {
