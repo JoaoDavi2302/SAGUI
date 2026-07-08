@@ -10,10 +10,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.ufpa.SAGUI.dto.activity.PendingActivityPageResponse;
 import com.ufpa.SAGUI.dto.discipline.DisciplineRequest;
 import com.ufpa.SAGUI.dto.discipline.DisciplineResponse;
+import com.ufpa.SAGUI.dto.progress.StudentProgressSummaryPageResponse;
 import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.service.DisciplineService;
+import com.ufpa.SAGUI.service.ProfessorDisciplineService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class DisciplineController {
 
     private final DisciplineService disciplineService;
+    private final ProfessorDisciplineService professorDisciplineService;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
@@ -64,6 +68,22 @@ public class DisciplineController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<DisciplineResponse> getDiscipline(@PathVariable UUID id) {
         return ResponseEntity.ok(disciplineService.findById(id));
+    }
+
+    @GetMapping("/{id}/students/progress")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
+    public ResponseEntity<StudentProgressSummaryPageResponse> getDisciplineStudentsProgress(
+            @PathVariable UUID id,
+            @PageableDefault(size = 20, sort = "createdATt") Pageable pageable) {
+        return ResponseEntity.ok(professorDisciplineService.getDisciplineStudentsProgress(id, pageable));
+    }
+
+    @GetMapping("/{id}/pending-activities")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
+    public ResponseEntity<PendingActivityPageResponse> listPendingActivities(
+            @PathVariable UUID id,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(professorDisciplineService.listPendingActivities(id, pageable));
     }
 }
 

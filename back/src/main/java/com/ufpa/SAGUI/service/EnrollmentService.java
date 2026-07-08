@@ -43,6 +43,11 @@ public class EnrollmentService {
         Discipline discipline = disciplineRepository.findById(request.getDisciplineId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada"));
 
+        if (discipline.getStatus() != EntityStatus.Active) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Disciplina inativa não aceita matrículas");
+        }
+
         boolean alreadyEnrolled = enrollmentRepository
                 .existsByStudent_IdAndDiscipline_IdAndEnrollmentStatusInAndStatus(
                         student.getId(),
@@ -63,7 +68,14 @@ public class EnrollmentService {
         if (request.getCourseId() != null) {
             Course course = courseRepository.findById(request.getCourseId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso não encontrado"));
+            if (discipline.getCourse() == null
+                    || !course.getId().equals(discipline.getCourse().getId())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "O curso informado não pertence a esta disciplina");
+            }
             enrollmentBuilder.course(course);
+        } else if (discipline.getCourse() != null) {
+            enrollmentBuilder.course(discipline.getCourse());
         }
 
         Enrollment enrollment = enrollmentBuilder.build();
@@ -126,6 +138,29 @@ public class EnrollmentService {
         User student = findAuthenticatedUser();
         return EnrollmentPageResponse.from(
                 enrollmentRepository.findByStudent_IdAndStatus(student.getId(), EntityStatus.Active, pageable));
+    }
+
+    @Transactional(readOnly = true)
+    public EnrollmentPageResponse listByDiscipline(UUID disciplineId, Pageable pageable) {
+        Discipline discipline = disciplineRepository.findById(disciplineId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada"));
+
+        User user = findAuthenticatedUser();
+
+        if (user.getRole() == UserRole.Professor) {
+            User responsibleProfessor = discipline.getResponsibleProfessor();
+            if (responsibleProfessor == null
+                    || !responsibleProfessor.getId().equals(user.getId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "Professor não autorizado para esta disciplina");
+            }
+        } else if (user.getRole() != UserRole.Admin) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso negado");
+        }
+
+        return EnrollmentPageResponse.from(
+                enrollmentRepository.findByDiscipline_IdAndEnrollmentStatusAndStatus(
+                        disciplineId, EnrollmentStatus.APPROVED, EntityStatus.Active, pageable));
     }
 
     private EnrollmentResponse updateEnrollmentStatus(

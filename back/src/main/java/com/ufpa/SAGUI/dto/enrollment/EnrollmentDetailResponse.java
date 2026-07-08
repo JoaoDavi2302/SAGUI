@@ -16,6 +16,7 @@ public class EnrollmentDetailResponse {
     private EnrollmentStatus status;
     private UUID studentId;
     private String studentName;
+    private String studentEmail;
     private UUID disciplineId;
     private String disciplineName;
     private UUID courseId;
@@ -26,6 +27,7 @@ public class EnrollmentDetailResponse {
                 .status(enrollment.getEnrollmentStatus())
                 .studentId(enrollment.getStudent().getId())
                 .studentName(enrollment.getStudent().getName())
+                .studentEmail(enrollment.getStudent().getEmail())
                 .disciplineId(enrollment.getDiscipline() != null ? enrollment.getDiscipline().getId() : null)
                 .disciplineName(enrollment.getDiscipline() != null ? enrollment.getDiscipline().getName() : null)
                 .courseId(enrollment.getCourse() != null ? enrollment.getCourse().getId() : null)

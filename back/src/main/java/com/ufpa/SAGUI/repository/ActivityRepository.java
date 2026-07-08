@@ -15,4 +15,6 @@ public interface ActivityRepository extends JpaRepository<Activity, UUID> {
     List<Activity> findAllByModule_IdAndStatus(UUID moduleId, EntityStatus status);
 
     Optional<Activity> findByIdAndStatus(UUID id, EntityStatus status);
+
+    long countByModule_IdAndStatus(UUID moduleId, EntityStatus status);
 }
