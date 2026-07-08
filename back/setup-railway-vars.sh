@@ -4,13 +4,18 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-ENV_FILE="$ROOT/.env"
+ENV_FILE="$ROOT/.env.neon"
+if [[ ! -f "$ENV_FILE" ]]; then
+  ENV_FILE="$ROOT/.env"
+fi
 CLI="npx -y @railway/cli@latest"
 
 if [[ ! -f "$ENV_FILE" ]]; then
-  echo "Arquivo .env não encontrado: $ENV_FILE"
+  echo "Arquivo .env ou .env.neon não encontrado em $ROOT"
   exit 1
 fi
+
+echo "Usando variáveis de: $ENV_FILE"
 
 set -a
 # shellcheck disable=SC1090
