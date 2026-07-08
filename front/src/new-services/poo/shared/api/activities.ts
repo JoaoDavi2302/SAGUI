@@ -194,3 +194,15 @@ export async function updateActivity(id: string, data: ActivityRequestDTO) {
 export async function deleteActivity(id: string) {
   return apiFetch<void>(`/activities/${id}`, { method: "DELETE" });
 }
+/**
+ * Lista atividades de um módulo para o aluno
+ * GET /activities?moduleId={moduleId}
+ */
+export async function listStudentActivities(
+  moduleId: string
+): Promise<ActivityStudentSummaryResponse[]> {
+  const response = await apiFetch<{ content: ActivityStudentSummaryResponse[] }>(
+    `/activities?moduleId=${moduleId}`
+  );
+  return response.content || [];
+}
