@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ufpa.SAGUI.dto.enrollment.EnrollmentPageResponse;
 import com.ufpa.SAGUI.dto.enrollment.EnrollmentRequest;
 import com.ufpa.SAGUI.dto.enrollment.EnrollmentResponse;
+import com.ufpa.SAGUI.dto.progress.DisciplineProgressResponse;
 import com.ufpa.SAGUI.service.EnrollmentService;
+import com.ufpa.SAGUI.service.ProfessorDisciplineService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EnrollmentController {
     private final EnrollmentService enrollmentService;
+    private final ProfessorDisciplineService professorDisciplineService;
 
     @PostMapping
     @PreAuthorize("hasRole('Aluno')")
@@ -79,5 +82,11 @@ public class EnrollmentController {
     public ResponseEntity<EnrollmentPageResponse> listMyEnrollments(
             @PageableDefault(size = 20, sort = "createdATt") Pageable pageable) {
         return ResponseEntity.ok(enrollmentService.listMyEnrollments(pageable));
+    }
+
+    @GetMapping("/{id}/progress")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
+    public ResponseEntity<DisciplineProgressResponse> getEnrollmentProgress(@PathVariable UUID id) {
+        return ResponseEntity.ok(professorDisciplineService.getEnrollmentProgress(id));
     }
 }

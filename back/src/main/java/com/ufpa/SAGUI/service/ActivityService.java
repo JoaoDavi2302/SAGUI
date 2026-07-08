@@ -25,13 +25,16 @@ public class ActivityService {
 
     private final ActivityRepository activityRepository;
     private final ModuleRepository moduleRepository;
+    private final ProfessorAuthorizationService professorAuthorizationService;
 
     public ActivityService(
             ActivityRepository activityRepository,
-            ModuleRepository moduleRepository
+            ModuleRepository moduleRepository,
+            ProfessorAuthorizationService professorAuthorizationService
     ) {
         this.activityRepository = activityRepository;
         this.moduleRepository = moduleRepository;
+        this.professorAuthorizationService = professorAuthorizationService;
     }
 
     // CREATE - Criar atividade
@@ -40,6 +43,8 @@ public class ActivityService {
 
         Module module = moduleRepository.findById(request.moduleId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Módulo não encontrado."));
+
+        professorAuthorizationService.validateProfessorCanManageDiscipline(module.getDiscipline());
 
         Activity activity = new Activity();
         activity.setTitle(request.title());
@@ -87,14 +92,17 @@ public class ActivityService {
     public List<ActivityResponse> getAllActivities(EntityStatus status, UUID moduleId) {
         EntityStatus filterStatus = status != null ? status : EntityStatus.Active;
 
-        if (moduleId != null) {
-            return activityRepository.findAllByModule_IdAndStatus(moduleId, filterStatus)
-                    .stream()
-                    .map(this::toActivityResponse)
-                    .toList();
+        if (moduleId == null) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O parametro moduleId e obrigatorio para listar atividades.");
         }
 
-        return activityRepository.findAllByStatus(filterStatus)
+        Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modulo nao encontrado."));
+
+        professorAuthorizationService.validateProfessorOrAdminCanAccessDiscipline(module.getDiscipline());
+
+        return activityRepository.findAllByModule_IdAndStatus(moduleId, filterStatus)
                 .stream()
                 .map(this::toActivityResponse)
                 .toList();
@@ -103,6 +111,7 @@ public class ActivityService {
     // READ - Buscar atividade por ID
     public ActivityResponse getActivityById(UUID id) {
         Activity activity = findActivityById(id);
+        professorAuthorizationService.validateProfessorOrAdminCanAccessActivity(activity);
         return toActivityResponse(activity);
     }
 
@@ -112,9 +121,12 @@ public class ActivityService {
 
         Activity activity = findActivityById(id);
         ensureActivityIsActive(activity);
+        professorAuthorizationService.validateProfessorCanManageActivity(activity);
 
         Module module = moduleRepository.findById(request.moduleId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Módulo não encontrado."));
+
+        professorAuthorizationService.validateProfessorCanManageDiscipline(module.getDiscipline());
 
         activity.setTitle(request.title());
         activity.setDescription(request.description());
@@ -158,6 +170,7 @@ public class ActivityService {
     // DELETE - Remover atividade
     public void deleteActivity(UUID id) {
         Activity activity = findActivityById(id);
+        professorAuthorizationService.validateProfessorCanManageActivity(activity);
         activity.setStatus(EntityStatus.Inactive);
         activityRepository.save(activity);
     }
@@ -168,7 +181,7 @@ public class ActivityService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada."));
     }
 
-    private Activity findActivityById(UUID id) {
+    public Activity findActivityById(UUID id) {
         return activityRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atividade não encontrada."));
     }

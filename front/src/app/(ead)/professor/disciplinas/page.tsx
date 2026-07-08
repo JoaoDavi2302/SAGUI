@@ -113,7 +113,7 @@ export default function DisciplinasPage() {
                       icon={<AssignmentOutlined />}
                       label={disciplina.status === "Active" ? "Ativa" : "Inativa"}
                       size="small"
-                      color={disciplina.status === "Active" ? "success" : "default"}
+                      variant="outlined"
                     />
                   </Stack>
                 </CardContent>

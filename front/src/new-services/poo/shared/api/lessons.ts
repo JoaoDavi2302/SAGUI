@@ -19,11 +19,11 @@ export interface LessonRequestDTO {
   moduleId: string;
 }
 
-export async function listLessons(moduleId?: string) {
-  return fetchAllPages<LessonDTO>(
-    "/lessons",
-    moduleId ? { moduleId } : {},
-  );
+export async function listLessons(moduleId: string, status?: EntityStatus) {
+  const params: Record<string, string> = { moduleId };
+  if (status) params.status = status;
+
+  return fetchAllPages<LessonDTO>("/lessons", params);
 }
 
 export async function createLesson(data: LessonRequestDTO) {
@@ -56,7 +56,5 @@ export async function changeLessonStatus(
 }
 
 export async function deleteLesson(id: string) {
-  return apiFetch<void>(`/lessons/${id}`, {
-    method: "DELETE",
-  });
+  return changeLessonStatus(id, "Inactive");
 }

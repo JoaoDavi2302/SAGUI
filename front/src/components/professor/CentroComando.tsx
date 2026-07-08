@@ -53,7 +53,7 @@ export default function CentroComando({ user }: { user: any }) {
           {/* Fluxo Operacional: Foco no que exige ação imediata */}
           <Grid size={{ xs: 12, lg: 7 }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>Próximas Correções</Typography>
-            <PendenciasTable atividades={atividadesPendentes.slice(0, 5)} />
+            <PendenciasTable pendencias={[]} />
           </Grid>
 
           {/* Gestão Estrutural: Foco na carga docente[cite: 1] */}

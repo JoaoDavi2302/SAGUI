@@ -128,11 +128,12 @@ export async function changeDisciplineStatus(
   });
 }
 
-export async function listModules(disciplineId?: string) {
-  return fetchAllPages<ModuleDTO>(
-    "/modules",
-    disciplineId ? { disciplineId } : {},
-  );
+export async function listModules(disciplineId?: string, status?: EntityStatus) {
+  const params: Record<string, string> = {};
+  if (disciplineId) params.disciplineId = disciplineId;
+  if (status) params.status = status;
+
+  return fetchAllPages<ModuleDTO>("/modules", params);
 }
 
 export async function createModule(data: ModuleRequestDTO) {

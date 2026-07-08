@@ -1,15 +1,27 @@
 package com.ufpa.SAGUI.controller;
 
+import com.ufpa.SAGUI.dto.activity.ActivityAttemptDetailResponse;
+import com.ufpa.SAGUI.dto.activity.ActivityAttemptPageResponse;
+import com.ufpa.SAGUI.dto.activity.ActivityAttemptResultResponse;
 import com.ufpa.SAGUI.dto.activity.ActivityRequest;
 import com.ufpa.SAGUI.dto.activity.ActivityResponse;
 import com.ufpa.SAGUI.dto.activity.ActivitySubmissionRequest;
-import com.ufpa.SAGUI.dto.activity.ActivityAttemptResultResponse;
-import com.ufpa.SAGUI.service.ActivityService;
-import com.ufpa.SAGUI.service.ActivityAttemptService;
 import com.ufpa.SAGUI.enums.EntityStatus;
+import com.ufpa.SAGUI.service.ActivityAttemptService;
+import com.ufpa.SAGUI.service.ActivityService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
@@ -52,11 +64,36 @@ public class ActivityController {
 
     // Buscar atividade por ID
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('Professor')")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
     public ResponseEntity<ActivityResponse> getActivityById(
             @PathVariable UUID id
     ) {
         ActivityResponse response = activityService.getActivityById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    // Listar tentativas de uma atividade (professor/admin)
+    @GetMapping("/{id}/attempts")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
+    public ResponseEntity<ActivityAttemptPageResponse> listAttempts(
+            @PathVariable UUID id,
+            @RequestParam(required = false) UUID studentId,
+            @RequestParam(required = false) Boolean approved,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
+        ActivityAttemptPageResponse response = activityAttemptService.listAttempts(
+                id, studentId, approved, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    // Detalhe de uma tentativa com gabarito (professor/admin)
+    @GetMapping("/{id}/attempts/{attemptId}")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
+    public ResponseEntity<ActivityAttemptDetailResponse> getAttemptDetail(
+            @PathVariable UUID id,
+            @PathVariable UUID attemptId
+    ) {
+        ActivityAttemptDetailResponse response = activityAttemptService.getAttemptDetail(id, attemptId);
         return ResponseEntity.ok(response);
     }
 

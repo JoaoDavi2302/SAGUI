@@ -1,8 +1,11 @@
 package com.ufpa.SAGUI.service;
 
+import com.ufpa.SAGUI.dto.activity.ActivityAttemptDetailResponse;
+import com.ufpa.SAGUI.dto.activity.ActivityAttemptPageResponse;
 import com.ufpa.SAGUI.dto.activity.ActivityAttemptResultResponse;
 import com.ufpa.SAGUI.dto.activity.ActivitySubmissionRequest;
 import com.ufpa.SAGUI.dto.activity.StudentAnswerRequest;
+import org.springframework.data.domain.Pageable;
 import com.ufpa.SAGUI.enums.AttemptStatus;
 import com.ufpa.SAGUI.models.Activity;
 import com.ufpa.SAGUI.models.ActivityAttempt;
@@ -31,19 +34,49 @@ public class ActivityAttemptService {
     private final AutoCorrectionService autoCorrectionService;
     private final EnrollmentService enrollmentService;
     private final ActivityService activityService;
+    private final ProfessorAuthorizationService professorAuthorizationService;
 
     public ActivityAttemptService(
             ActivityAttemptRepository activityAttemptRepository,
             AlternativeRepository alternativeRepository,
             AutoCorrectionService autoCorrectionService,
             EnrollmentService enrollmentService,
-            ActivityService activityService
+            ActivityService activityService,
+            ProfessorAuthorizationService professorAuthorizationService
     ) {
         this.activityAttemptRepository = activityAttemptRepository;
         this.alternativeRepository = alternativeRepository;
         this.autoCorrectionService = autoCorrectionService;
         this.enrollmentService = enrollmentService;
         this.activityService = activityService;
+        this.professorAuthorizationService = professorAuthorizationService;
+    }
+
+    @Transactional(readOnly = true)
+    public ActivityAttemptPageResponse listAttempts(
+            UUID activityId,
+            UUID studentId,
+            Boolean approved,
+            Pageable pageable
+    ) {
+        Activity activity = activityService.findActivityById(activityId);
+        professorAuthorizationService.validateProfessorOrAdminCanAccessActivity(activity);
+
+        return ActivityAttemptPageResponse.from(
+                activityAttemptRepository.findByActivityWithFilters(
+                        activityId, studentId, approved, pageable));
+    }
+
+    @Transactional(readOnly = true)
+    public ActivityAttemptDetailResponse getAttemptDetail(UUID activityId, UUID attemptId) {
+        Activity activity = activityService.findActivityById(activityId);
+        professorAuthorizationService.validateProfessorOrAdminCanAccessActivity(activity);
+
+        ActivityAttempt attempt = activityAttemptRepository.findByIdAndActivity_Id(attemptId, activityId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Tentativa nao encontrada para esta atividade."));
+
+        return ActivityAttemptDetailResponse.from(attempt);
     }
 
     @Transactional

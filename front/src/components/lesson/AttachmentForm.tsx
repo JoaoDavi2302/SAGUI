@@ -29,6 +29,7 @@ interface AttachmentFormProps {
   lessonId: string;
   attachments: AttachmentDTO[];
   onChanged: () => Promise<void> | void;
+  hideCreateForm?: boolean;
 }
 
 const TYPE_LABELS: Record<AttachmentType, string> = {
@@ -48,6 +49,7 @@ export function AttachmentForm({
   lessonId,
   attachments,
   onChanged,
+  hideCreateForm = false,
 }: AttachmentFormProps) {
   const [form, setForm] = useState<AttachmentRequest>(emptyForm(lessonId));
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -142,6 +144,7 @@ export function AttachmentForm({
         </Alert>
       )}
 
+      {!hideCreateForm && (
       <Stack spacing={2} sx={{ mb: 3 }}>
         <TextField
           label="Nome"
@@ -196,6 +199,62 @@ export function AttachmentForm({
           )}
         </Stack>
       </Stack>
+      )}
+
+      {hideCreateForm && editingId && (
+        <Stack spacing={2} sx={{ mb: 3 }}>
+          <TextField
+            label="Nome"
+            value={form.name}
+            onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+            fullWidth
+            size="small"
+          />
+
+          <FormControl fullWidth size="small">
+            <InputLabel id="attachment-type-label-edit">Tipo</InputLabel>
+            <Select
+              labelId="attachment-type-label-edit"
+              label="Tipo"
+              value={form.attachmentType}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  attachmentType: e.target.value as AttachmentType,
+                }))
+              }
+            >
+              {(Object.keys(TYPE_LABELS) as AttachmentType[]).map((type) => (
+                <MenuItem key={type} value={type}>
+                  {TYPE_LABELS[type]}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <TextField
+            label="URL"
+            value={form.fileUrl}
+            onChange={(e) => setForm((prev) => ({ ...prev, fileUrl: e.target.value }))}
+            fullWidth
+            size="small"
+            helperText={urlHint}
+          />
+
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={submitting || !form.name.trim() || !form.fileUrl.trim()}
+            >
+              Salvar alterações
+            </Button>
+            <Button variant="outlined" onClick={cancelEdit} disabled={submitting}>
+              Cancelar
+            </Button>
+          </Stack>
+        </Stack>
+      )}
 
       {attachments.length > 0 && (
         <Stack spacing={1}>

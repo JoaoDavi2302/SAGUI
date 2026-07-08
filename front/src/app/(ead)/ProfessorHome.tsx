@@ -15,19 +15,22 @@ import { PendenciasTable } from "@/components/professor/PendenciasTable";
 import { DisciplinaCard } from "@/components/professor/DisciplinaCard";
 import { useProfessorDisciplines } from "@/hooks/useProfessorDisciplines";
 import { listModules } from "@/new-services/poo/shared/api/catalog";
-import { listActivities, type ActivityDTO } from "@/new-services/poo/shared/api/activities";
+import {
+  listPendingActivities,
+  type PendingActivityDTO,
+} from "@/new-services/poo/shared/api/activities";
 
 export default function ProfessorHome() {
   const { user } = useUser();
   const { disciplines, loading, error } = useProfessorDisciplines();
   const [moduleCount, setModuleCount] = useState(0);
-  const [activities, setActivities] = useState<ActivityDTO[]>([]);
+  const [pendencias, setPendencias] = useState<PendingActivityDTO[]>([]);
   const [statsLoading, setStatsLoading] = useState(true);
 
   const loadStats = useCallback(async () => {
     if (disciplines.length === 0) {
       setModuleCount(0);
-      setActivities([]);
+      setPendencias([]);
       setStatsLoading(false);
       return;
     }
@@ -41,14 +44,19 @@ export default function ProfessorHome() {
       const modules = modulesPerDiscipline.flat();
       setModuleCount(modules.length);
 
-      const activitiesPerModule = await Promise.all(
-        modules.map((module) => listActivities(module.id)),
+      const pendingPerDiscipline = await Promise.all(
+        disciplines.map((discipline) =>
+          listPendingActivities(discipline.id, { size: 10 }),
+        ),
       );
-      const allActivities = activitiesPerModule.flat();
-      setActivities(allActivities.slice(0, 5));
+      const allPending = pendingPerDiscipline
+        .flatMap((page) => page.content ?? [])
+        .slice(0, 10);
+
+      setPendencias(allPending);
     } catch {
       setModuleCount(0);
-      setActivities([]);
+      setPendencias([]);
     } finally {
       setStatsLoading(false);
     }
@@ -67,10 +75,10 @@ export default function ProfessorHome() {
           Bem-vindo, Prof. {firstName}.
           {statsLoading ? (
             " Carregando resumo..."
-          ) : activities.length > 0 ? (
-            <> Você tem <strong>{activities.length}</strong> atividade(s) recente(s).</>
+          ) : pendencias.length > 0 ? (
+            <> Você tem <strong>{pendencias.length}</strong> pendência(s) de avaliação.</>
           ) : (
-            " Nenhuma atividade cadastrada nas suas disciplinas."
+            " Nenhuma pendência de avaliação nas suas disciplinas."
           )}
         </Typography>
         {!statsLoading && (
@@ -89,14 +97,14 @@ export default function ProfessorHome() {
       <Grid container spacing={4}>
         <Grid size={{ xs: 12, lg: 7 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
-            Atividades recentes
+            Pendências de avaliação
           </Typography>
           {statsLoading ? (
             <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
               <CircularProgress />
             </Box>
-          ) : activities.length > 0 ? (
-            <PendenciasTable atividades={activities} />
+          ) : pendencias.length > 0 ? (
+            <PendenciasTable pendencias={pendencias} />
           ) : (
             <Box
               sx={{
@@ -108,7 +116,7 @@ export default function ProfessorHome() {
               }}
             >
               <Typography color="text.secondary">
-                Nenhuma atividade cadastrada.
+                Nenhum aluno pendente de aprovação em avaliações.
               </Typography>
             </Box>
           )}
