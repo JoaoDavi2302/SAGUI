@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 const PUBLIC_ROUTES = [
   "/login",
   "/cadastro",
-  "/recuperar-senha",
   "/register"
 //   "/", não precisa
 ];

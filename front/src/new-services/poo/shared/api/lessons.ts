@@ -1,5 +1,6 @@
 import { apiFetch } from "./client";
 import { fetchAllPages } from "./pagination";
+import type { ModuleProgressResponse } from "./progress";
 
 export type EntityStatus = "Active" | "Inactive";
 
@@ -57,4 +58,20 @@ export async function changeLessonStatus(
 
 export async function deleteLesson(id: string) {
   return changeLessonStatus(id, "Inactive");
+}
+
+export interface LessonCompletionResponse {
+  lessonId: string;
+  completed: boolean;
+  moduleProgress: ModuleProgressResponse;
+}
+
+export async function getLesson(id: string) {
+  return apiFetch<LessonDTO>(`/lessons/${id}`);
+}
+
+export async function completeLesson(id: string) {
+  return apiFetch<LessonCompletionResponse>(`/lessons/${id}/complete`, {
+    method: "PUT",
+  });
 }

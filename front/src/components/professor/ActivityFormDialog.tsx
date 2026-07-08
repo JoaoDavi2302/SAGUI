@@ -101,6 +101,10 @@ function activityToForm(activity: Awaited<ReturnType<typeof getActivity>>): Acti
   };
 }
 
+function getTotalScore(questions: QuestionForm[]): number {
+  return questions.reduce((sum, question) => sum + question.score, 0);
+}
+
 function validateForm(form: ActivityFormState): string | null {
   if (!form.moduleId) return "Selecione um módulo.";
   if (!form.title.trim()) return "O título da atividade é obrigatório.";
@@ -132,6 +136,11 @@ function validateForm(form: ActivityFormState): string | null {
     if (question.questionType === "MULTIPLE_CHOICE" && correctCount < 1) {
       return `${label}: múltipla escolha deve ter pelo menos uma alternativa correta.`;
     }
+  }
+
+  const totalScore = getTotalScore(form.questions);
+  if (totalScore !== 100) {
+    return `A soma das pontuações das questões deve ser 100 (atual: ${totalScore}).`;
   }
 
   return null;
@@ -330,9 +339,20 @@ export function ActivityFormDialog({
 
             <Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                  Questões
-                </Typography>
+                <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.5 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                    Questões
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 600,
+                      color: getTotalScore(form.questions) === 100 ? "success.main" : "warning.main",
+                    }}
+                  >
+                    Total: {getTotalScore(form.questions)}/100
+                  </Typography>
+                </Box>
                 <Button
                   size="small"
                   startIcon={<Add />}

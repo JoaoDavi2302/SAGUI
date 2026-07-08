@@ -1,4 +1,4 @@
-import { Role, Status } from "./types";
+import { Role } from "./types";
 
 /* AUTH */
 export interface LoginResponse {
@@ -17,7 +17,7 @@ export interface UserProfileResponse {
   name: string;
   email: string;
   role: Role;
-  status: Status;
+  status: boolean;
   birthDate?: string;
   address?: string;
   createdAt: string;
@@ -29,7 +29,7 @@ export interface CourseResponse {
   id: string;
   name: string;
   description?: string;
-  status: Status;
+  status: boolean;
 }
 
 /* disciplinas */
@@ -37,7 +37,7 @@ export interface DisciplineResponse {
   id: string;
   name: string;
   description?: string;
-  status: Status;
+  status: boolean;
   courseId: string;
   responsibleProfessorId: string;
 }
@@ -48,7 +48,7 @@ export interface ModuleResponse {
   name: string;
   description?: string;
   orderIndex: number;
-  status: Status;
+  status: boolean;
   disciplineId: string;
 }
 
@@ -58,7 +58,7 @@ export interface LessonResponse {
   name: string;
   description?: string;
   orderIndex: number;
-  status: Status;
+  status: boolean;
   moduleId: string;
 }
 

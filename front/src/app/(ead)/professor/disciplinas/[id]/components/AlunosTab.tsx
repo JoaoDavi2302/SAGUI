@@ -66,7 +66,7 @@ export function AlunosTab({ disciplinaId }: { disciplinaId: string }) {
       try {
         const [enrollmentsPage, progressPage] = await Promise.all([
           listEnrollmentsByDiscipline(disciplinaId, { page: 0, size: 50 }),
-          listDisciplineStudentsProgress(disciplinaId, { page: 0, size: 50 }),
+          listDisciplineStudentsProgress(disciplinaId, 0, 50),
         ]);
 
         const progressByStudent = new Map(

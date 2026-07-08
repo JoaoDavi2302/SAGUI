@@ -3,7 +3,7 @@ import {
   DisciplineEntity,
   LessonEntity,
   ModuleEntity,
-} from "./types";
+} from "@/services/poo/shared/types";
 
 import {
   DisciplineProgressResponse,

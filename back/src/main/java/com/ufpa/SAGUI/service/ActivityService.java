@@ -2,13 +2,18 @@ package com.ufpa.SAGUI.service;
 
 import com.ufpa.SAGUI.dto.activity.ActivityRequest;
 import com.ufpa.SAGUI.dto.activity.ActivityResponse;
+import com.ufpa.SAGUI.dto.activity.ActivityStudentSummaryResponse;
+import com.ufpa.SAGUI.dto.activity.ActivityTakeResponse;
 import com.ufpa.SAGUI.dto.activity.AlternativeResponse;
+import com.ufpa.SAGUI.dto.activity.AlternativeTakeResponse;
 import com.ufpa.SAGUI.dto.activity.QuestionResponse;
+import com.ufpa.SAGUI.dto.activity.QuestionTakeResponse;
 import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.models.Activity;
 import com.ufpa.SAGUI.models.Alternative;
 import com.ufpa.SAGUI.models.Module;
 import com.ufpa.SAGUI.models.Question;
+import com.ufpa.SAGUI.repository.ActivityAttemptRepository;
 import com.ufpa.SAGUI.repository.ActivityRepository;
 import com.ufpa.SAGUI.repository.ModuleRepository;
 import org.springframework.http.HttpStatus;
@@ -24,17 +29,26 @@ import java.util.UUID;
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
+    private final ActivityAttemptRepository activityAttemptRepository;
     private final ModuleRepository moduleRepository;
     private final ProfessorAuthorizationService professorAuthorizationService;
+    private final EnrollmentService enrollmentService;
+    private final ProgressService progressService;
 
     public ActivityService(
             ActivityRepository activityRepository,
+            ActivityAttemptRepository activityAttemptRepository,
             ModuleRepository moduleRepository,
-            ProfessorAuthorizationService professorAuthorizationService
+            ProfessorAuthorizationService professorAuthorizationService,
+            EnrollmentService enrollmentService,
+            ProgressService progressService
     ) {
         this.activityRepository = activityRepository;
+        this.activityAttemptRepository = activityAttemptRepository;
         this.moduleRepository = moduleRepository;
         this.professorAuthorizationService = professorAuthorizationService;
+        this.enrollmentService = enrollmentService;
+        this.progressService = progressService;
     }
 
     // CREATE - Criar atividade
@@ -108,6 +122,35 @@ public class ActivityService {
                 .toList();
     }
 
+    // READ - Listar atividades do módulo para aluno (sem gabarito)
+    @Transactional(readOnly = true)
+    public List<ActivityStudentSummaryResponse> getActivitiesForStudent(UUID moduleId, UUID studentId) {
+        if (moduleId == null) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "O parametro moduleId e obrigatorio para listar atividades.");
+        }
+
+        Module module = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modulo nao encontrado."));
+
+        enrollmentService.validateContentAccess(studentId, module.getDiscipline().getId());
+        progressService.validateSequentialAccess(studentId, moduleId);
+        validateModuleHasActiveActivity(moduleId);
+
+        return activityRepository.findAllByModule_IdAndStatus(moduleId, EntityStatus.Active)
+                .stream()
+                .map(activity -> toActivityStudentSummary(activity, studentId))
+                .toList();
+    }
+
+    // READ - Buscar atividade para responder (sem gabarito)
+    @Transactional(readOnly = true)
+    public ActivityTakeResponse getActivityForTake(UUID activityId, UUID studentId) {
+        Activity activity = findActiveActivityById(activityId);
+        validateStudentActivityAccess(studentId, activity);
+        return toActivityTakeResponse(activity, studentId);
+    }
+
     // READ - Buscar atividade por ID
     public ActivityResponse getActivityById(UUID id) {
         Activity activity = findActivityById(id);
@@ -171,8 +214,25 @@ public class ActivityService {
     public void deleteActivity(UUID id) {
         Activity activity = findActivityById(id);
         professorAuthorizationService.validateProfessorCanManageActivity(activity);
+
+        UUID moduleId = activity.getModule().getId();
+        long activeCount = activityRepository.countByModule_IdAndStatus(moduleId, EntityStatus.Active);
+        if (activeCount <= 1) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Não é possível remover a última atividade do módulo. Cada módulo deve possuir pelo menos uma atividade.");
+        }
+
         activity.setStatus(EntityStatus.Inactive);
         activityRepository.save(activity);
+    }
+
+    @Transactional(readOnly = true)
+    public void validateModuleHasActiveActivity(UUID moduleId) {
+        long activeCount = activityRepository.countByModule_IdAndStatus(moduleId, EntityStatus.Active);
+        if (activeCount == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Módulo sem atividades cadastradas");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -265,6 +325,98 @@ public class ActivityService {
                     throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Tipo de questão inválido.");
             }
         });
+    }
+
+    private void validateStudentActivityAccess(UUID studentId, Activity activity) {
+        Module module = activity.getModule();
+
+        if (module == null || module.getDiscipline() == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Atividade sem módulo ou disciplina associada.");
+        }
+
+        enrollmentService.validateContentAccess(studentId, module.getDiscipline().getId());
+        progressService.validateSequentialAccess(studentId, module.getId());
+        validateModuleHasActiveActivity(module.getId());
+    }
+
+    private ActivityStudentSummaryResponse toActivityStudentSummary(Activity activity, UUID studentId) {
+        AttemptSummary summary = buildAttemptSummary(activity, studentId);
+
+        return new ActivityStudentSummaryResponse(
+                activity.getId(),
+                activity.getModule().getId(),
+                activity.getTitle(),
+                activity.getDescription(),
+                activity.getAttemptLimit(),
+                activity.getMinimumScore(),
+                activity.getStatus(),
+                summary.attemptsUsed(),
+                summary.attemptsRemaining(),
+                summary.bestScore(),
+                summary.hasApprovedAttempt()
+        );
+    }
+
+    private ActivityTakeResponse toActivityTakeResponse(Activity activity, UUID studentId) {
+        AttemptSummary summary = buildAttemptSummary(activity, studentId);
+
+        List<QuestionTakeResponse> questions = activity.getQuestions()
+                .stream()
+                .map(question -> {
+                    List<AlternativeTakeResponse> alternatives = question.getAlternatives()
+                            .stream()
+                            .map(alternative -> new AlternativeTakeResponse(
+                                    alternative.getId(),
+                                    alternative.getText()
+                            ))
+                            .toList();
+
+                    return new QuestionTakeResponse(
+                            question.getId(),
+                            question.getStatement(),
+                            question.getQuestionType(),
+                            question.getScore(),
+                            alternatives
+                    );
+                })
+                .toList();
+
+        return new ActivityTakeResponse(
+                activity.getId(),
+                activity.getModule().getId(),
+                activity.getTitle(),
+                activity.getDescription(),
+                activity.getAttemptLimit(),
+                activity.getMinimumScore(),
+                summary.attemptsUsed(),
+                summary.attemptsRemaining(),
+                summary.bestScore(),
+                summary.hasApprovedAttempt(),
+                questions
+        );
+    }
+
+    private AttemptSummary buildAttemptSummary(Activity activity, UUID studentId) {
+        UUID activityId = activity.getId();
+        long attemptsUsed = activityAttemptRepository.countByStudentIdAndActivityId(studentId, activityId);
+        Double bestScore = activityAttemptRepository.findBestScoreByStudentIdAndActivityId(studentId, activityId);
+        boolean hasApprovedAttempt = activityAttemptRepository
+                .findByStudentIdAndActivityId(studentId, activityId)
+                .stream()
+                .anyMatch(attempt -> Boolean.TRUE.equals(attempt.getApproved()));
+        int attemptsRemaining = Math.max(0, activity.getAttemptLimit() - (int) attemptsUsed);
+
+        return new AttemptSummary((int) attemptsUsed, attemptsRemaining, bestScore, hasApprovedAttempt);
+    }
+
+    private record AttemptSummary(
+            int attemptsUsed,
+            int attemptsRemaining,
+            Double bestScore,
+            boolean hasApprovedAttempt
+    ) {
     }
 
     // Converte Activity para ActivityResponse

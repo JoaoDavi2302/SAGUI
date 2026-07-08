@@ -1,10 +1,10 @@
 "use client";
 
 import DrawerLayout from "@/components/drawer";
-import { adminSidebarItems } from "@/components/layout/adminSidebar";
 import { useUser } from "@/new-services/auth/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import React from "react";
 
 export default function DashboardLayout({
   children,
@@ -33,9 +33,16 @@ export default function DashboardLayout({
 
   return (
     <DrawerLayout
+      title="Sagui Admin"
       avatarSrc="/avatar.png"
-      items={adminSidebarItems}
+      items={[
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "Cursos", href: "/dashboard/cursos" },
+        { label: "Disciplinas", href: "/dashboard/disciplinas" },
+        { label: "Usuarios", href: "/dashboard/usuarios" },
+      ]}
       settings={[
+        { label: "Site", href: "/" },
         { label: "Perfil", href: "/perfil" },
         { label: "Sair", action: "logout" },
       ]}

@@ -4,7 +4,9 @@ import com.ufpa.SAGUI.dto.activity.ActivityAttemptDetailResponse;
 import com.ufpa.SAGUI.dto.activity.ActivityAttemptPageResponse;
 import com.ufpa.SAGUI.dto.activity.ActivityAttemptResultResponse;
 import com.ufpa.SAGUI.dto.activity.ActivitySubmissionRequest;
+import com.ufpa.SAGUI.dto.activity.MyActivityAttemptsResponse;
 import com.ufpa.SAGUI.dto.activity.StudentAnswerRequest;
+import com.ufpa.SAGUI.dto.activity.StudentOwnAttemptResponse;
 import org.springframework.data.domain.Pageable;
 import com.ufpa.SAGUI.enums.AttemptStatus;
 import com.ufpa.SAGUI.models.Activity;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,6 +36,7 @@ public class ActivityAttemptService {
     private final AlternativeRepository alternativeRepository;
     private final AutoCorrectionService autoCorrectionService;
     private final EnrollmentService enrollmentService;
+    private final ProgressService progressService;
     private final ActivityService activityService;
     private final ProfessorAuthorizationService professorAuthorizationService;
 
@@ -41,6 +45,7 @@ public class ActivityAttemptService {
             AlternativeRepository alternativeRepository,
             AutoCorrectionService autoCorrectionService,
             EnrollmentService enrollmentService,
+            ProgressService progressService,
             ActivityService activityService,
             ProfessorAuthorizationService professorAuthorizationService
     ) {
@@ -48,6 +53,7 @@ public class ActivityAttemptService {
         this.alternativeRepository = alternativeRepository;
         this.autoCorrectionService = autoCorrectionService;
         this.enrollmentService = enrollmentService;
+        this.progressService = progressService;
         this.activityService = activityService;
         this.professorAuthorizationService = professorAuthorizationService;
     }
@@ -79,6 +85,62 @@ public class ActivityAttemptService {
         return ActivityAttemptDetailResponse.from(attempt);
     }
 
+    @Transactional(readOnly = true)
+    public MyActivityAttemptsResponse getMyAttempts(UUID activityId) {
+        User student = getAuthenticatedStudent();
+        Activity activity = activityService.findActiveActivityById(activityId);
+        validateStudentActivityAccess(student, activity);
+
+        UUID studentId = student.getId();
+        long attemptsUsed = activityAttemptRepository.countByStudentIdAndActivityId(studentId, activityId);
+        Double bestScore = activityAttemptRepository.findBestScoreByStudentIdAndActivityId(studentId, activityId);
+        boolean hasApprovedAttempt = activityAttemptRepository
+                .findByStudentIdAndActivityId(studentId, activityId)
+                .stream()
+                .anyMatch(attempt -> Boolean.TRUE.equals(attempt.getApproved()));
+        int attemptsRemaining = Math.max(0, activity.getAttemptLimit() - (int) attemptsUsed);
+
+        List<StudentOwnAttemptResponse> attempts = activityAttemptRepository
+                .findByStudentIdAndActivityId(studentId, activityId)
+                .stream()
+                .sorted(Comparator.comparing(ActivityAttempt::getCreatedATt).reversed())
+                .map(attempt -> new StudentOwnAttemptResponse(
+                        attempt.getId(),
+                        attempt.getAttemptNumber(),
+                        attempt.getScore(),
+                        attempt.getApproved(),
+                        attempt.getAttemptStatus(),
+                        attempt.getCreatedATt()
+                ))
+                .toList();
+
+        return new MyActivityAttemptsResponse(
+                activity.getId(),
+                activity.getTitle(),
+                activity.getAttemptLimit(),
+                activity.getMinimumScore(),
+                (int) attemptsUsed,
+                attemptsRemaining,
+                bestScore,
+                hasApprovedAttempt,
+                attempts
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public ActivityAttemptDetailResponse getMyAttemptDetail(UUID activityId, UUID attemptId) {
+        User student = getAuthenticatedStudent();
+        Activity activity = activityService.findActiveActivityById(activityId);
+        validateStudentActivityAccess(student, activity);
+
+        ActivityAttempt attempt = activityAttemptRepository
+                .findByIdAndActivity_IdAndStudent_Id(attemptId, activityId, student.getId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Tentativa nao encontrada para esta atividade."));
+
+        return ActivityAttemptDetailResponse.from(attempt);
+    }
+
     @Transactional
     public ActivityAttemptResultResponse submitActivity(
             UUID activityId,
@@ -88,7 +150,7 @@ public class ActivityAttemptService {
 
         Activity activity = activityService.findActiveActivityById(activityId);
 
-        validateEnrollmentForActivity(student, activity);
+        validateStudentActivityAccess(student, activity);
 
         long previousAttempts = activityAttemptRepository
                 .countByStudentIdAndActivityId(student.getId(), activity.getId());
@@ -181,6 +243,16 @@ public class ActivityAttemptService {
         }
 
         enrollmentService.validateContentAccess(student.getId(), module.getDiscipline().getId());
+        progressService.validateSequentialAccess(student.getId(), module.getId());
+    }
+
+    private void validateStudentActivityAccess(User student, Activity activity) {
+        validateEnrollmentForActivity(student, activity);
+
+        Module module = activity.getModule();
+        if (module != null) {
+            progressService.validateSequentialAccess(student.getId(), module.getId());
+        }
     }
 
     private User getAuthenticatedStudent() {

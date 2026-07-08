@@ -3,6 +3,7 @@ import databaseJson from "@/components/mock.json";
 export const database = databaseJson as Database;
 
 export type Role = "Admin" | "Professor" | "Aluno";
+export type Status = "Active" | "Inactive";
 
 export interface Database {
   usuarios: UserEntity[];

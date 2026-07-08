@@ -46,6 +46,7 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
   const settings: HeaderItem[] = useMemo(
     () => [
       { label: "Perfil", href: "/perfil" },
+      ...(effectiveRole === "Admin" ? [{ label: "Dashboard", href: "/dashboard" }] : []),
       { label: "Sair", action: "logout" },
     ],
     [effectiveRole],

@@ -1,188 +1,159 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-
 import {
+  Alert,
   Box,
+  Button,
   Card,
   CardContent,
+  CircularProgress,
   Grid,
-  LinearProgress,
   Typography,
 } from "@mui/material";
-
-import {
-  ArrowRightAltOutlined,
-  SchoolOutlined,
-} from "@mui/icons-material";
+import { ArrowRightAltOutlined, SchoolOutlined } from "@mui/icons-material";
 import CheckCircleOutline from "@mui/icons-material/CheckCircleOutlineOutlined";
 
-interface StudentPageProps {
-  user: any;
-  data: any;
+import { useUser } from "@/new-services/auth/AuthContext";
+import { useMyEnrollments } from "@/hooks/useMyEnrollments";
+import { getDisciplineProgress } from "@/new-services/poo/shared/api/progress";
+import { StudentProgressBar } from "@/components/student/StudentProgressBar";
+import { slugify } from "@/components/layout/headerConfig";
+import { getApiErrorMessage } from "@/utils/apiErrorMessage";
+
+interface DisciplineProgressItem {
+  id: string;
+  name: string;
+  overallPercentage: number;
+  totalModules: number;
 }
 
-export default function StudentPage({
-  user,
-  data,
-}: StudentPageProps) {
-  const coursesMap = useMemo(
-    () =>
-      Object.fromEntries(
-        data.courses.map((course: any) => [course.id, course])
-      ),
-    [data.courses]
-  );
+export default function StudentPage() {
+  const { user } = useUser();
+  const { approvedEnrollments, loading: loadingEnrollments } = useMyEnrollments();
+  const [disciplines, setDisciplines] = useState<DisciplineProgressItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const modulesMap = useMemo(() => {
-    const grouped: Record<string, any[]> = {};
+  useEffect(() => {
+    if (loadingEnrollments) return;
 
-    data.modules.forEach((module: any) => {
-      if (!grouped[module.discipline_id]) {
-        grouped[module.discipline_id] = [];
+    let cancelled = false;
+
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const items = await Promise.all(
+          approvedEnrollments.map(async (enrollment) => {
+            const progress = await getDisciplineProgress(enrollment.disciplineId);
+            return {
+              id: enrollment.disciplineId,
+              name: enrollment.disciplineName,
+              overallPercentage: progress.overallPercentage ?? 0,
+              totalModules: progress.totalModules ?? 0,
+            };
+          }),
+        );
+        if (!cancelled) {
+          setDisciplines(items);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(getApiErrorMessage(err));
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
+    };
 
-      grouped[module.discipline_id].push(module);
-    });
+    void load();
 
-    Object.values(grouped).forEach((modules: any[]) =>
-      modules.sort((a, b) => a.order_index - b.order_index)
+    return () => {
+      cancelled = true;
+    };
+  }, [approvedEnrollments, loadingEnrollments]);
+
+  const continueDiscipline = useMemo(() => {
+    const inProgress = disciplines.filter((d) => d.overallPercentage < 100);
+    if (inProgress.length === 0) return null;
+    return inProgress.sort((a, b) => a.overallPercentage - b.overallPercentage)[0];
+  }, [disciplines]);
+
+  if (loading || loadingEnrollments) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress />
+      </Box>
     );
+  }
 
-    return grouped;
-  }, [data.modules]);
-
-  const moduleProgress = data.module_progress ?? [];
+  if (error) {
+    return <Alert severity="error" sx={{ m: 3 }}>{error}</Alert>;
+  }
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography sx={{ fontSize: 12 }}>
-        Início
+      <Typography sx={{ fontSize: 12 }}>Início</Typography>
+
+      <Typography sx={{ fontWeight: 700, fontSize: 24 }}>
+        Olá, {user?.name}
       </Typography>
 
-      <Typography
-        sx={{
-          fontWeight: 700,
-          fontSize: 24,
-        }}
-      >
-        Olá, {user?.nome}
+      <Typography sx={{ mb: 3, fontSize: 14, color: "gray" }}>
+        Continue de onde parou ou descubra novas disciplinas.
       </Typography>
 
-      <Typography
-        sx={{
-          mb: 3,
-          fontSize: 14,
-          color: "gray",
-        }}
-      >
-        Continue de onde parou ou descubra novos cursos.
-      </Typography>
+      {continueDiscipline && (
+        <Box sx={{ mb: 4 }}>
+          <Card
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              border: "1px solid #e0e0e0",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 2,
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 12,
+                  color: "primary.main",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                }}
+              >
+                Continue de onde parou
+              </Typography>
 
-      {/* Continue estudando */}
+              <Typography sx={{ fontWeight: 700, fontSize: 18, mt: 1 }}>
+                {continueDiscipline.name}
+              </Typography>
 
-      <Box sx={{ mb: 4 }}>
-        <Card
-          sx={{
-            p: 3,
-            borderRadius: 3,
-            border: "1px solid #e0e0e0",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Box>
-            <Typography
-              sx={{
-                fontSize: 12,
-                color: "primary.main",
-                fontWeight: 700,
-                textTransform: "uppercase",
-              }}
-            >
-              Continue de onde parou
-            </Typography>
-
-            <Typography
-              sx={{
-                fontWeight: 700,
-                fontSize: 18,
-                mt: 1,
-              }}
-            >
-              Desenvolvimento Web Full Stack
-            </Typography>
-
-            <Typography color="text.secondary">
-              Módulo atual: Introdução a APIs REST
-            </Typography>
-          </Box>
-
-          <Link href="/cursos/continuar">
-            <Box
-              sx={{
-                px: 3,
-                py: 1.5,
-                bgcolor: "primary.main",
-                color: "#fff",
-                borderRadius: 2,
-                cursor: "pointer",
-              }}
-            >
-              Continuar aula
+              <Typography color="text.secondary">
+                {Math.round(continueDiscipline.overallPercentage)}% concluído
+              </Typography>
             </Box>
-          </Link>
-        </Card>
-      </Box>
 
-      {/* Estatísticas - Código Corrigido */}
-
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {(data?.stats || []).map((stat: any, index: number) => (
-          <Grid
-            key={index}
-            size={{ xs: 12, sm: 6, md: 4 }}
-          >
-            <Card
-              sx={{
-                p: 2,
-                display: "flex",
-                gap: 2,
-                borderRadius: 3,
-              }}
+            <Button
+              component={Link}
+              href={`/disciplinas/${slugify(continueDiscipline.name)}?id=${continueDiscipline.id}`}
+              variant="contained"
+              sx={{ borderRadius: 2 }}
             >
-              <Box
-                sx={{
-                  p: 1.5,
-                  bgcolor: "#E3F2FD",
-                  borderRadius: 2,
-                }}
-              >
-                {stat.icon}
-              </Box>
-
-              <Box>
-                <Typography color="text.secondary">
-                  {stat.label}
-                </Typography>
-
-                <Typography
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: 24,
-                  }}
-                >
-                  {stat.value}
-                </Typography>
-              </Box>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* Cursos */}
+              Continuar
+            </Button>
+          </Card>
+        </Box>
+      )}
 
       <Box
         sx={{
@@ -191,89 +162,7 @@ export default function StudentPage({
           mb: 2,
         }}
       >
-        <Typography variant="h6" sx={{fontWeight:"bold"}}>
-          Meus Cursos
-        </Typography>
-
-        <Link href="/cursos">
-          Ver todos
-          <ArrowRightAltOutlined />
-        </Link>
-      </Box>
-
-      <Grid container spacing={3}>
-        {data.courses.map((course: any) => (
-          <Grid
-            key={course.id}
-            size={{ xs: 12, sm: 6, md: 4 }}
-          >
-            <Card
-              sx={{
-                height: "100%",
-                borderRadius: 3,
-              }}
-            >
-              <Box
-                sx={{
-                  height: 120,
-                  bgcolor: "#f5f5f5",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <SchoolOutlined
-                  sx={{
-                    fontSize: 40,
-                    color: "#bdbdbd",
-                  }}
-                />
-              </Box>
-
-              <CardContent>
-                <Typography sx={{fontWeight:"bold"}}>
-                  {course.nome}
-                </Typography>
-
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 1 }}
-                >
-                  {course.descricao}
-                </Typography>
-              </CardContent>
-
-              <Box sx={{ px: 2, pb: 2 }}>
-                <Typography
-                  variant="caption"
-                  color="primary"
-                >
-                  45% concluído
-                </Typography>
-
-                <LinearProgress
-                  variant="determinate"
-                  value={45}
-                  sx={{ mt: 1 }}
-                />
-              </Box>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* Disciplinas */}
-
-      <Box
-        sx={{
-          mt: 5,
-          mb: 2,
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <Typography variant="h6" sx={{fontWeight:"bold"}}>
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
           Minhas Disciplinas
         </Typography>
 
@@ -283,88 +172,87 @@ export default function StudentPage({
         </Link>
       </Box>
 
-      <Grid container spacing={2}>
-        {data.subjects.slice(0, 6).map((subject: any) => {
-          const course = coursesMap[subject.course_id];
-          const modules = modulesMap[subject.id] || [];
-
-          const completedModules = moduleProgress.filter(
-            (progress: any) =>
-              progress.status === "COMPLETED" &&
-              modules.some(
-                (module: any) => module.id === progress.module_id
-              )
-          ).length;
-
-          const progress =
-            modules.length === 0
-              ? 0
-              : Math.round(
-                  (completedModules / modules.length) * 100
-                );
-
-          return (
-            <Grid
-              key={subject.id}
-              size={{ xs: 12, md: 4 }}
-            >
-              <Card sx={{ height: "100%" }}>
+      {disciplines.length === 0 ? (
+        <Card sx={{ borderRadius: 3, p: 4, textAlign: "center" }}>
+          <Typography color="text.secondary" sx={{ mb: 2 }}>
+            Você ainda não possui matrículas aprovadas.
+          </Typography>
+          <Button component={Link} href="/disciplinas" variant="contained">
+            Ver disciplinas disponíveis
+          </Button>
+        </Card>
+      ) : (
+        <Grid container spacing={2}>
+          {disciplines.map((discipline) => (
+            <Grid key={discipline.id} size={{ xs: 12, md: 4 }}>
+              <Card sx={{ height: "100%", borderRadius: 3 }}>
                 <CardContent>
-                  <Typography sx={{fontWeight:"bold"}}>
-                    {subject.nome}
-                  </Typography>
-
-                  <Typography color="primary">
-                    {course?.nome}
-                  </Typography>
-
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 1 }}
+                  <Box
+                    sx={{
+                      height: 80,
+                      bgcolor: "#f5f5f5",
+                      borderRadius: 2,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      mb: 2,
+                    }}
                   >
-                    {subject.descricao}
+                    <SchoolOutlined sx={{ fontSize: 32, color: "#bdbdbd" }} />
+                  </Box>
+
+                  <Typography sx={{ fontWeight: "bold" }}>{discipline.name}</Typography>
+
+                  <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+                    {discipline.totalModules} módulo(s)
                   </Typography>
 
                   <Box sx={{ mt: 2 }}>
-                    <Typography variant="caption">
-                      Módulos: {modules.length}
-                    </Typography>
-
-                    <LinearProgress
-                      sx={{ mt: 1 }}
-                      value={progress}
-                      variant="determinate"
+                    <StudentProgressBar
+                      value={discipline.overallPercentage}
+                      label={`${Math.round(discipline.overallPercentage)}% concluído`}
                     />
                   </Box>
+
+                  <Button
+                    component={Link}
+                    href={`/disciplinas/${slugify(discipline.name)}?id=${discipline.id}`}
+                    variant="outlined"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                  >
+                    Acessar
+                  </Button>
                 </CardContent>
               </Card>
             </Grid>
-          );
-        })}
-      </Grid>
+          ))}
+        </Grid>
+      )}
 
-      <Box
-        sx={{
-          mt: 6,
-          py: 3,
-          borderTop: "1px solid #eee",
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <Typography
+      {disciplines.length > 0 && (
+        <Box
           sx={{
+            mt: 6,
+            py: 3,
+            borderTop: "1px solid #eee",
             display: "flex",
-            alignItems: "center",
-            gap: 1,
-            color: "text.secondary",
+            justifyContent: "center",
           }}
         >
-          <CheckCircleOutline fontSize="small" />
-          Você visualizou todas as disciplinas disponíveis.
-        </Typography>
-      </Box>
+          <Typography
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              color: "text.secondary",
+            }}
+          >
+            <CheckCircleOutline fontSize="small" />
+            Você visualizou todas as disciplinas matriculadas.
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 }

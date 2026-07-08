@@ -265,7 +265,11 @@ export default function AdminCourseSearch() {
                     py: 1.25,
                   }}
                 >
-                  <Typography variant="body2" color="primary" fontWeight={600}>
+                  <Typography
+                    variant="body2"
+                    color="primary"
+                    sx={{ fontWeight: 600 }}
+                  >
                     Ver todos os {matches.length} resultados
                   </Typography>
                 </ListItemButton>
