@@ -15,6 +15,7 @@ import com.ufpa.SAGUI.dto.lesson.LessonCompletionResponse;
 import com.ufpa.SAGUI.dto.lesson.LessonRequest;
 import com.ufpa.SAGUI.dto.lesson.LessonResponse;
 import com.ufpa.SAGUI.enums.EntityStatus;
+import com.ufpa.SAGUI.enums.UserRole;
 import com.ufpa.SAGUI.models.Discipline;
 import com.ufpa.SAGUI.models.Lesson;
 import com.ufpa.SAGUI.models.LessonProgress;
@@ -36,17 +37,47 @@ public class LessonService {
     private final LessonProgressRepository lessonProgressRepository;
     private final EnrollmentService enrollmentService;
     private final ProgressService progressService;
+    private final ActivityService activityService;
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public Page<LessonResponse> findByModule(UUID moduleId, EntityStatus status, Pageable pageable) {
         Module module = getModuleEntity(moduleId);
+        User user = findAuthenticatedUser();
         enrollmentService.validateContentAccessForCurrentUser(module.getDiscipline().getId());
         progressService.validateSequentialAccessForCurrentUser(moduleId);
+
+        if (user.getRole() == UserRole.Aluno) {
+            activityService.validateModuleHasActiveActivity(moduleId);
+        }
 
         EntityStatus filterStatus = status != null ? status : EntityStatus.Active;
         return lessonRepository.findAllByModule_IdAndStatus(moduleId, filterStatus, pageable)
                 .map(LessonResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public LessonResponse findByIdForCurrentUser(UUID lessonId) {
+        Lesson lesson = getLessonEntity(lessonId);
+        User user = findAuthenticatedUser();
+        Module module = lesson.getModule();
+
+        if (module == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Aula sem módulo associado");
+        }
+
+        if (user.getRole() == UserRole.Aluno) {
+            if (lesson.getStatus() != EntityStatus.Active) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Aula não encontrada");
+            }
+            enrollmentService.validateContentAccess(user.getId(), module.getDiscipline().getId());
+            progressService.validateSequentialAccess(user.getId(), module.getId());
+            activityService.validateModuleHasActiveActivity(module.getId());
+        } else {
+            enrollmentService.validateContentAccessForCurrentUser(module.getDiscipline().getId());
+        }
+
+        return LessonResponse.from(lesson);
     }
 
     @Transactional

@@ -15,11 +15,15 @@ public interface ActivityAttemptRepository extends JpaRepository<ActivityAttempt
 
     long countByStudentIdAndActivityId(UUID studentId, UUID activityId);
 
+    boolean existsByStudent_IdAndActivity_IdAndApprovedTrue(UUID studentId, UUID activityId);
+
     long countByActivityId(UUID activityId);
 
     List<ActivityAttempt> findByStudentIdAndActivityId(UUID studentId, UUID activityId);
 
     Optional<ActivityAttempt> findByIdAndActivity_Id(UUID id, UUID activityId);
+
+    Optional<ActivityAttempt> findByIdAndActivity_IdAndStudent_Id(UUID id, UUID activityId, UUID studentId);
 
     @Query("""
             SELECT a FROM ActivityAttempt a

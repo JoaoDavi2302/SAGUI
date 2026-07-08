@@ -17,12 +17,13 @@ import com.ufpa.SAGUI.dto.progress.ModuleProgressResponse;
 import com.ufpa.SAGUI.enums.EnrollmentStatus;
 import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.enums.UserRole;
+import com.ufpa.SAGUI.models.Activity;
 import com.ufpa.SAGUI.models.Enrollment;
 import com.ufpa.SAGUI.models.Module;
 import com.ufpa.SAGUI.models.User;
+import com.ufpa.SAGUI.repository.ActivityAttemptRepository;
+import com.ufpa.SAGUI.repository.ActivityRepository;
 import com.ufpa.SAGUI.repository.EnrollmentRepository;
-import com.ufpa.SAGUI.repository.LessonProgressRepository;
-import com.ufpa.SAGUI.repository.LessonRepository;
 import com.ufpa.SAGUI.repository.ModuleRepository;
 import com.ufpa.SAGUI.repository.UserRepository;
 
@@ -33,8 +34,8 @@ import lombok.RequiredArgsConstructor;
 public class ProgressService {
 
     private final ModuleRepository moduleRepository;
-    private final LessonRepository lessonRepository;
-    private final LessonProgressRepository lessonProgressRepository;
+    private final ActivityRepository activityRepository;
+    private final ActivityAttemptRepository activityAttemptRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final UserRepository userRepository;
 
@@ -61,7 +62,7 @@ public class ProgressService {
 
         if (!isModuleUnlocked(enrollment, module)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Acesso negado: é necessário concluir o módulo anterior antes de acessar este módulo.");
+                    "Acesso negado: é necessário concluir as atividades do módulo anterior antes de acessar este módulo.");
         }
     }
 
@@ -79,11 +80,11 @@ public class ProgressService {
             return true;
         }
 
-        return isModuleCompletedByLessons(enrollment.getStudent().getId(), previousModule.get().getId());
+        return isModuleCompletedByActivities(enrollment.getStudent().getId(), previousModule.get().getId());
     }
 
     // ==========================================================
-    // M4-08: Progresso do aluno no módulo (calculado pelas aulas)
+    // M4-08: Progresso do aluno no módulo (calculado pelas atividades)
     // ==========================================================
 
     @Transactional(readOnly = true)
@@ -155,28 +156,28 @@ public class ProgressService {
     // Auxiliares
     // ==========================================================
 
-    private int calculateLessonProgressPercentage(UUID studentId, UUID moduleId) {
-        long totalLessons = lessonRepository.countByModule_IdAndStatus(moduleId, EntityStatus.Active);
-        if (totalLessons == 0) {
-            return 0;
-        }
-
-        long completedLessons = lessonProgressRepository
-                .countByStudent_IdAndLesson_Module_IdAndCompletedTrue(studentId, moduleId);
-
-        return (int) Math.round((completedLessons * 100.0) / totalLessons);
-    }
-
-    private boolean isModuleCompletedByLessons(UUID studentId, UUID moduleId) {
-        long totalLessons = lessonRepository.countByModule_IdAndStatus(moduleId, EntityStatus.Active);
-        if (totalLessons == 0) {
+    private boolean isModuleCompletedByActivities(UUID studentId, UUID moduleId) {
+        List<Activity> activities = activityRepository
+                .findAllByModule_IdAndStatus(moduleId, EntityStatus.Active);
+        if (activities.isEmpty()) {
             return false;
         }
+        return activities.stream()
+                .allMatch(a -> activityAttemptRepository
+                        .existsByStudent_IdAndActivity_IdAndApprovedTrue(studentId, a.getId()));
+    }
 
-        long completedLessons = lessonProgressRepository
-                .countByStudent_IdAndLesson_Module_IdAndCompletedTrue(studentId, moduleId);
-
-        return completedLessons == totalLessons;
+    private int calculateActivityProgressPercentage(UUID studentId, UUID moduleId) {
+        List<Activity> activities = activityRepository
+                .findAllByModule_IdAndStatus(moduleId, EntityStatus.Active);
+        if (activities.isEmpty()) {
+            return 0;
+        }
+        long approved = activities.stream()
+                .filter(a -> activityAttemptRepository
+                        .existsByStudent_IdAndActivity_IdAndApprovedTrue(studentId, a.getId()))
+                .count();
+        return (int) Math.round(approved * 100.0 / activities.size());
     }
 
     private UUID getCurrentStudentId() {
@@ -208,8 +209,8 @@ public class ProgressService {
                 .moduleId(module.getId())
                 .moduleName(module.getName())
                 .orderIndex(module.getOrderIndex())
-                .progressPercentage(calculateLessonProgressPercentage(studentId, module.getId()))
-                .completed(isModuleCompletedByLessons(studentId, module.getId()))
+                .progressPercentage(calculateActivityProgressPercentage(studentId, module.getId()))
+                .completed(isModuleCompletedByActivities(studentId, module.getId()))
                 .unlocked(unlocked)
                 .build();
     }
