@@ -36,7 +36,6 @@ public class AttachmentService {
     private final LessonRepository lessonRepository;
     private final EnrollmentService enrollmentService;
     private final ProgressService progressService;
-    private final ActivityService activityService;
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
@@ -116,14 +115,9 @@ public class AttachmentService {
 
         Module module = lesson.getModule();
         UUID disciplineId = module.getDiscipline().getId();
-        User user = findAuthenticatedUser();
 
         enrollmentService.validateContentAccessForCurrentUser(disciplineId);
         progressService.validateSequentialAccessForCurrentUser(module.getId());
-
-        if (user.getRole() == UserRole.Aluno) {
-            activityService.validateModuleHasActiveActivity(module.getId());
-        }
     }
 
     private void validateResponsibleProfessor(Discipline discipline) {

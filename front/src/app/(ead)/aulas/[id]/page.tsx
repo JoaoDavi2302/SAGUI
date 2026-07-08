@@ -179,8 +179,10 @@ export default function LessonPage() {
 
   const refreshNextModule = useCallback(
     async (currentModuleId: string, currentDisciplineId: string) => {
-      const modulesPage = await listModules(currentDisciplineId, "Active", 0, 100);
-      const sortedModules = modulesPage.content.sort((a, b) => a.orderIndex - b.orderIndex);
+      const moduleList = (await listModules(currentDisciplineId, "Active")).filter(
+        (module) => module.status === "Active",
+      );
+      const sortedModules = [...moduleList].sort((a, b) => a.orderIndex - b.orderIndex);
       const currentModuleIndex = sortedModules.findIndex((m) => m.id === currentModuleId);
 
       if (currentModuleIndex < 0 || currentModuleIndex >= sortedModules.length - 1) {

@@ -4,6 +4,7 @@ import DrawerLayout from "@/components/drawer";
 import { useUser } from "@/new-services/auth/AuthContext";
 import {
   DashboardOutlined,
+  HowToRegOutlined,
   MenuBookOutlined,
   PeopleOutlined,
   SchoolOutlined,
@@ -62,6 +63,11 @@ export default function DashboardLayout({
           icon: <PeopleOutlined />,
           label: "Usuários",
           href: "/dashboard/usuarios",
+        },
+        {
+          icon: <HowToRegOutlined />,
+          label: "Matrículas",
+          href: "/dashboard/matriculas",
         },
       ]}
       settings={[

@@ -62,11 +62,16 @@ public class ProgressService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Módulo não encontrado com o ID: " + moduleId));
 
+        if (module.getStatus() != EntityStatus.Active) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Módulo não encontrado");
+        }
+
         Enrollment enrollment = getApprovedEnrollment(studentId, module.getDiscipline().getId());
 
         if (!isModuleUnlocked(enrollment, module)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Acesso negado: conclua todas as aulas e atividades do módulo anterior para acessar este módulo.");
+                    "Acesso negado: conclua todas as aulas e a atividade do módulo anterior "
+                            + "(nota mínima ou esgotamento das tentativas) para acessar este módulo.");
         }
     }
 
@@ -75,11 +80,17 @@ public class ProgressService {
      */
     @Transactional(readOnly = true)
     public boolean isModuleUnlocked(Enrollment enrollment, Module module) {
-        Optional<Module> previousModule = moduleRepository
-                .findFirstByDiscipline_IdAndOrderIndexLessThanOrderByOrderIndexDesc(
-                        module.getDiscipline().getId(), module.getOrderIndex());
+        if (module.getStatus() != EntityStatus.Active) {
+            return false;
+        }
 
-        // Primeiro módulo da disciplina: sempre liberado
+        Optional<Module> previousModule = moduleRepository
+                .findFirstByDiscipline_IdAndStatusAndOrderIndexLessThanOrderByOrderIndexDesc(
+                        module.getDiscipline().getId(),
+                        EntityStatus.Active,
+                        module.getOrderIndex());
+
+        // Primeiro módulo ativo da disciplina: sempre liberado
         if (previousModule.isEmpty()) {
             return true;
         }
@@ -120,11 +131,18 @@ public class ProgressService {
     public DisciplineProgressResponse getDisciplineProgress(UUID studentId, UUID disciplineId) {
         Enrollment enrollment = getApprovedEnrollment(studentId, disciplineId);
 
-        List<Module> modules = moduleRepository.findByDiscipline_IdOrderByOrderIndexAsc(disciplineId);
+        List<Module> modules = moduleRepository
+                .findByDiscipline_IdAndStatusOrderByOrderIndexAsc(disciplineId, EntityStatus.Active);
 
         if (modules.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "A disciplina não possui módulos cadastrados.");
+            return DisciplineProgressResponse.builder()
+                    .disciplineId(disciplineId)
+                    .disciplineName(enrollment.getDiscipline().getName())
+                    .totalModules(0)
+                    .completedModules(0)
+                    .overallPercentage(0)
+                    .modules(List.of())
+                    .build();
         }
 
         List<ModuleProgressResponse> moduleResponses = modules.stream()
@@ -162,8 +180,10 @@ public class ProgressService {
 
     /**
      * Módulo concluído quando:
-     * - todas as aulas ativas foram assistidas/concluídas; e
-     * - cada atividade ativa foi aprovada OU esgotou o limite de tentativas.
+     * - todas as aulas ativas foram concluídas; e
+     * - existe ao menos uma atividade ativa; e
+     * - cada atividade ativa foi satisfeita (nota >= minimumScore, padrão 70%,
+     *   OU esgotou o limite de tentativas, padrão 3).
      */
     private boolean isModuleCompleted(UUID studentId, UUID moduleId) {
         if (!areAllLessonsCompleted(studentId, moduleId)) {
@@ -174,7 +194,7 @@ public class ProgressService {
                 .findAllByModule_IdAndStatus(moduleId, EntityStatus.Active);
 
         if (activities.isEmpty()) {
-            return true;
+            return false;
         }
 
         return activities.stream()
@@ -184,7 +204,7 @@ public class ProgressService {
     private boolean areAllLessonsCompleted(UUID studentId, UUID moduleId) {
         long totalLessons = lessonRepository.countByModule_IdAndStatus(moduleId, EntityStatus.Active);
         if (totalLessons == 0) {
-            return true;
+            return false;
         }
 
         long completedLessons = lessonProgressRepository
@@ -194,29 +214,46 @@ public class ProgressService {
     }
 
     /**
-     * Atividade satisfeita se aprovada ou se o aluno usou todas as tentativas permitidas.
+     * Atividade satisfeita se:
+     * - atingiu nota mínima (padrão 70%); ou
+     * - esgotou todas as tentativas (padrão 3).
      */
     private boolean isActivityRequirementMet(UUID studentId, Activity activity) {
-        if (activityAttemptRepository.existsByStudent_IdAndActivity_IdAndApprovedTrue(studentId, activity.getId())) {
+        double minimumScore = activity.getMinimumScore() != null
+                ? activity.getMinimumScore()
+                : 70.0;
+        int attemptLimit = activity.getAttemptLimit() != null
+                ? activity.getAttemptLimit()
+                : 3;
+
+        Double bestScore = activityAttemptRepository
+                .findBestScoreByStudentIdAndActivityId(studentId, activity.getId());
+        if (bestScore != null && bestScore >= minimumScore) {
             return true;
         }
 
-        long attemptsUsed = activityAttemptRepository.countByStudentIdAndActivityId(studentId, activity.getId());
-        return attemptsUsed >= activity.getAttemptLimit();
+        if (activityAttemptRepository.existsByStudent_IdAndActivity_IdAndApprovedTrue(
+                studentId, activity.getId())) {
+            return true;
+        }
+
+        long attemptsUsed = activityAttemptRepository
+                .countByStudentIdAndActivityId(studentId, activity.getId());
+        return attemptsUsed >= attemptLimit;
     }
 
     private int calculateModuleProgressPercentage(UUID studentId, UUID moduleId) {
         long totalLessons = lessonRepository.countByModule_IdAndStatus(moduleId, EntityStatus.Active);
         long totalActivities = activityRepository.countByModule_IdAndStatus(moduleId, EntityStatus.Active);
 
-        int lessonPercentage = 100;
+        int lessonPercentage = 0;
         if (totalLessons > 0) {
             long completedLessons = lessonProgressRepository
                     .countByStudent_IdAndLesson_Module_IdAndCompletedTrue(studentId, moduleId);
             lessonPercentage = (int) Math.round(completedLessons * 100.0 / totalLessons);
         }
 
-        int activityPercentage = 100;
+        int activityPercentage = 0;
         if (totalActivities > 0) {
             List<Activity> activities = activityRepository
                     .findAllByModule_IdAndStatus(moduleId, EntityStatus.Active);
@@ -226,6 +263,9 @@ public class ProgressService {
             activityPercentage = (int) Math.round(satisfied * 100.0 / totalActivities);
         }
 
+        if (totalLessons == 0 && totalActivities == 0) {
+            return 0;
+        }
         if (totalLessons == 0) {
             return activityPercentage;
         }

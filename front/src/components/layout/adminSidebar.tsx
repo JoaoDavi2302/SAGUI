@@ -2,6 +2,7 @@
 
 import {
   DashboardOutlined,
+  HowToRegOutlined,
   MenuBookOutlined,
   PeopleOutlined,
   SchoolOutlined,
@@ -29,5 +30,10 @@ export const adminSidebarItems: SidebarItem[] = [
     icon: <PeopleOutlined />,
     label: "Usuários",
     href: "/dashboard/usuarios",
+  },
+  {
+    icon: <HowToRegOutlined />,
+    label: "Matrículas",
+    href: "/dashboard/matriculas",
   },
 ];

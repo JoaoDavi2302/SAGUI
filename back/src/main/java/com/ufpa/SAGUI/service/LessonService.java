@@ -37,19 +37,13 @@ public class LessonService {
     private final LessonProgressRepository lessonProgressRepository;
     private final EnrollmentService enrollmentService;
     private final ProgressService progressService;
-    private final ActivityService activityService;
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public Page<LessonResponse> findByModule(UUID moduleId, EntityStatus status, Pageable pageable) {
         Module module = getModuleEntity(moduleId);
-        User user = findAuthenticatedUser();
         enrollmentService.validateContentAccessForCurrentUser(module.getDiscipline().getId());
         progressService.validateSequentialAccessForCurrentUser(moduleId);
-
-        if (user.getRole() == UserRole.Aluno) {
-            activityService.validateModuleHasActiveActivity(moduleId);
-        }
 
         EntityStatus filterStatus = status != null ? status : EntityStatus.Active;
         return lessonRepository.findAllByModule_IdAndStatus(moduleId, filterStatus, pageable)
@@ -72,7 +66,6 @@ public class LessonService {
             }
             enrollmentService.validateContentAccess(user.getId(), module.getDiscipline().getId());
             progressService.validateSequentialAccess(user.getId(), module.getId());
-            activityService.validateModuleHasActiveActivity(module.getId());
         } else {
             enrollmentService.validateContentAccessForCurrentUser(module.getDiscipline().getId());
         }
