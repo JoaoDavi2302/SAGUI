@@ -22,14 +22,22 @@ export default function DashboardLayout({
       return;
     }
 
+<<<<<<< HEAD
     if (effectiveRole !== "Admin") {
+=======
+    if (effectiveRole !== "ADMINISTRADOR") {
+>>>>>>> origin/develop
       router.replace("/not-found");
     }
   }, [user, loading, effectiveRole, router]);
 
   if (loading || !user) return null;
 
+<<<<<<< HEAD
   if (effectiveRole !== "Admin") return null;
+=======
+  if (effectiveRole !== "ADMINISTRADOR") return null;
+>>>>>>> origin/develop
 
   return (
     <DrawerLayout
@@ -37,9 +45,13 @@ export default function DashboardLayout({
       avatarSrc="/avatar.png"
       items={[
         { label: "Dashboard", href: "/dashboard" },
+<<<<<<< HEAD
         { label: "Cursos", href: "/dashboard/cursos" },
         { label: "Disciplinas", href: "/dashboard/disciplinas" },
         { label: "Usuarios", href: "/dashboard/usuarios" },
+=======
+        { label: "Disciplinas", href: "/dashboard/disciplinas" },
+>>>>>>> origin/develop
       ]}
       settings={[
         { label: "Site", href: "/" },

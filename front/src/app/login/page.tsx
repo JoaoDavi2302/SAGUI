@@ -3,7 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
 import { useUser } from "../../new-services/auth/AuthContext";
+=======
+import { useUser } from "../../services/auth/AuthContext";
+import Image from "next/image";
+import Logo from "../../../public/Longa-logo.svg";
+
+// USO DO UI/BUTTON
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+>>>>>>> origin/develop
 
 import {
   Box,
@@ -54,6 +64,7 @@ export default function LoginPage() {
   }
 
   return (
+<<<<<<< HEAD
     <AuthShell>
       <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
@@ -63,6 +74,49 @@ export default function LoginPage() {
         <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
           Email
         </Typography>
+=======
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#f9fafb",
+        px: 2,
+      }}
+    >
+      <Stack spacing={0.5} sx={{ mb: 2 }}>
+        <Image
+          src={Logo}
+          alt="logo"
+          style={{ width: "220px", alignSelf: "center", marginBottom: "-15px" }}
+        />
+        <Typography
+          sx={{
+            fontFamily: "system-ui",
+            fontWeight: 400,
+            fontSize: "16px",
+            color: "#556255",
+          }}
+        >
+          Plataforma academica de estudos
+        </Typography>
+      </Stack>
+      <Card
+        sx={{
+          width: 380,
+          borderRadius: 2,
+          p: 1,
+          border: "2px solid rgba(0,0,0,0.3)",
+        }}
+      >
+        <CardContent>
+          <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+              Email
+            </Typography>
+>>>>>>> origin/develop
 
         <TextField
           fullWidth
@@ -132,6 +186,7 @@ export default function LoginPage() {
           )}
         </Button>
 
+<<<<<<< HEAD
         <Stack
           direction="row"
           spacing={0.5}
@@ -151,5 +206,27 @@ export default function LoginPage() {
         </Stack>
       </Box>
     </AuthShell>
+=======
+            {/* extra UX */}
+            <Stack
+              sx={{
+                direction: "row",
+                justifyContent: "space-between",
+                mt: 2,
+              }}
+            >
+              <Typography variant="caption" sx={{ cursor: "pointer" }}>
+                Esqueci minha senha
+              </Typography>
+
+              <Typography variant="caption" sx={{ cursor: "pointer" }}>
+                Criar conta
+              </Typography>
+            </Stack>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
+>>>>>>> origin/develop
   );
 }

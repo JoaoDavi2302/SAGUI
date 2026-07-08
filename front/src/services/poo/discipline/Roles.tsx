@@ -45,6 +45,7 @@ export class StudentDiscipline extends Discipline {
   }
 
   getPageData(): DisciplinePageData {
+<<<<<<< HEAD
     const enrolledCourseIds = this.getStudentCourseIds();
 
     const enrolledSubjects = this.disciplines()
@@ -61,6 +62,27 @@ export class StudentDiscipline extends Discipline {
       disciplines: enrolledSubjects,
       modules: this.modules(),
       lessons: this.lessons(),
+=======
+    const groups: DisciplineGroup[] = [];
+
+    this.getStudentCourseIds().forEach((courseId) => {
+      groups.push({
+        course: this.getCourseById(courseId),
+
+        subjects: this.getDisciplinesByCourse(courseId).map((discipline) =>
+          this.buildDisciplineCard(discipline),
+        ),
+      });
+    });
+
+    return {
+      grouped: groups,
+
+      modules: this.modules(),
+
+      lessons: this.lessons(),
+
+>>>>>>> origin/develop
       moduleProgress: this.moduleProgress(),
     };
   }
@@ -138,7 +160,11 @@ export class StudentDiscipline extends Discipline {
 /* professor */
 export class ProfessorDiscipline extends Discipline {
   listDisciplines(): DisciplineEntity[] {
+<<<<<<< HEAD
     return this.disciplines().filter((d) => this.matchesUserId(d.professor_id));
+=======
+    return this.disciplines().filter((d) => d.professor_id === this.user.id);
+>>>>>>> origin/develop
   }
 
   listCourses(): CourseEntity[] {
@@ -157,7 +183,11 @@ export class ProfessorDiscipline extends Discipline {
 
     console.log("professor da disciplina", discipline.professor_id);
 
+<<<<<<< HEAD
     return this.matchesUserId(discipline.professor_id) ? discipline : null;
+=======
+    return discipline.professor_id === this.user.id ? discipline : null;
+>>>>>>> origin/develop
   }
 
   listProfessors(): UserEntity[] {
@@ -166,11 +196,16 @@ export class ProfessorDiscipline extends Discipline {
 
   getByCourse(courseId: number): DisciplineEntity[] {
     return this.getDisciplinesByCourse(courseId).filter(
+<<<<<<< HEAD
       (d) => this.matchesUserId(d.professor_id),
+=======
+      (d) => d.professor_id === this.user.id,
+>>>>>>> origin/develop
     );
   }
 
   getPageData(): DisciplinePageData {
+<<<<<<< HEAD
     return {
       disciplines: this.listDisciplines().map((discipline) =>
         this.buildDisciplineCard(discipline),
@@ -180,6 +215,26 @@ export class ProfessorDiscipline extends Discipline {
 
       lessons: this.lessons(),
 
+=======
+    const groups: DisciplineGroup[] = [];
+
+    this.getProfessorCourseIds().forEach((courseId) => {
+      const course = this.getCourseById(courseId);
+
+      groups.push({
+        course,
+
+        subjects: this.getByCourse(courseId).map((d) =>
+          this.buildDisciplineCard(d),
+        ),
+      });
+    });
+
+    return {
+      grouped: groups,
+      modules: this.modules(),
+      lessons: this.lessons(),
+>>>>>>> origin/develop
       moduleProgress: [],
     };
   }
@@ -291,6 +346,7 @@ export class AdminDiscipline extends Discipline {
   }
 
   getPageData(): DisciplinePageData {
+<<<<<<< HEAD
     return {
       disciplines: this.listDisciplines().map((discipline) =>
         this.buildDisciplineCard(discipline),
@@ -300,6 +356,23 @@ export class AdminDiscipline extends Discipline {
 
       lessons: this.lessons(),
 
+=======
+    const groups: DisciplineGroup[] = [];
+
+    this.courses().forEach((course) => {
+      groups.push({
+        course,
+        subjects: this.getDisciplinesByCourse(course.id).map((d) =>
+          this.buildDisciplineCard(d),
+        ),
+      });
+    });
+
+    return {
+      grouped: groups,
+      modules: this.modules(),
+      lessons: this.lessons(),
+>>>>>>> origin/develop
       moduleProgress: this.moduleProgress(),
     };
   }
@@ -325,9 +398,15 @@ export class AdminDiscipline extends Discipline {
 
     const lessons = this.getLessonsByDiscipline(id);
 
+<<<<<<< HEAD
     // visualiza todos os alunos (da disciplina)
     const students = this.getStudentsByDiscipline(id).map((student) =>
       this.buildStudentProgress(student.id, lessons),
+=======
+    // visualiza todos os alunos (sem filtro)
+    const students = this.getAllStudents().map((s) =>
+      this.buildStudentProgress(s.id, lessons),
+>>>>>>> origin/develop
     );
 
     const moduleIds = this.getModulesByDiscipline(id).map((m) => m.id);

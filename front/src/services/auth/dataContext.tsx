@@ -83,9 +83,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
       attachments: database.anexos,
       activities: database.atividades,
 
+<<<<<<< HEAD
       professor: database.usuarios.find((u) => u.perfil === "Professor"),
       student: database.usuarios.find((u) => u.perfil === "Aluno"),
       admin: database.usuarios.find((u) => u.perfil === "Admin"),
+=======
+      professor: database.usuarios.find((u) => u.perfil === "PROFESSOR"),
+      student: database.usuarios.find((u) => u.perfil === "ALUNO"),
+      admin: database.usuarios.find((u) => u.perfil === "ADMINISTRADOR"),
+>>>>>>> origin/develop
     });
 
     setLoading(false);

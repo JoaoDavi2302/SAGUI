@@ -27,10 +27,13 @@ export abstract class RoleBase {
     protected user: LoggedUser,
   ) {}
 
+<<<<<<< HEAD
   protected matchesUserId(id: string | number): boolean {
     return String(id) === String(this.user.id);
   }
 
+=======
+>>>>>>> origin/develop
   /* acessar tabelas */
   protected users() {
     return this.database.usuarios;
@@ -90,7 +93,11 @@ export abstract class RoleBase {
 
   protected getStudentCourseIds(): number[] {
     return this.enrollments()
+<<<<<<< HEAD
       .filter((e) => this.matchesUserId(e.aluno_id))
+=======
+      .filter((e) => e.aluno_id === this.user.id)
+>>>>>>> origin/develop
       .map((e) => e.curso_id);
   }
 
@@ -98,7 +105,11 @@ export abstract class RoleBase {
     return [
       ...new Set(
         this.disciplines()
+<<<<<<< HEAD
           .filter((d) => this.matchesUserId(d.professor_id))
+=======
+          .filter((d) => d.professor_id === this.user.id)
+>>>>>>> origin/develop
           .map((d) => d.curso_id),
       ),
     ];
@@ -133,7 +144,11 @@ export abstract class RoleBase {
   }
 
   protected getProfessors(): UserEntity[] {
+<<<<<<< HEAD
     return this.users().filter((user) => user.perfil === "Professor");
+=======
+    return this.users().filter((user) => user.perfil === "PROFESSOR");
+>>>>>>> origin/develop
   }
   // fim professor
 
@@ -164,7 +179,11 @@ export abstract class RoleBase {
   protected isModuleCompleted(moduleId: number): boolean {
     return this.moduleProgress().some(
       (p) =>
+<<<<<<< HEAD
         this.matchesUserId(p.aluno_id) && p.modulo_id === moduleId && p.concluido,
+=======
+        p.aluno_id === this.user.id && p.modulo_id === moduleId && p.concluido,
+>>>>>>> origin/develop
     );
   }
 
@@ -187,7 +206,11 @@ export abstract class RoleBase {
 
   // CONTINUA
 
+<<<<<<< HEAD
   protected isLessonDone(studentId: string | number, lessonId: number): boolean {
+=======
+  protected isLessonDone(studentId: number, lessonId: number): boolean {
+>>>>>>> origin/develop
     const lesson = this.lessons().find((lesson) => lesson.id === lessonId);
 
     if (!lesson) {
@@ -196,7 +219,11 @@ export abstract class RoleBase {
 
     return this.moduleProgress().some(
       (progress) =>
+<<<<<<< HEAD
         String(progress.aluno_id) === String(studentId) &&
+=======
+        progress.aluno_id === studentId &&
+>>>>>>> origin/develop
         progress.modulo_id === lesson.modulo_id &&
         progress.concluido,
     );
@@ -412,7 +439,11 @@ export abstract class RoleBase {
 
   // para admin
   protected getAllStudents(): UserEntity[] {
+<<<<<<< HEAD
     return this.users().filter((user) => user.perfil === "Aluno");
+=======
+    return this.users().filter((user) => user.perfil === "ALUNO");
+>>>>>>> origin/develop
   }
 
   // não usado

@@ -14,11 +14,19 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+<<<<<<< HEAD
   Badge,
 } from "@mui/material";
 
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+=======
+  Badge, // Adicionado
+} from "@mui/material";
+
+import MenuIcon from "@mui/icons-material/Menu";
+import NotificationsIcon from "@mui/icons-material/Notifications"; // Adicionado
+>>>>>>> origin/develop
 import { useRouter } from "next/navigation";
 
 import type { HeaderItem, HeaderSearchType } from "./layout/types";
@@ -85,6 +93,7 @@ export default function DashboardHeader({
         }),
       })}
     >
+<<<<<<< HEAD
       <Toolbar
         sx={{
           display: "grid",
@@ -118,11 +127,16 @@ export default function DashboardHeader({
             justifySelf: "start",
           }}
         >
+=======
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+>>>>>>> origin/develop
           {isMobile && onMenuClick && (
             <IconButton color="inherit" onClick={onMenuClick} edge="start">
               <MenuIcon />
             </IconButton>
           )}
+<<<<<<< HEAD
           {title ? (
             <Typography variant="h6" sx={{ ml: isMobile ? 1 : 2, color: "#fff" }}>
               {title}
@@ -154,6 +168,24 @@ export default function DashboardHeader({
             justifySelf: "end",
           }}
         >
+=======
+          <Typography variant="h6" sx={{ ml: 2, color: "#fff" }}>
+            {title}
+          </Typography>
+        </Box>
+
+        <Search sx={{ width: '40%' }}>
+          <SearchIconWrapper>
+            <SearchIcon />
+          </SearchIconWrapper>
+          <StyledInputBase
+            placeholder="Pesquisar cursos..."
+            inputProps={{ "aria-label": "search" }}
+          />
+        </Search>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+>>>>>>> origin/develop
           <IconButton color="inherit">
             <Badge badgeContent={3} color="error">
               <NotificationsIcon />

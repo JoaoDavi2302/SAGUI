@@ -8,6 +8,7 @@ import {
   ReactNode,
 } from "react";
 
+<<<<<<< HEAD
 import type { LoggedUser, Role } from "@/services/poo/shared/types";
 import {
   clearSessionCookies,
@@ -20,6 +21,23 @@ import {
   setSessionCookies,
   type RegisterInput,
 } from "./authApi";
+=======
+import database from "../../components/mock.json";
+import { LoggedUser } from "@/services/poo/shared/types";
+import { Role } from "@/services/poo/shared/types";
+
+interface User {
+  id: number;
+  nome: string;
+  email: string;
+  senha_hash: string;
+  ativo: boolean;
+}
+
+// interface LoggedUser extends User {
+//   role: Role;
+// }
+>>>>>>> origin/develop
 
 interface AuthContextType {
   user: LoggedUser | null;
@@ -37,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<LoggedUser | null>(null);
 
+<<<<<<< HEAD
   async function refreshUser() {
     const accessToken = getAccessToken();
 
@@ -59,10 +78,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function init() {
       await refreshUser();
+=======
+  function getRole(userId: number): Role {
+    const user = database.usuarios.find((u) => u.id === userId);
+
+    return (user?.perfil ?? "ALUNO") as Role;
+  }
+
+  useEffect(() => {
+    console.log("AUTH INIT");
+
+    const token = document.cookie
+      .split("; ")
+      .find((c) => c.startsWith("token="))
+      ?.split("=")[1];
+
+    const id = Number(localStorage.getItem("userId"));
+
+    console.log("COOKIE TOKEN:", token);
+    console.log("LOCAL USERID:", id);
+
+    if (!token || !id) {
+      console.log("SEM SESSÃO");
+      setUser(null);
+>>>>>>> origin/develop
       setLoading(false);
     }
 
+<<<<<<< HEAD
     init();
+=======
+    const dbUser = database.usuarios.find((u) => u.id === id);
+
+    console.log("DB USER:", dbUser);
+
+    if (!dbUser) {
+      console.log("USER INVÁLIDO");
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    const role = getRole(dbUser.id);
+
+    setUser({
+      id: dbUser.id,
+      nome: dbUser.nome,
+      email: dbUser.email,
+      perfil: role,
+    });
+
+    console.log("SESSÃO RESTAURADA");
+    setLoading(false);
+>>>>>>> origin/develop
   }, []);
 
   async function establishSession(tokens: {
@@ -72,10 +140,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("accessToken", tokens.accessToken);
     localStorage.setItem("refreshToken", tokens.refreshToken);
 
+<<<<<<< HEAD
     const profile = await fetchMe(tokens.accessToken);
     setUser(profile);
     setSessionCookies(profile.role);
   }
+=======
+    // busca compatibilidade de dados do banco com dados de entrada
+    const foundUser = database.usuarios.find(
+      (u) => u.email === email && u.senha_hash === password,
+    );
+>>>>>>> origin/develop
 
   async function login(email: string, password: string): Promise<LoggedUser | null> {
     try {
@@ -95,6 +170,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       throw error;
     }
+<<<<<<< HEAD
+=======
+
+    const role = getRole(foundUser.id);
+
+    // guardar dados do usuario para acesso rapido
+    localStorage.setItem("userId", String(foundUser.id));
+    document.cookie = `token=${foundUser.id}; path=/; max-age=86400`;
+    document.cookie = `role=${role}; path=/; max-age=86400`;
+
+    const loggedUser: LoggedUser = {
+      id: foundUser.id,
+      nome: foundUser.nome,
+      email: foundUser.email,
+      perfil: role,
+    };
+
+    //teste de login
+    // console.log("LOGIN OK", {
+    //   role,
+    //   cookies: document.cookie,
+    // });
+
+    // recebe dados do usuario logado
+    setUser(loggedUser);
+
+    return true;
+>>>>>>> origin/develop
   }
 
   async function register(data: RegisterInput): Promise<boolean> {
@@ -111,6 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+<<<<<<< HEAD
   async function logout(): Promise<void> {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
@@ -124,6 +228,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const effectiveRole: Role = user?.role ?? "Aluno";
+=======
+  const effectiveRole = user?.perfil ?? "ALUNO";
+>>>>>>> origin/develop
 
   return (
     <AuthContext.Provider
@@ -151,5 +258,9 @@ export function useUser() {
 
   return context;
 }
+<<<<<<< HEAD
 
 export const useAuth = useUser;
+=======
+export const useAuth = () => useContext(AuthContext);
+>>>>>>> origin/develop
