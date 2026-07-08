@@ -1,78 +1,128 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Box, Typography, Button, IconButton, Paper } from "@mui/material";
 
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
-import { Edit, Delete, Visibility, Add } from "@mui/icons-material";
+import { Add, Delete, Edit, Visibility } from "@mui/icons-material";
 
 import { useUser } from "@/services/auth/AuthContext";
-import { DatabaseProvider } from "@/services/poo/databaseProvider";
-import { DisciplineProvider } from "@/services/poo/discipline/disciplineProvider";
+
 import DisciplineModal from "./edit_addModal";
 import DisciplineViewModal from "./vierDiscipline_Modal";
 
-const database = DatabaseProvider.getDatabase();
+import {
+  listCourses,
+  listModules,
+  listProfessors,
+  changeDisciplineStatus,
+  DisciplineDTO,
+  CourseDTO,
+  ModuleDTO,
+  UserProfileDTO,
+} from "@/new-services/poo/shared/api/catalog";
+
+import { AdminDiscipline } from "@/new-services/poo/discipline/Roles";
+
+const service = new AdminDiscipline();
 
 export default function GerenciarDisciplinasPage() {
-  const { user, effectiveRole } = useUser();
+  const [rowsDiscipline, setRowsDiscipline] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const provider = useMemo(() => {
-    if (!user) return null;
-    return DisciplineProvider.create("ADMINISTRADOR", database, user);
-  }, [user]);
-
-  const data = useMemo(() => {
-    if (!provider) return { grouped: [] };
-    return provider.getPageData();
-  }, [provider]);
+  const [selectedId, setSelectedId] = useState<string>();
 
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [openModalView, setOpenModalView] = useState(false);
-  const [selectedId, setSelectedId] = useState<number>();
 
-  const rows = useMemo(() => {
-    return data.grouped.flatMap((g) =>
-      g.subjects.map((s) => ({
-        ...s,
-        course: g.course ?? null,
-      })),
-    );
-  }, [data.grouped]);
+  const load = useCallback(async () => {
+    setLoading(true);
+
+    try {
+      const [disciplines, courses, professors] = await Promise.all([
+        service.list(),
+        listCourses(),
+        listProfessors(),
+      ]);
+
+      const rows = await Promise.all(
+        disciplines.map(async (discipline) => {
+          const modules = await listModules(discipline.id);
+
+          return {
+            ...discipline,
+
+            courseName:
+              courses.find((c) => c.id === discipline.courseId)?.name ?? "-",
+
+            professorName:
+              professors.find((p) => p.id === discipline.responsibleProfessorId)
+                ?.name ?? "-",
+
+            modulesCount: modules.length,
+          };
+        }),
+      );
+
+      setRowsDiscipline(rows);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Deseja desativar esta disciplina?")) {
+      return;
+    }
+
+    await changeDisciplineStatus(id, "Inactive");
+    await load();
+  };
 
   const columns: GridColDef[] = [
-    { field: "nome", headerName: "Disciplina", flex: 1 },
     {
-      field: "workload",
-      headerName: "Carga horária",
-      width: 140,
-      valueGetter: (_, row) => `${row.workload}h`,
+      field: "name",
+      headerName: "Disciplina",
+      flex: 1,
     },
     {
-      field: "modules",
+      field: "professorName",
+      headerName: "Professor",
+      flex: 1,
+    },
+    {
+      field: "modulesCount",
       headerName: "Módulos",
       width: 120,
-      valueGetter: (_, row) => row.modules?.length ?? 0,
     },
     {
-      field: "course",
+      field: "courseName",
       headerName: "Curso",
       flex: 1,
-      valueGetter: (_, row) => row.course?.name ?? "-",
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      width: 120,
     },
     {
       field: "actions",
       headerName: "Ações",
-      width: 160,
+      width: 170,
       sortable: false,
-      renderCell: (params) => (
+
+      renderCell: ({ row }) => (
         <Box sx={{ display: "flex", gap: 1 }}>
           <IconButton
             size="small"
             onClick={() => {
-              setSelectedId(params.row.id);
+              setSelectedId(row.id);
               setOpenModalView(true);
             }}
           >
@@ -80,15 +130,20 @@ export default function GerenciarDisciplinasPage() {
           </IconButton>
 
           <IconButton
+            size="small"
             onClick={() => {
-              setSelectedId(params.row.id);
+              setSelectedId(row.id);
               setOpenModalEdit(true);
             }}
           >
-            <Edit />
+            <Edit fontSize="small" />
           </IconButton>
 
-          <IconButton size="small" color="error">
+          <IconButton
+            size="small"
+            color="error"
+            onClick={() => handleDelete(row.id)}
+          >
             <Delete fontSize="small" />
           </IconButton>
         </Box>
@@ -98,23 +153,14 @@ export default function GerenciarDisciplinasPage() {
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* HEADER */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          mb: 2,
-        }}
-      >
-        <Box>
-          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-            Gerenciar Disciplinas
-          </Typography>
-        </Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+          Gerenciar Disciplinas
+        </Typography>
 
         <Button
-          startIcon={<Add />}
           variant="contained"
+          startIcon={<Add />}
           onClick={() => {
             setSelectedId(undefined);
             setOpenModalEdit(true);
@@ -124,32 +170,36 @@ export default function GerenciarDisciplinasPage() {
         </Button>
       </Box>
 
-      {/* TABLE */}
-      <Paper sx={{ height: 650, p: 2, borderRadius: 2 }}>
+      <Paper
+        sx={{
+          height: 650,
+          p: 2,
+        }}
+      >
         <DataGrid
-          rows={rows}
-          sx={{
-            border: "none",
-            "& .MuiDataGrid-columnHeaders": {
-              fontWeight: "bold",
-            },
-            "& .MuiDataGrid-columnHeaderTitle": {
-              fontWeight: "bold",
-            },
-          }}
+          loading={loading}
+          rows={rowsDiscipline}
           columns={columns}
           getRowId={(row) => row.id}
           disableRowSelectionOnClick
           showToolbar
+          sx={{
+            border: "none",
+            "& .MuiDataGrid-columnHeaderTitle": {
+              fontWeight: "bold",
+            },
+          }}
           slotProps={{
             toolbar: {
               showQuickFilter: true,
-              printOptions: { disableToolbarButton: false },
-              csvOptions: { fileName: "disciplinas" },
+              csvOptions: {
+                fileName: "disciplinas",
+              },
             },
           }}
         />
       </Paper>
+
       <DisciplineModal
         open={openModalEdit}
         disciplineId={selectedId}
@@ -157,7 +207,7 @@ export default function GerenciarDisciplinasPage() {
           setOpenModalEdit(false);
 
           if (reload) {
-            // atualizar listagem
+            load();
           }
         }}
       />
@@ -165,9 +215,7 @@ export default function GerenciarDisciplinasPage() {
       <DisciplineViewModal
         open={openModalView}
         disciplineId={selectedId}
-        onClose={() => {
-          setOpenModalView(false);
-        }}
+        onClose={() => setOpenModalView(false)}
       />
     </Box>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import DrawerLayout from "@/components/drawer";
-import { useUser } from "@/services/auth/AuthContext";
+import { useUser } from "@/new-services/auth/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import React from "react";
@@ -22,14 +22,14 @@ export default function DashboardLayout({
       return;
     }
 
-    if (effectiveRole !== "ADMINISTRADOR") {
+    if (effectiveRole !== "Admin") {
       router.replace("/not-found");
     }
   }, [user, loading, effectiveRole, router]);
 
   if (loading || !user) return null;
 
-  if (effectiveRole !== "ADMINISTRADOR") return null;
+  if (effectiveRole !== "Admin") return null;
 
   return (
     <DrawerLayout
@@ -37,7 +37,9 @@ export default function DashboardLayout({
       avatarSrc="/avatar.png"
       items={[
         { label: "Dashboard", href: "/dashboard" },
+        { label: "Cursos", href: "/dashboard/cursos" },
         { label: "Disciplinas", href: "/dashboard/disciplinas" },
+        { label: "Usuarios", href: "/dashboard/usuarios" },
       ]}
       settings={[
         { label: "Site", href: "/" },

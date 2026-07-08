@@ -1,5 +1,5 @@
 // aqui substitui por API
-import database from "@/components/mock.json";
+import { database } from "../poo/shared/types";
 import { Database } from "../poo/shared/types";
 
 export class DatabaseProvider {

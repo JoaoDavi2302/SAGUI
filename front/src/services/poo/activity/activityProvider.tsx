@@ -18,10 +18,10 @@ export class ActivityProvider {
     user: LoggedUser,
   ): Activity {
     switch (role) {
-      case "ADMINISTRADOR":
+      case "Admin":
         return new AdminActivity(database, user);
 
-      case "PROFESSOR":
+      case "Professor":
         return new ProfessorActivity(database, user);
 
       default:

@@ -17,7 +17,6 @@ import {
   ListItemIcon,
   ListItemText,
   Toolbar,
-  Typography,
   useMediaQuery,
 } from "@mui/material";
 
@@ -27,36 +26,47 @@ import DashboardHeader from "./dashboard-header";
 import Footer from "./footer";
 
 import type { SidebarItem, HeaderItem } from "./layout/types";
-import { useUser } from "@/services/auth/AuthContext";
+import { getAdminHeaderConfig, getProfessorHeaderConfig } from "./layout/headerConfig";
+import { useUser } from "@/new-services/auth/AuthContext";
 
 type Props = {
-  title: string;
+  title?: string;
   avatarSrc?: string;
-  items: SidebarItem[];
+  items?: SidebarItem[];
   settings?: HeaderItem[];
   children: React.ReactNode;
   drawerWidth?: number;
 };
 
 export default function DrawerLayout({
-  title,
+  title = "",
   avatarSrc,
-  items,
+  items = [],
   settings = [],
   children,
   drawerWidth = 260,
 }: Props) {
   const pathname = usePathname();
   const theme = useTheme();
+  const { effectiveRole } = useUser();
+
+  const headerConfig =
+    effectiveRole === "Admin"
+      ? getAdminHeaderConfig(pathname)
+      : effectiveRole === "Professor"
+        ? getProfessorHeaderConfig(pathname)
+        : null;
+  const headerTitle = headerConfig?.title ?? title;
+  const searchType = headerConfig?.searchType ?? null;
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
   const [open, setOpen] = React.useState(false);
 
-  const { logout } = useUser();
-
-  const isActive = (href?: string) =>
-    !!href && (pathname === href || pathname.startsWith(href + "/"));
+  const isActive = (href?: string, exact?: boolean) => {
+    if (!href) return false;
+    if (exact) return pathname === href;
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   const drawerContent = (
     <>
@@ -73,18 +83,8 @@ export default function DrawerLayout({
             src={Logo}
             alt="logo"
             style={{ width: "180px", marginTop: "-10px", alignSelf: "center" }}
+            priority
           />
-          {/* <Typography
-            variant="body2"
-            sx={{
-              fontSize: "12px",
-              fontWeight: "200",
-              fontFamily: "system-ui",
-              color: "#1f2937",
-            }}
-          >
-            Plataforma academica
-          </Typography> */}
         </Box>
       </Toolbar>
 
@@ -103,7 +103,7 @@ export default function DrawerLayout({
                   if (!isLink) item.onClick?.();
                   if (isMobile) setOpen(false);
                 }}
-                selected={isLink ? isActive(item.href) : false}
+                selected={isLink ? isActive(item.href, "exact" in item ? item.exact : false) : false}
                 sx={{
                   borderRadius: 2,
                   mb: 0.5,
@@ -136,15 +136,15 @@ export default function DrawerLayout({
       <CssBaseline />
 
       <DashboardHeader
-        title={title}
+        title={headerTitle}
         avatarSrc={avatarSrc}
         settings={settings}
         onMenuClick={() => setOpen(true)}
         drawerWidth={drawerWidth}
         isMobile={isMobile}
+        searchType={searchType}
       />
 
-      {/* DRAWER RESPONSIVO */}
       <Drawer
         variant={isMobile ? "temporary" : "permanent"}
         open={isMobile ? open : true}
@@ -163,56 +163,19 @@ export default function DrawerLayout({
         {drawerContent}
       </Drawer>
 
-      {/*
-
-      MAIS BONITINHO...
-      
-      <Drawer
-        variant={isMobile ? "temporary" : "permanent"}
-        open={isMobile ? open : true}
-        onClose={() => setOpen(false)}
-        ModalProps={{
-          keepMounted: true,
-        }}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-            // ==========================================
-            // MODIFICAÇÕES DE DESIGN 
-            // ==========================================
-            backgroundColor: "#ffffff", // Altera a cor de fundo para branco puro
-            borderRight: "none",        // Remove a linha divisória vertical padrão do MUI
-            boxShadow: "4px 0px 24px rgba(24, 49, 83, 0.04)", // Sombra lateral ultra suave visível no protótipo
-            
-            // Aplica os cantos arredondados do lado direito se não estiver no celular
-            ...(!isMobile && {
-              borderTopRightRadius: "24px",
-              borderBottomRightRadius: "24px",
-              height: "calc(100vh - 16px)", // Descolado levemente do teto/chão para dar o efeito de card
-              margin: "8px 0 8px 8px",      // Afasta um pouco das bordas da tela
-            }),
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-
-      
-      
-      */}
-
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           width: "100%",
           ml: isMobile ? 0 : `${drawerWidth}px`,
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh"
         }}
       >
-        <Toolbar />
-        <Box sx={{ p: 4 }}>{children}</Box>
-        <Divider sx={{ mt: 3 }} />
+        <Toolbar sx={{ minHeight: { xs: 56, sm: 64 } }} />
+        <Box sx={{ px: 4, pt: 2, pb: 4, flexGrow: 1 }}>{children}</Box>
         <Footer />
       </Box>
     </Box>

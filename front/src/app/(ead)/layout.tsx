@@ -1,13 +1,15 @@
 "use client";
 
 import DrawerLayout from "@/components/drawer";
+import { adminSidebarItems } from "@/components/layout/adminSidebar";
 import { HeaderItem } from "@/components/layout/types";
-import { useUser } from "@/services/auth/AuthContext";
+import { useUser } from "@/new-services/auth/AuthContext";
 import {
   AssignmentOutlined,
   HomeOutlined,
-  Inventory2Outlined,
   MenuBookOutlined,
+  CalendarTodayOutlined,
+  AssessmentOutlined,
   SchoolOutlined,
 } from "@mui/icons-material";
 import React, { useMemo } from "react";
@@ -18,65 +20,43 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
   const menuItems = useMemo(() => {
     if (!user) return [];
 
+    if (effectiveRole === "Admin") {
+      return adminSidebarItems;
+    }
+
+    // Menu para o Professor (Centro de Comando)
+    if (effectiveRole === "Professor") {
+      return [
+        { icon: <HomeOutlined />, label: "Início", href: "/", exact: true },
+        { icon: <MenuBookOutlined />, label: "Disciplinas", href: "/professor/disciplinas" },
+        { icon: <CalendarTodayOutlined />, label: "Calendário", href: "/professor/calendario" },
+        { icon: <AssessmentOutlined />, label: "Relatórios", href: "/professor/relatorios" },
+      ];
+    }
+
+    // Menu Padrão (Aluno)
     return [
       { icon: <HomeOutlined />, label: "Início", href: "/" },
-
-      // ...(effectiveRole === "ADMINISTRADOR" || effectiveRole === "PROFESSOR"
-      //   ? [
-            {
-              icon: <SchoolOutlined />,
-              label: "Cursos",
-              href: "/cursos",
-            },
-        //   ]
-        // : []),
-
-      {
-        icon: <MenuBookOutlined />,
-        label: "Disciplinas",
-        href: "/disciplinas",
-      },
-      // desabilitado enquanto não há dados
-      // {
-      //   icon: <Inventory2Outlined />,
-      //   label: "Materiais",
-      //   href: "/materiais",
-      // },
-      {
-        icon: <AssignmentOutlined />,
-        label: "Avaliações",
-        href: "/avaliacoes",
-      },
+      { icon: <SchoolOutlined />, label: "Cursos", href: "/cursos" },
+      { icon: <MenuBookOutlined />, label: "Disciplinas", href: "/disciplinas" },
+      { icon: <AssignmentOutlined />, label: "Avaliações", href: "/avaliacoes" },
     ];
   }, [user, effectiveRole]);
 
   const settings: HeaderItem[] = useMemo(
     () => [
       { label: "Perfil", href: "/perfil" },
-      ...(effectiveRole === "ADMINISTRADOR"
-        ? [{ label: "Dashboard", href: "/dashboard" }]
-        : []),
+      ...(effectiveRole === "Admin" ? [{ label: "Dashboard", href: "/dashboard" }] : []),
       { label: "Sair", action: "logout" },
     ],
     [effectiveRole],
   );
 
-  if (loading) {
-    // criar ui loading
-    return <div>Carregando...</div>;
-  }
-
-  if (!user) {
-    return null;
-  }
+  if (loading) return <div>Carregando...</div>;
+  if (!user) return null;
 
   return (
-    <DrawerLayout
-      title=""
-      avatarSrc="/avatar.png"
-      items={menuItems}
-      settings={settings}
-    >
+    <DrawerLayout avatarSrc="/avatar.png" items={menuItems} settings={settings}>
       {children}
     </DrawerLayout>
   );
