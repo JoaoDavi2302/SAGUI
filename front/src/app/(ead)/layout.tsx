@@ -12,10 +12,18 @@ import {
   AssessmentOutlined,
   SchoolOutlined,
 } from "@mui/icons-material";
-import React, { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useMemo } from "react";
 
 export default function EadLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const { user, loading, effectiveRole } = useUser();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/login");
+    }
+  }, [loading, user, router]);
 
   const menuItems = useMemo(() => {
     if (!user) return [];
