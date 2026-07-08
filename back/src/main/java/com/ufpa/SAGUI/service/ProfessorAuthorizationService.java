@@ -49,6 +49,10 @@ public class ProfessorAuthorizationService {
     public void validateProfessorCanManageDiscipline(Discipline discipline) {
         User user = getAuthenticatedUser();
 
+        if (user.getRole() == UserRole.Admin) {
+            return;
+        }
+
         if (user.getRole() != UserRole.Professor) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso negado");
         }

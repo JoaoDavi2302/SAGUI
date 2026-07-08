@@ -7,10 +7,15 @@ import { useUser } from "@/new-services/auth/AuthContext";
 
 import StudentPage from "./studentPage";
 import ProfessorHome from "./ProfessorHome";
+import AdminPage from "./adminPage";
 
 export default function Home() {
   const router = useRouter();
   const { effectiveRole, loading } = useUser();
+
+    // if (effectiveRole === "Admin") {
+    //   return <AdminPage />;
+    // }
 
   useEffect(() => {
     if (!loading && effectiveRole === "Admin") {

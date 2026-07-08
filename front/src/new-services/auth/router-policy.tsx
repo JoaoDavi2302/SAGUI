@@ -9,9 +9,13 @@ export const routerPolicy: Record<string, Role[]> = {
   "/dashboard/usuarios": ["Admin"],
   "/dashboard/matriculas": ["Admin"],
   "/dashboard/cursos": ["Admin"],
+  "/dashboard/disciplinas": ["Admin"],
   "/cursos": ["Admin", "Professor", "Aluno"],
+  "/cursos/gerenciar": ["Admin"],
   "/disciplinas": ["Admin", "Professor", "Aluno"],
+  "/disciplinas/gerenciar": ["Admin"],
   "/materiais": ["Admin", "Professor", "Aluno"],
   "/avaliacoes": ["Admin", "Professor", "Aluno"],
   "/perfil": ["Admin", "Professor", "Aluno"],
+  "/professor/relatorios": ["Professor"],
 };

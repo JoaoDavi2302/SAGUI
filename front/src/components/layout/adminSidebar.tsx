@@ -1,39 +1,39 @@
 "use client";
 
 import {
-  AssignmentOutlined,
-  HomeOutlined,
+  DashboardOutlined,
   HowToRegOutlined,
   MenuBookOutlined,
   PeopleOutlined,
+  SchoolOutlined,
 } from "@mui/icons-material";
 import type { SidebarItem } from "./types";
 
 export const adminSidebarItems: SidebarItem[] = [
   {
-    icon: <HomeOutlined />,
+    icon: <DashboardOutlined />,
     label: "Painel",
     href: "/dashboard",
     exact: true,
   },
   {
+    icon: <SchoolOutlined />,
+    label: "Cursos",
+    href: "/dashboard/cursos",
+  },
+  {
     icon: <MenuBookOutlined />,
     label: "Disciplinas",
-    href: "/disciplinas",
-  },
-  {
-    icon: <HowToRegOutlined />,
-    label: "Matrículas",
-    href: "/dashboard/matriculas",
-  },
-  {
-    icon: <AssignmentOutlined />,
-    label: "Avaliações",
-    href: "/avaliacoes",
+    href: "/dashboard/disciplinas",
   },
   {
     icon: <PeopleOutlined />,
     label: "Usuários",
     href: "/dashboard/usuarios",
+  },
+  {
+    icon: <HowToRegOutlined />,
+    label: "Matrículas",
+    href: "/dashboard/matriculas",
   },
 ];

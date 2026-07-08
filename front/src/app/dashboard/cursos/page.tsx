@@ -1,170 +1,219 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-
-import { Box, Typography, Button, IconButton, Paper } from "@mui/material";
-
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-
-import { Add, Delete, Edit, Visibility } from "@mui/icons-material";
-
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Grid,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { Add, EditOutlined, SchoolOutlined } from "@mui/icons-material";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { CreateCourseModal } from "@/components/catalog/CreateCourseModal";
+import { EditCourseModal } from "@/components/catalog/EditCourseModal";
 import {
   listCourses,
-  changeCourseStatus,
-  CourseDTO,
+  type CourseDTO,
 } from "@/new-services/poo/shared/api/catalog";
+import { ApiError } from "@/new-services/poo/shared/api/client";
 
-import { AdminCourse } from "@/new-services/poo/course/Roles";
+function filterCoursesByQuery(courses: CourseDTO[], query: string) {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return courses;
 
-import CourseModal from "./edit_addModal";
-import CourseViewModal from "./viewCourse_Modal";
-
-const service = new AdminCourse();
+  return courses.filter((course) => {
+    const name = (course.name ?? "").toLowerCase();
+    const description = (course.description ?? "").toLowerCase();
+    return name.includes(normalized) || description.includes(normalized);
+  });
+}
 
 export default function GerenciarCursosPage() {
-  const [rows, setRows] = useState<any[]>([]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchQuery = (searchParams.get("q") ?? "").trim();
 
+  const [courses, setCourses] = useState<CourseDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<CourseDTO | null>(null);
 
-  const [selectedId, setSelectedId] = useState<string>();
-
-  const [openEdit, setOpenEdit] = useState(false);
-
-  const [openView, setOpenView] = useState(false);
-
-  const load = useCallback(async () => {
+  const loadCourses = useCallback(async () => {
     setLoading(true);
+    setError(null);
 
     try {
-      const courses = await service.listCourses();
-
-      const data = courses.map((course) => ({
-        ...course,
-      }));
-
-      setRows(data);
+      setCourses(await listCourses());
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível carregar os cursos.",
+      );
+      setCourses([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    void loadCourses();
+  }, [loadCourses]);
 
-  async function handleDelete(id: string) {
-    if (!confirm("Deseja desativar este curso?")) return;
-
-    await changeCourseStatus(id, "Inactive");
-
-    load();
-  }
-
-  const columns: GridColDef[] = [
-    {
-      field: "name",
-      headerName: "Curso",
-      flex: 1,
-    },
-
-    {
-      field: "description",
-      headerName: "Descrição",
-      flex: 2,
-    },
-
-    {
-      field: "status",
-      headerName: "Status",
-      width: 120,
-    },
-
-    {
-      field: "actions",
-      headerName: "Ações",
-      width: 170,
-
-      renderCell: ({ row }) => (
-        <Box sx={{display:"flex", gap:1}}>
-          <IconButton
-            onClick={() => {
-              setSelectedId(row.id);
-              setOpenView(true);
-            }}
-          >
-            <Visibility fontSize="small" />
-          </IconButton>
-
-          <IconButton
-            onClick={() => {
-              setSelectedId(row.id);
-              setOpenEdit(true);
-            }}
-          >
-            <Edit fontSize="small" />
-          </IconButton>
-
-          <IconButton color="error" onClick={() => handleDelete(row.id)}>
-            <Delete fontSize="small" />
-          </IconButton>
-        </Box>
-      ),
-    },
-  ];
+  const visibleCourses = useMemo(
+    () => filterCoursesByQuery(courses, searchQuery),
+    [courses, searchQuery],
+  );
 
   return (
-    <Box sx={{p:3}}>
-      <Box sx={{display:"flex", justifyContent:"space-between", mb:2}}>
-        <Typography variant="h5" sx={{fontWeight:"bold"}}>
-          Gerenciar Cursos
-        </Typography>
+    <Box sx={{ p: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          gap: 2,
+          mb: 4,
+          flexWrap: "wrap",
+        }}
+      >
+        <Box>
+          <Typography sx={{ fontWeight: 700, fontSize: 24 }}>Cursos</Typography>
+          <Typography color="text.secondary">
+            {searchQuery
+              ? `Exibindo ${visibleCourses.length} resultado(s) para "${searchQuery}".`
+              : "Cadastre cursos e gerencie as disciplinas de cada um."}
+          </Typography>
+        </Box>
 
         <Button
           variant="contained"
           startIcon={<Add />}
-          onClick={() => {
-            setSelectedId(undefined);
-            setOpenEdit(true);
-          }}
+          onClick={() => setCreateOpen(true)}
+          sx={{ borderRadius: 2 }}
         >
-          Novo Curso
+          Novo curso
         </Button>
       </Box>
 
-      <Paper
-        sx={{
-          height: 650,
-          p: 2,
-        }}
-      >
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          loading={loading}
-          getRowId={(row) => row.id}
-          disableRowSelectionOnClick
-          showToolbar
-          sx={{
-            border: "none",
-          }}
-        />
-      </Paper>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+          {error}
+        </Alert>
+      )}
 
-      <CourseModal
-        open={openEdit}
-        courseId={selectedId}
-        onClose={(reload) => {
-          setOpenEdit(false);
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+          <CircularProgress />
+        </Box>
+      ) : visibleCourses.length === 0 ? (
+        <Typography color="text.secondary" sx={{ textAlign: "center", py: 8 }}>
+          {searchQuery
+            ? "Nenhum curso encontrado para essa busca."
+            : 'Nenhum curso cadastrado. Clique em "Novo curso" para começar.'}
+        </Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {visibleCourses.map((course) => (
+            <Grid key={course.id} size={{ xs: 12, md: 6, lg: 4 }}>
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  boxShadow: 2,
+                }}
+              >
+                <Box
+                  sx={{
+                    height: 120,
+                    bgcolor: "#f5f5f5",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <SchoolOutlined sx={{ fontSize: 45, color: "grey.500" }} />
+                </Box>
 
-          if (reload) load();
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <Typography sx={{ fontWeight: 700 }}>{course.name}</Typography>
+                    <Tooltip title="Editar curso">
+                      <IconButton
+                        size="small"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setEditingCourse(course);
+                        }}
+                      >
+                        <EditOutlined fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+
+                  <Typography color="text.secondary" sx={{ mt: 1, mb: 2 }}>
+                    {course.description?.trim() || "Sem descrição"}
+                  </Typography>
+
+                  <Chip
+                    label={course.status === "Active" ? "Ativo" : "Inativo"}
+                    color={course.status === "Active" ? "success" : "default"}
+                    size="small"
+                  />
+                </CardContent>
+
+                <Box sx={{ p: 2, pt: 0 }}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    sx={{ borderRadius: 2 }}
+                    onClick={() =>
+                      router.push(`/dashboard/cursos/${course.id}`)
+                    }
+                  >
+                    Acessar curso
+                  </Button>
+                </Box>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+
+      <CreateCourseModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onSuccess={() => {
+          void loadCourses();
         }}
       />
 
-      {/* <CourseViewModal
-        open={openView}
-        courseId={selectedId}
-        onClose={() => setOpenView(false)}
-      /> */}
+      <EditCourseModal
+        open={!!editingCourse}
+        course={editingCourse}
+        onClose={() => setEditingCourse(null)}
+        onSuccess={() => {
+          void loadCourses();
+        }}
+      />
     </Box>
   );
 }

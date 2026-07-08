@@ -37,7 +37,10 @@ export default function AdminCourseSearch() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const isCoursePage = pathname.startsWith("/dashboard/cursos");
+  const isCoursePage =
+    pathname === "/cursos" ||
+    pathname.startsWith("/cursos/gerenciar") ||
+    pathname.startsWith("/dashboard/cursos");
 
   const [query, setQuery] = React.useState("");
   const [courses, setCourses] = React.useState<CourseDTO[]>([]);
@@ -81,16 +84,20 @@ export default function AdminCourseSearch() {
 
   function goToCourse(courseId: string) {
     closeDropdown();
-    router.push(`/dashboard/cursos/${courseId}`);
+    const base = pathname.startsWith("/dashboard")
+      ? "/dashboard/cursos"
+      : "/cursos/gerenciar";
+    router.push(`${base}/${courseId}`);
   }
 
   function goToSearchResults() {
     const trimmed = query.trim();
     closeDropdown();
+    const listPath = pathname.startsWith("/dashboard")
+      ? "/dashboard/cursos"
+      : "/cursos";
     router.push(
-      trimmed
-        ? `/dashboard/cursos?q=${encodeURIComponent(trimmed)}`
-        : "/dashboard/cursos",
+      trimmed ? `${listPath}?q=${encodeURIComponent(trimmed)}` : listPath,
     );
   }
 

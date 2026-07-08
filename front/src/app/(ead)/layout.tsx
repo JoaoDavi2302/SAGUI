@@ -8,7 +8,6 @@ import {
   AssignmentOutlined,
   HomeOutlined,
   MenuBookOutlined,
-  CalendarTodayOutlined,
   AssessmentOutlined,
   SchoolOutlined,
 } from "@mui/icons-material";
@@ -37,7 +36,6 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
       return [
         { icon: <HomeOutlined />, label: "Início", href: "/", exact: true },
         { icon: <MenuBookOutlined />, label: "Disciplinas", href: "/professor/disciplinas" },
-        { icon: <CalendarTodayOutlined />, label: "Calendário", href: "/professor/calendario" },
         { icon: <AssessmentOutlined />, label: "Relatórios", href: "/professor/relatorios" },
       ];
     }
@@ -54,10 +52,9 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
   const settings: HeaderItem[] = useMemo(
     () => [
       { label: "Perfil", href: "/perfil" },
-      ...(effectiveRole === "Admin" ? [{ label: "Dashboard", href: "/dashboard" }] : []),
       { label: "Sair", action: "logout" },
     ],
-    [effectiveRole],
+    [],
   );
 
   if (loading) return <div>Carregando...</div>;

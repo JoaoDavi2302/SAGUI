@@ -1,17 +1,61 @@
 import { apiFetch } from "./client";
 import type { EntityStatus, ModuleResponse, ModulePageResponse } from "../types";
+import { ModuleDTO, ModuleRequestDTO } from "./catalog";
+import { fetchAllPages } from "./pagination";
 
-export async function listModules(
-  disciplineId: string,
-  status: EntityStatus = 'Active',
-  page: number = 0,
-  size: number = 20
-): Promise<ModulePageResponse> {
-  return apiFetch<ModulePageResponse>(
-    `/modules?disciplineId=${disciplineId}&status=${status}&page=${page}&size=${size}`
+export async function listAllModules(
+  status?: EntityStatus,
+) {
+  return fetchAllPages<ModuleDTO>(
+    "/modules",
+    status ? { status } : {},
   );
 }
 
-export async function getModule(moduleId: string): Promise<ModuleResponse> {
-  return apiFetch<ModuleResponse>(`/modules/${moduleId}`);
+export async function listModules(
+  disciplineId: string,
+  status?: EntityStatus,
+) {
+  return fetchAllPages<ModuleDTO>(
+    "/modules",
+    {
+      disciplineId,
+      ...(status && { status }),
+    },
+  );
+}
+
+export async function getModule(id: string) {
+  return apiFetch<ModuleDTO>(`/modules/${id}`);
+}
+
+export async function createModule(
+  data: ModuleRequestDTO,
+) {
+  return apiFetch<ModuleDTO>("/modules", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateModule(
+  id: string,
+  data: ModuleRequestDTO,
+) {
+  return apiFetch<ModuleDTO>(`/modules/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function changeModuleStatus(
+  id: string,
+  status: EntityStatus,
+) {
+  return apiFetch<void>(
+    `/modules/${id}/status?status=${status}`,
+    {
+      method: "PATCH",
+    },
+  );
 }

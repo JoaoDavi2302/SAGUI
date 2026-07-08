@@ -51,13 +51,13 @@ public class AttachmentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('Professor')")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
     public ResponseEntity<AttachmentResponse> create(@RequestBody @Valid AttachmentRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(attachmentService.create(request));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('Professor')")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
     public ResponseEntity<AttachmentResponse> update(
             @PathVariable UUID id,
             @RequestBody @Valid AttachmentRequest request) {
@@ -65,7 +65,7 @@ public class AttachmentController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasRole('Professor')")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
     public ResponseEntity<Void> changeStatus(
             @PathVariable UUID id,
             @RequestParam EntityStatus status) {
@@ -74,7 +74,7 @@ public class AttachmentController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('Professor')")
+    @PreAuthorize("hasAnyRole('Professor', 'Admin')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         attachmentService.delete(id);
         return ResponseEntity.noContent().build();

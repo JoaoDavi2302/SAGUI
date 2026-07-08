@@ -4,7 +4,7 @@ import {
   Box, Container, Grid, Typography, Stack, Paper 
 } from "@mui/material";
 import { 
-  HomeOutlined, MenuBookOutlined, AssessmentOutlined, CalendarTodayOutlined 
+  HomeOutlined, MenuBookOutlined, AssessmentOutlined 
 } from "@mui/icons-material";
 import DrawerLayout from "@/components/drawer";
 import mockData from "@/components/mock.json";
@@ -16,7 +16,6 @@ import { DisciplinaCard } from "./DisciplinaCard";
 const professorItems = [
   { label: "Início", href: "/professor/dashboard", icon: <HomeOutlined /> },
   { label: "Disciplinas", href: "/professor/disciplinas", icon: <MenuBookOutlined /> },
-  { label: "Calendário", href: "/professor/calendario", icon: <CalendarTodayOutlined /> },
   { label: "Relatórios", href: "/professor/relatorios", icon: <AssessmentOutlined /> },
 ];
 

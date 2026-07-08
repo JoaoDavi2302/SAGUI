@@ -16,6 +16,7 @@ import {
   ListItem,
   ListItemText,
   Typography,
+  LinearProgress,
 } from "@mui/material";
 import {
   AdminPanelSettingsOutlined,
@@ -26,6 +27,9 @@ import {
   HowToRegOutlined,
   SchoolOutlined,
   TimelineOutlined,
+  AssessmentOutlined,
+  TrendingUpOutlined,
+  TrendingDownOutlined,
 } from "@mui/icons-material";
 import { useUser } from "@/new-services/auth/AuthContext";
 import {
@@ -38,6 +42,7 @@ import { listPendingEnrollmentsPage } from "@/new-services/poo/shared/api/enroll
 import { getRoleOption } from "@/components/admin/RoleSelect";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
+import { useAdminStats } from "@/hooks/useAdminStats";
 
 const ROLE_CHIP_COLOR: Record<string, "primary" | "secondary" | "default"> = {
   Admin: "primary",
@@ -48,6 +53,7 @@ const ROLE_CHIP_COLOR: Record<string, "primary" | "secondary" | "default"> = {
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useUser();
+  const { stats, loading: statsLoading, error: statsError } = useAdminStats();
 
   const [courses, setCourses] = useState<Awaited<ReturnType<typeof listCourses>>>([]);
   const [disciplines, setDisciplines] = useState<Awaited<ReturnType<typeof listDisciplines>>>([]);
@@ -119,7 +125,7 @@ export default function DashboardPage() {
     return counts;
   }, [disciplines]);
 
-  if (loading) {
+  if (loading || statsLoading) {
     return (
       <Box sx={{ p: 3 }}>
         <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
@@ -135,6 +141,8 @@ export default function DashboardPage() {
     );
   }
 
+  const displayError = error || statsError;
+
   return (
     <Box sx={{ p: 3 }}>
       <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
@@ -149,12 +157,13 @@ export default function DashboardPage() {
         Acompanhe os indicadores e acesse a gestão da plataforma.
       </Typography>
 
-      {error && (
+      {displayError && (
         <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
-          {error}
+          {displayError}
         </Alert>
       )}
 
+      {/* Cards de indicadores gerais */}
       <Grid container spacing={3} sx={{ mb: 5 }}>
         {[
           {
@@ -219,6 +228,139 @@ export default function DashboardPage() {
         ))}
       </Grid>
 
+      {/* Cards de desempenho dos alunos */}
+      {stats && (
+        <>
+          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+            📊 Desempenho dos Alunos
+          </Typography>
+
+          <Grid container spacing={3} sx={{ mb: 5 }}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <MuiCard sx={{ borderRadius: 3 }}>
+                <MuiCardContent>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <AssessmentOutlined sx={{ fontSize: 40, color: "primary.main" }} />
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">
+                        Média de Progresso
+                      </Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                        {stats.averageStudentProgress}%
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={stats.averageStudentProgress}
+                    sx={{ mt: 2, height: 8, borderRadius: 4 }}
+                  />
+                </MuiCardContent>
+              </MuiCard>
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 4 }}>
+              <MuiCard sx={{ borderRadius: 3 }}>
+                <MuiCardContent>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <TrendingUpOutlined sx={{ fontSize: 40, color: "success.main" }} />
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">
+                        Taxa de Aprovação
+                      </Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                        {stats.overallApprovalRate}%
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={stats.overallApprovalRate}
+                    color={stats.overallApprovalRate >= 70 ? "success" : "warning"}
+                    sx={{ mt: 2, height: 8, borderRadius: 4 }}
+                  />
+                </MuiCardContent>
+              </MuiCard>
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 4 }}>
+              <MuiCard sx={{ borderRadius: 3 }}>
+                <MuiCardContent>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <PeopleOutlined sx={{ fontSize: 40, color: "info.main" }} />
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">
+                        Alunos / Professores
+                      </Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                        {stats.totalStudents} / {stats.totalProfessors}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Typography variant="caption" color="text.secondary">
+                    {stats.totalStudents > 0
+                      ? `${Math.round(stats.totalStudents / (stats.totalProfessors || 1))} alunos por professor`
+                      : "Nenhum aluno cadastrado"}
+                  </Typography>
+                </MuiCardContent>
+              </MuiCard>
+            </Grid>
+          </Grid>
+
+          {/* Desempenho por disciplina */}
+          {stats.disciplineStats.length > 0 && (
+            <>
+              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                📈 Desempenho por Disciplina
+              </Typography>
+
+              <Grid container spacing={3} sx={{ mb: 5 }}>
+                {stats.disciplineStats.slice(0, 6).map((discipline) => (
+                  <Grid key={discipline.disciplineId} size={{ xs: 12, md: 6, lg: 4 }}>
+                    <MuiCard sx={{ borderRadius: 3 }}>
+                      <MuiCardContent>
+                        <Typography sx={{ fontWeight: 700 }}>
+                          {discipline.disciplineName}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {discipline.totalStudents} alunos
+                        </Typography>
+                        <Box sx={{ mt: 2 }}>
+                          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                            <Typography variant="caption">Progresso médio</Typography>
+                            <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                              {discipline.averageProgress}%
+                            </Typography>
+                          </Box>
+                          <LinearProgress
+                            variant="determinate"
+                            value={discipline.averageProgress}
+                            sx={{ height: 6, borderRadius: 3, mb: 1 }}
+                          />
+                          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                            <Typography variant="caption">Aprovação</Typography>
+                            <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                              {discipline.approvalRate}%
+                            </Typography>
+                          </Box>
+                          <LinearProgress
+                            variant="determinate"
+                            value={discipline.approvalRate}
+                            color={discipline.approvalRate >= 70 ? "success" : "warning"}
+                            sx={{ height: 6, borderRadius: 3 }}
+                          />
+                        </Box>
+                      </MuiCardContent>
+                    </MuiCard>
+                  </Grid>
+                ))}
+              </Grid>
+            </>
+          )}
+        </>
+      )}
+
+      {/* Gerenciamento de cursos */}
       <Box
         sx={{
           display: "flex",
@@ -316,6 +458,7 @@ export default function DashboardPage() {
         )}
       </MuiCard>
 
+      {/* Últimos usuários */}
       <Box
         sx={{
           display: "flex",
@@ -380,6 +523,7 @@ export default function DashboardPage() {
         </List>
       </MuiCard>
 
+      {/* Status da plataforma */}
       <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
         Status da plataforma
       </Typography>

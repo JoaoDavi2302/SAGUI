@@ -27,7 +27,9 @@ export default function AdminDisciplineSearch() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const isDisciplinePage = pathname.startsWith("/disciplinas");
+  const isDisciplinePage =
+    pathname.startsWith("/disciplinas") ||
+    pathname.startsWith("/dashboard/disciplinas");
 
   const [query, setQuery] = React.useState("");
   const [disciplines, setDisciplines] = React.useState<AdminDisciplineItem[]>(
@@ -76,16 +78,20 @@ export default function AdminDisciplineSearch() {
 
   function goToDiscipline(discipline: AdminDisciplineItem) {
     closeDropdown();
-    router.push(`/dashboard/cursos/${discipline.courseId}`);
+    const base = pathname.startsWith("/dashboard")
+      ? "/dashboard/disciplinas"
+      : "/disciplinas/gerenciar";
+    router.push(`${base}/${discipline.id}`);
   }
 
   function goToSearchResults() {
     const trimmed = query.trim();
     closeDropdown();
+    const listPath = pathname.startsWith("/dashboard")
+      ? "/dashboard/disciplinas"
+      : "/disciplinas";
     router.push(
-      trimmed
-        ? `/disciplinas?q=${encodeURIComponent(trimmed)}`
-        : "/disciplinas",
+      trimmed ? `${listPath}?q=${encodeURIComponent(trimmed)}` : listPath,
     );
   }
 
