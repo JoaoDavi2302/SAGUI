@@ -59,6 +59,8 @@ export default function RelatoriosProfessorPage() {
     students,
     loading,
     error,
+    detailError,
+    detailLoading,
     disciplines,
     selectedDiscipline,
     setSelectedDiscipline,
@@ -70,14 +72,14 @@ export default function RelatoriosProfessorPage() {
   const [detailTab, setDetailTab] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleOpenDetail = async (studentId: string) => {
-    await loadStudentDetail(studentId);
-    setDialogOpen(true);
-  };
-
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setSelectedStudent(null);
+  };
+
+  const handleOpenDetail = async (studentId: string) => {
+    setDialogOpen(true);
+    await loadStudentDetail(studentId);
   };
 
   return (
@@ -200,7 +202,25 @@ export default function RelatoriosProfessorPage() {
         maxWidth="md"
         fullWidth
       >
-        {selectedStudent ? (
+        {detailLoading ? (
+          <DialogContent>
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+              <CircularProgress />
+            </Box>
+          </DialogContent>
+        ) : detailError ? (
+          <>
+            <DialogTitle>Detalhes do aluno</DialogTitle>
+            <DialogContent>
+              <Alert severity="error">{detailError}</Alert>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDialog} variant="contained">
+                Fechar
+              </Button>
+            </DialogActions>
+          </>
+        ) : selectedStudent ? (
           <>
             <DialogTitle>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -325,7 +345,7 @@ export default function RelatoriosProfessorPage() {
                               </Typography>
                               {act.bestScore !== null && (
                                 <Typography variant="caption" sx={{ fontWeight: "bold" }}>
-                                  Nota: {act.bestScore.toFixed(1)}
+                                  Nota: {act.bestScore.toFixed(1)} · Acerto: {act.accuracyRate}%
                                 </Typography>
                               )}
                             </Box>
@@ -344,11 +364,7 @@ export default function RelatoriosProfessorPage() {
               </Button>
             </DialogActions>
           </>
-        ) : (
-          <DialogContent>
-            <CircularProgress />
-          </DialogContent>
-        )}
+        ) : null}
       </Dialog>
     </Box>
   );
