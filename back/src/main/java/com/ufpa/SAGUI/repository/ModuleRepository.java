@@ -20,6 +20,12 @@ public interface ModuleRepository extends JpaRepository<Module, UUID> {
 
     List<Module> findByDiscipline_IdOrderByOrderIndexAsc(UUID disciplineId);
 
-Optional<Module> findFirstByDiscipline_IdAndOrderIndexLessThanOrderByOrderIndexDesc(
-        UUID disciplineId, Integer orderIndex);
+    List<Module> findByDiscipline_IdAndStatusOrderByOrderIndexAsc(
+            UUID disciplineId, EntityStatus status);
+
+    Optional<Module> findFirstByDiscipline_IdAndOrderIndexLessThanOrderByOrderIndexDesc(
+            UUID disciplineId, Integer orderIndex);
+
+    Optional<Module> findFirstByDiscipline_IdAndStatusAndOrderIndexLessThanOrderByOrderIndexDesc(
+            UUID disciplineId, EntityStatus status, Integer orderIndex);
 }

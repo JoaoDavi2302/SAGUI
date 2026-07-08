@@ -58,10 +58,10 @@ function StudentDisciplineDetailsContent({ disciplineId }: { disciplineId: strin
       setError(null);
 
       try {
-        const [discipline, progress, modulesPage] = await Promise.all([
+        const [discipline, progress, moduleList] = await Promise.all([
           getDiscipline(disciplineId),
           getDisciplineProgress(disciplineId),
-          listModules(disciplineId, "Active", 0, 100),
+          listModules(disciplineId, "Active"),
         ]);
 
         setDisciplineName(discipline.name);
@@ -72,14 +72,21 @@ function StudentDisciplineDetailsContent({ disciplineId }: { disciplineId: strin
           progress.modules.map((module) => [module.moduleId, module]),
         );
 
+        const activeModules = moduleList.filter((module) => module.status === "Active");
+
         const modulesWithLessons = await Promise.all(
-          modulesPage.content.map(async (module) => {
+          activeModules.map(async (module) => {
             const moduleProgress = progressByModule.get(module.id);
             const unlocked = moduleProgress?.unlocked ?? false;
 
-            const lessons = unlocked
-              ? await listLessons(module.id, "Active")
-              : [];
+            let lessons: LessonDTO[] = [];
+            if (unlocked) {
+              try {
+                lessons = await listLessons(module.id, "Active");
+              } catch {
+                lessons = [];
+              }
+            }
 
             return {
               moduleId: module.id,
@@ -159,7 +166,7 @@ function StudentDisciplineDetailsContent({ disciplineId }: { disciplineId: strin
               <Typography sx={{ fontWeight: 600 }}>{module.moduleName}</Typography>
               {!module.unlocked && (
                 <Typography variant="caption" color="text.secondary">
-                  — Conclua as aulas e atividades do módulo anterior
+                  — Conclua todas as aulas e a atividade do módulo anterior (70% ou 3 tentativas)
                 </Typography>
               )}
               {module.completed && (

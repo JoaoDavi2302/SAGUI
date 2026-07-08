@@ -2,6 +2,13 @@
 
 import DrawerLayout from "@/components/drawer";
 import { useUser } from "@/new-services/auth/AuthContext";
+import {
+  DashboardOutlined,
+  HowToRegOutlined,
+  MenuBookOutlined,
+  PeopleOutlined,
+  SchoolOutlined,
+} from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import React from "react";
@@ -36,10 +43,32 @@ export default function DashboardLayout({
       title="Sagui Admin"
       avatarSrc="/avatar.png"
       items={[
-        { label: "Dashboard", href: "/dashboard" },
-        { label: "Cursos", href: "/dashboard/cursos" },
-        { label: "Disciplinas", href: "/dashboard/disciplinas" },
-        { label: "Usuarios", href: "/dashboard/usuarios" },
+        {
+          icon: <DashboardOutlined />,
+          label: "Painel",
+          href: "/dashboard",
+          exact: true,
+        },
+        {
+          icon: <SchoolOutlined />,
+          label: "Cursos",
+          href: "/dashboard/cursos",
+        },
+        {
+          icon: <MenuBookOutlined />,
+          label: "Disciplinas",
+          href: "/dashboard/disciplinas",
+        },
+        {
+          icon: <PeopleOutlined />,
+          label: "Usuários",
+          href: "/dashboard/usuarios",
+        },
+        {
+          icon: <HowToRegOutlined />,
+          label: "Matrículas",
+          href: "/dashboard/matriculas",
+        },
       ]}
       settings={[
         { label: "Site", href: "/" },

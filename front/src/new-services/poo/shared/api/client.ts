@@ -51,6 +51,17 @@ export async function apiFetch<T>(
     throw new ApiError(response.status, await safeJson(response));
   }
 
+
+//   if (!response.ok) {
+//   const error = await safeJson(response);
+
+//   console.error("STATUS:", response.status);
+//   console.error("URL:", response.url);
+//   console.error("BODY:", error);
+
+//   throw new ApiError(response.status, error);
+// }
+
   if (response.status === 204) {
     return undefined as T;
   }

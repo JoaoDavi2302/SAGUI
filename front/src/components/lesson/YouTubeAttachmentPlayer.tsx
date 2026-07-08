@@ -1,7 +1,6 @@
 "use client";
 
 import { Box } from "@mui/material";
-import YouTube from "react-youtube";
 
 import { getYouTubeId } from "@/utils/youtube";
 
@@ -22,6 +21,8 @@ export function YouTubeAttachmentPlayer({
     return null;
   }
 
+  const embedUrl = `https://www.youtube-nocookie.com/embed/${resolvedVideoId}?rel=0&modestbranding=1`;
+
   return (
     <Box
       sx={{
@@ -33,21 +34,21 @@ export function YouTubeAttachmentPlayer({
         bgcolor: "#000",
       }}
     >
-      <Box sx={{ position: "absolute", inset: 0 }}>
-        <YouTube
-          videoId={resolvedVideoId}
-          opts={{
-            width: "100%",
-            height: "100%",
-            playerVars: {
-              modestbranding: 1,
-              rel: 0,
-            },
-          }}
-          style={{ width: "100%", height: "100%" }}
-          title={title}
-        />
-      </Box>
+      <Box
+        component="iframe"
+        title={title || "Vídeo do YouTube"}
+        src={embedUrl}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+        referrerPolicy="strict-origin-when-cross-origin"
+        sx={{
+          position: "absolute",
+          inset: 0,
+          border: 0,
+          width: "100%",
+          height: "100%",
+        }}
+      />
     </Box>
   );
 }
