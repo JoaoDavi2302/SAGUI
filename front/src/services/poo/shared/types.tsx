@@ -2,11 +2,7 @@ import databaseJson from "@/components/mock.json";
 
 export const database = databaseJson as Database;
 
-<<<<<<< HEAD
 export type Role = "Admin" | "Professor" | "Aluno";
-=======
-export type Role = "ADMINISTRADOR" | "PROFESSOR" | "ALUNO";
->>>>>>> origin/develop
 
 export interface Database {
   usuarios: UserEntity[];
@@ -41,17 +37,10 @@ export interface UserEntity {
 }
 
 export interface LoggedUser {
-<<<<<<< HEAD
   id: string;
   name: string;
   email: string;
   role: Role;
-=======
-  id: number;
-  nome: string;
-  email: string;
-  perfil: Role;
->>>>>>> origin/develop
 }
 
 /* curso */
@@ -290,7 +279,6 @@ export interface DisciplineGroup {
 
 /* dados da pagina de disciplina */
 export interface DisciplinePageData {
-<<<<<<< HEAD
   enrolledSubjects?: DisciplineCard[];
   availableSubjects?: DisciplineCard[];
 
@@ -301,11 +289,6 @@ export interface DisciplinePageData {
 
   lessons: LessonEntity[];
 
-=======
-  grouped: DisciplineGroup[];
-  modules: ModuleEntity[];
-  lessons: LessonEntity[];
->>>>>>> origin/develop
   moduleProgress: ModuleProgressEntity[];
 }
 

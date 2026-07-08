@@ -11,7 +11,6 @@ import { Database, LoggedUser, Role } from "../shared/types";
 export class DisciplineProvider {
   static create(role: Role, database: Database, user: LoggedUser): Discipline {
     switch (role) {
-<<<<<<< HEAD
       case "Admin":
         return new AdminDiscipline(database, user);
 
@@ -19,15 +18,6 @@ export class DisciplineProvider {
         return new ProfessorDiscipline(database, user);
 
       case "Aluno":
-=======
-      case "ADMINISTRADOR":
-        return new AdminDiscipline(database, user);
-
-      case "PROFESSOR":
-        return new ProfessorDiscipline(database, user);
-
-      case "ALUNO":
->>>>>>> origin/develop
         return new StudentDiscipline(database, user);
 
       default:

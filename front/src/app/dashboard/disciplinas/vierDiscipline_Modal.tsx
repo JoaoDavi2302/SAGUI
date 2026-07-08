@@ -17,13 +17,10 @@ import {
   Tab,
   Chip,
   Avatar,
-<<<<<<< HEAD
   AccordionDetails,
   AccordionSummary,
   Accordion,
   LinearProgress,
-=======
->>>>>>> origin/develop
 } from "@mui/material";
 
 import {
@@ -36,7 +33,6 @@ import {
   Article,
   Groups,
   Close,
-<<<<<<< HEAD
   ExpandMore,
 } from "@mui/icons-material";
 
@@ -78,19 +74,6 @@ import { useUser } from "@/new-services/auth/AuthContext";
 interface Props {
   open: boolean;
   disciplineId?: string;
-=======
-} from "@mui/icons-material";
-
-import { useUser } from "@/services/auth/AuthContext";
-import { DatabaseProvider } from "@/services/poo/databaseProvider";
-import { DisciplineProvider } from "@/services/poo/discipline/disciplineProvider";
-
-const database = DatabaseProvider.getDatabase();
-
-interface Props {
-  open: boolean;
-  disciplineId?: number;
->>>>>>> origin/develop
   onClose: () => void;
 }
 
@@ -100,7 +83,6 @@ export default function DisciplineViewModal({
   onClose,
 }: Props) {
   const { user, effectiveRole } = useUser();
-<<<<<<< HEAD
   const [discipline, setDiscipline] = useState<DisciplineDTO | null>(null);
   const [course, setCourse] = useState<CourseDTO | null>(null);
   const [professor, setProfessor] = useState<UserProfileDTO | null>(null);
@@ -119,35 +101,10 @@ export default function DisciplineViewModal({
   const [students, setStudents] = useState<EnrollmentDetailDTO[]>([]);
 
   const totalLessons = modules.reduce(
-=======
-
-  const provider = useMemo(() => {
-    if (!user) return null;
-
-    return DisciplineProvider.create(effectiveRole, database, user);
-  }, [user, effectiveRole]);
-
-  const [tab, setTab] = useState(0);
-
-  const [details, setDetails] = useState<any>(null);
-
-  useEffect(() => {
-    if (!provider || !disciplineId || !open) return;
-
-    setDetails(provider.getDetails(disciplineId));
-  }, [provider, disciplineId, open]);
-
-  if (!details) return null;
-
-  const discipline = details.discipline;
-
-  const totalLessons = details.modules.reduce(
->>>>>>> origin/develop
     (total: number, m: any) => total + m.lessons.length,
     0,
   );
 
-<<<<<<< HEAD
   const totalActivities = modules.reduce(
     (total, module) => total + module.activities.length,
     0,
@@ -218,15 +175,12 @@ export default function DisciplineViewModal({
     load();
   }, [open, disciplineId]);
 
-=======
->>>>>>> origin/develop
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
       {/* HEADER */}
 
       <DialogTitle
         sx={{
-<<<<<<< HEAD
           p: 0,
           background: "linear-gradient(135deg, #1565c0, #42a5f5)",
           color: "white",
@@ -236,22 +190,10 @@ export default function DisciplineViewModal({
           sx={{
             p: 3,
             display: "flex",
-=======
-          background: "linear-gradient(135deg,#1976d2,#42a5f5)",
-          color: "white",
-          py: 3,
-        }}
-      >
-        <Stack
-          sx={{
-            width: "100%",
-            direction: "row",
->>>>>>> origin/develop
             justifyContent: "space-between",
             alignItems: "center",
           }}
         >
-<<<<<<< HEAD
           <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
             <Avatar
               sx={{
@@ -302,44 +244,10 @@ export default function DisciplineViewModal({
                     bgcolor: "rgba(255,255,255,.15)",
                     color: "white",
                   }}
-=======
-          <Stack direction="row" spacing={2}>
-            <Avatar
-              sx={{
-                width: 62,
-                height: 62,
-                bgcolor: "rgba(255,255,255,.18)",
-              }}
-            >
-              <MenuBook />
-            </Avatar>
-
-            <Box>
-              <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                {discipline.nome}
-              </Typography>
-
-              <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                {discipline.descricao}
-              </Typography>
-
-              <Stack spacing={1} sx={{ mt: 1, direction: "row" }}>
-                <Chip
-                  color="default"
-                  size="small"
-                  label={discipline.professorName ?? "Sem professor"}
-                />
-
-                {/* <Chip
-                  color="default"
-                  size="small"
-                  label={`${discipline.workload} horas`}
->>>>>>> origin/develop
                 /> */}
               </Stack>
             </Box>
           </Stack>
-<<<<<<< HEAD
 
           <Button
             onClick={onClose}
@@ -351,9 +259,6 @@ export default function DisciplineViewModal({
             <Close />
           </Button>
         </Box>
-=======
-        </Stack>
->>>>>>> origin/develop
       </DialogTitle>
 
       {/* RESUMO */}
@@ -375,21 +280,13 @@ export default function DisciplineViewModal({
           <SummaryCard
             icon={<School color="primary" />}
             title="Curso"
-<<<<<<< HEAD
             value={course?.name}
-=======
-            value={discipline.courseName}
->>>>>>> origin/develop
           />
 
           <SummaryCard
             icon={<ViewModule color="primary" />}
             title="Módulos"
-<<<<<<< HEAD
             value={modules.length}
-=======
-            value={details.modules.length}
->>>>>>> origin/develop
           />
 
           <SummaryCard
@@ -401,21 +298,13 @@ export default function DisciplineViewModal({
           <SummaryCard
             icon={<Quiz color="primary" />}
             title="Quizzes"
-<<<<<<< HEAD
             value={totalActivities}
-=======
-            value={details.activities?.length ?? 0}
->>>>>>> origin/develop
           />
 
           <SummaryCard
             icon={<Groups color="primary" />}
             title="Alunos"
-<<<<<<< HEAD
             value={students.length}
-=======
-            value={details.students.length}
->>>>>>> origin/develop
           />
 
           {/* <SummaryCard
@@ -440,7 +329,6 @@ export default function DisciplineViewModal({
             variant="scrollable"
             scrollButtons="auto"
           >
-<<<<<<< HEAD
             <Tab icon={<ViewModule />} label="Módulos" />
 
             <Tab icon={<Article />} label="Materiais" />
@@ -448,15 +336,6 @@ export default function DisciplineViewModal({
             <Tab icon={<Quiz />} label="Quizzes" />
 
             <Tab icon={<Groups />} label="Alunos" />
-=======
-            <Tab label="Módulos" />
-
-            <Tab label="Materiais" />
-
-            <Tab label="Quizzes" />
-
-            <Tab label="Alunos" />
->>>>>>> origin/develop
           </Tabs>
 
           <Divider />
@@ -469,7 +348,6 @@ export default function DisciplineViewModal({
           >
             {tab === 0 && (
               <Stack spacing={2}>
-<<<<<<< HEAD
                 {modules.map((module: any) => (
                   <Accordion
                     key={module.id}
@@ -527,55 +405,12 @@ export default function DisciplineViewModal({
                       </Stack>
                     </AccordionDetails>
                   </Accordion>
-=======
-                {details.modules?.map((module: any) => (
-                  <Paper key={module.id} sx={{ p: 2, borderRadius: 2 }}>
-                    <Stack spacing={1}>
-                      <Typography sx={{ fontWeight: "bold" }}>
-                        {module.nome}
-                      </Typography>
-
-                      <Typography variant="body2" color="text.secondary">
-                        {module.descricao}
-                      </Typography>
-
-                      <Stack direction="row" spacing={2}>
-                        <Chip
-                          size="small"
-                          label={`${module.lessons.length} aulas`}
-                        />
-
-                        <Chip
-                          size="small"
-                          label={`${module.progress}% progresso`}
-                          color="primary"
-                        />
-                      </Stack>
-
-                      <Box sx={{ pl: 2, mt: 1 }}>
-                        {module.lessons.map((lesson: any) => (
-                          <Typography
-                            key={lesson.id}
-                            variant="body2"
-                            sx={{
-                              opacity: lesson.completed ? 1 : 0.5,
-                            }}
-                          >
-                            • {lesson.titulo}
-                            {lesson.completed ? " ✓" : ""}
-                          </Typography>
-                        ))}
-                      </Box>
-                    </Stack>
-                  </Paper>
->>>>>>> origin/develop
                 ))}
               </Stack>
             )}
 
             {tab === 1 && (
               <Stack spacing={2}>
-<<<<<<< HEAD
                 {materials.map((m: any) => (
                   <Paper
                     key={m.id}
@@ -605,38 +440,12 @@ export default function DisciplineViewModal({
                       </Typography>
                     </Box>
                   </Paper>
-=======
-                {details.materials?.map((m: any) => (
-                  <Button
-                    key={m.id}
-                    sx={{
-                      p: 2,
-                      borderRadius: 2,
-                      bgcolor: "white",
-                      maxWidth: "200px",
-                    }}
-                    href={m.url}
-                  >
-                    <Stack spacing={1}>
-                      <Typography sx={{ fontWeight: "bold" }}>
-                        {m.nome_arquivo}
-                      </Typography>
-
-                      <Stack direction="row" spacing={1}>
-                        <Chip size="small" label={m.tipo} />
-                        <Chip size="small" label={`${m.tamanho_bytes} bytes`} />
-                        {/* <Chip size="small" label={m.moduloNome} /> */}
-                      </Stack>
-                    </Stack>
-                  </Button>
->>>>>>> origin/develop
                 ))}
               </Stack>
             )}
 
             {tab === 2 && (
               <Stack spacing={2}>
-<<<<<<< HEAD
                 {modules
                   .flatMap((module) => module.activities)
                   .map((q: any) => (
@@ -667,42 +476,11 @@ export default function DisciplineViewModal({
                       </Stack>
                     </Paper>
                   ))}
-=======
-                {details.activities?.map((q: any) => (
-                  <Paper key={q.id} sx={{ p: 2, borderRadius: 2 }}>
-                    <Stack spacing={1}>
-                      <Typography sx={{ fontWeight: "bold" }}>
-                        {q.titulo}
-                      </Typography>
-
-                      <Typography variant="body2" color="text.secondary">
-                        {q.descricao}
-                      </Typography>
-
-                      <Stack direction="row" spacing={1}>
-                        <Chip
-                          size="small"
-                          label={`${q.questionCount} questões`}
-                        />
-                        <Chip
-                          size="small"
-                          label={`nota de aprovação: ${q.nota_aprovacao}`}
-                        />
-                        <Chip
-                          size="small"
-                          label={`tentativas: ${q.max_tentativas}`}
-                        />
-                      </Stack>
-                    </Stack>
-                  </Paper>
-                ))}
->>>>>>> origin/develop
               </Stack>
             )}
 
             {tab === 3 && (
               <Stack spacing={2}>
-<<<<<<< HEAD
                 {students.map((s) => {
                   const percentage = 0;
 
@@ -762,31 +540,6 @@ export default function DisciplineViewModal({
                     </Paper>
                   );
                 })}
-=======
-                {details.students?.map((s: any) => (
-                  <Paper key={s.id} sx={{ p: 2, borderRadius: 2 }}>
-                    <Stack
-                      sx={{
-                        direction: "row",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Stack>
-                        <Typography sx={{ fontWeight: "bold" }}>
-                          {s.name}
-                        </Typography>
-                        {/* modificar para calcular a partir do progresso do modulo */}
-                        <Typography variant="body2" color="text.secondary">
-                          {s.completedLessons}/{s.totalLessons} aulas
-                        </Typography>
-                      </Stack>
-                      {/* a partir do progresso do modulo, calcular o total */}
-                      <Chip label={`${s.percentage}%`} color="primary" />
-                    </Stack>
-                  </Paper>
-                ))}
->>>>>>> origin/develop
               </Stack>
             )}
           </Box>
@@ -817,7 +570,6 @@ interface SummaryProps {
 function SummaryCard({ icon, title, value }: SummaryProps) {
   return (
     <Paper
-<<<<<<< HEAD
       sx={{
         p: 2.5,
         borderRadius: 3,
@@ -842,30 +594,12 @@ function SummaryCard({ icon, title, value }: SummaryProps) {
       </Avatar>
 
       <Box>
-=======
-      elevation={1}
-      sx={{
-        p: 2,
-        borderRadius: 3,
-      }}
-    >
-      <Stack spacing={1}>
-        {icon}
-
->>>>>>> origin/develop
         <Typography variant="body2" color="text.secondary">
           {title}
         </Typography>
 
-<<<<<<< HEAD
         <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{value}</Typography>
       </Box>
-=======
-        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-          {value}
-        </Typography>
-      </Stack>
->>>>>>> origin/develop
     </Paper>
   );
 }

@@ -37,52 +37,16 @@ export default function EadLayout({ children }: { children: React.ReactNode }) {
     // Menu Padrão (Aluno)
     return [
       { icon: <HomeOutlined />, label: "Início", href: "/" },
-<<<<<<< HEAD
       { icon: <SchoolOutlined />, label: "Cursos", href: "/cursos" },
       { icon: <MenuBookOutlined />, label: "Disciplinas", href: "/disciplinas" },
       { icon: <AssignmentOutlined />, label: "Avaliações", href: "/avaliacoes" },
-=======
-
-      // ...(effectiveRole === "ADMINISTRADOR" || effectiveRole === "PROFESSOR"
-      //   ? [
-            {
-              icon: <SchoolOutlined />,
-              label: "Cursos",
-              href: "/cursos",
-            },
-        //   ]
-        // : []),
-
-      {
-        icon: <MenuBookOutlined />,
-        label: "Disciplinas",
-        href: "/disciplinas",
-      },
-      // desabilitado enquanto não há dados
-      // {
-      //   icon: <Inventory2Outlined />,
-      //   label: "Materiais",
-      //   href: "/materiais",
-      // },
-      {
-        icon: <AssignmentOutlined />,
-        label: "Avaliações",
-        href: "/avaliacoes",
-      },
->>>>>>> origin/develop
     ];
   }, [user, effectiveRole]);
 
   const settings: HeaderItem[] = useMemo(
     () => [
       { label: "Perfil", href: "/perfil" },
-<<<<<<< HEAD
       ...(effectiveRole === "Admin" ? [{ label: "Dashboard", href: "/dashboard" }] : []),
-=======
-      ...(effectiveRole === "ADMINISTRADOR"
-        ? [{ label: "Dashboard", href: "/dashboard" }]
-        : []),
->>>>>>> origin/develop
       { label: "Sair", action: "logout" },
     ],
     [effectiveRole],

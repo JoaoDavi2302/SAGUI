@@ -84,7 +84,6 @@ export class StudentMaterial extends Material {
 /* professor */
 export class ProfessorMaterial extends Material {
   listMaterials(): MaterialCard[] {
-<<<<<<< HEAD
     const disciplineIds = this.database.disciplinas
       .filter((d) => this.matchesUserId(d.professor_id))
       .map((d) => d.id);
@@ -114,39 +113,6 @@ export class ProfessorMaterial extends Material {
   }
 
   updateMaterial(id: number, data: Partial<AttachmentEntity>) {
-=======
-    // return this.database.materials
-    //   .map((material: any) => buildMaterialCard(this.database, material))
-    //   .filter(
-    //     (material): material is MaterialCard =>
-    //       material !== null &&
-    //       this.database.disciplinas.some(
-    //         (d: any) =>
-    //           d.id === material.disciplineId && d.professor_id === this.user.id,
-    //       ),
-    //   );
-  }
-
-  getMaterial(id: string) {
-    const material = buildMaterialCard(
-      this.database,
-      this.database.materials.find((m: any) => m.id === id),
-    );
-
-    if (!material) return null;
-
-    const allowed = this.database.disciplinas.some(
-      (d: any) =>
-        d.id === material.disciplineId && d.professor_id === this.user.id,
-    );
-
-    return allowed
-      ? (this.database.materials.find((m: any) => m.id === id) ?? null)
-      : null;
-  }
-
-  updateMaterial(id: string, data: Partial<AttachmentEntity>) {
->>>>>>> origin/develop
     const material = this.getMaterial(id);
 
     if (!material) return null;
@@ -160,7 +126,6 @@ export class ProfessorMaterial extends Material {
 /* admin */
 export class AdminMaterial extends Material {
   listMaterials(): MaterialCard[] {
-<<<<<<< HEAD
     return this.database.anexos
       .map((attachment) => buildMaterialCard(this.database, attachment))
       .filter((material): material is MaterialCard => material !== null);
@@ -172,19 +137,6 @@ export class AdminMaterial extends Material {
 
   updateMaterial(id: number, data: Partial<AttachmentEntity>) {
     const material = this.getMaterial(id);
-=======
-    return this.database.materials
-      .map((material: any) => buildMaterialCard(this.database, material))
-      .filter((material): material is MaterialCard => material !== null);
-  }
-
-  getMaterial(id: string) {
-    return this.database.materials.find((m: any) => m.id === id) ?? null;
-  }
-
-  updateMaterial(id: string, data: Partial<AttachmentEntity>) {
-    const material = this.database.materials.find((m: any) => m.id === id);
->>>>>>> origin/develop
 
     if (!material) return null;
 
