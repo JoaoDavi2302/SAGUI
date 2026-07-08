@@ -5,13 +5,13 @@ import { Database, LoggedUser, Role } from "../shared/types";
 export class CourseProvider {
   static create(role: Role, database: Database, user: LoggedUser): Course {
     switch (role) {
-      case "ADMINISTRADOR":
+      case "Admin":
         return new AdminCourse(database, user);
 
-      case "PROFESSOR":
+      case "Professor":
         return new ProfessorCourse(database, user);
 
-      case "ALUNO":
+      case "Aluno":
         return new StudentCourse(database, user);
 
       default:

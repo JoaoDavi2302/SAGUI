@@ -9,7 +9,7 @@
       "logradouro": "Rua A",
       "cidade": "Belém",
       "estado": "PA",
-      "perfil": "ADMINISTRADOR",
+      "perfil": "Admin",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -23,7 +23,7 @@
       "logradouro": "Rua B",
       "cidade": "Belém",
       "estado": "PA",
-      "perfil": "PROFESSOR",
+      "perfil": "Professor",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -37,7 +37,7 @@
       "logradouro": "Rua C",
       "cidade": "Belém",
       "estado": "PA",
-      "perfil": "ALUNO",
+      "perfil": "Aluno",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -51,7 +51,7 @@
       "logradouro": "Rua C",
       "cidade": "Belém",
       "estado": "PA",
-      "perfil": "ALUNO",
+      "perfil": "Aluno",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -65,7 +65,7 @@
       "logradouro": "Rua C",
       "cidade": "Belém",
       "estado": "PA",
-      "perfil": "ALUNO",
+      "perfil": "Aluno",
       "ativo": true,
       "criado_em": "2026-07-01T12:00:00Z",
       "atualizado_em": "2026-07-01T12:00:00Z"
@@ -1666,12 +1666,17 @@
       "criado_em": "2026-01-15T17:00:00Z"
     }
   ],
+  "turmas": [
+    { "id": 1, "disciplina_id": 1, "nome": "Turma A - Matutino", "total_alunos": 35 },
+    { "id": 2, "disciplina_id": 1, "nome": "Turma B - Noturno", "total_alunos": 42 },
+    { "id": 3, "disciplina_id": 2, "nome": "Turma A - Matutino", "total_alunos": 28 }
+  ],
   "matriculas": [
     {
       "id": 1,
       "aluno_id": 3,
       "curso_id": 1,
-      "disciplina_id": null,
+      "disciplina_id": 1,
       "status": "APROVADA",
       "aprovado_por": 1,
       "aprovado_em": "2026-07-01T12:00:00Z",
@@ -1681,7 +1686,7 @@
       "id": 2,
       "aluno_id": 4,
       "curso_id": 1,
-      "disciplina_id": null,
+      "disciplina_id": 1,
       "status": "APROVADA",
       "aprovado_por": 1,
       "aprovado_em": "2026-07-01T12:00:00Z",
@@ -1691,7 +1696,7 @@
       "id": 3,
       "aluno_id": 5,
       "curso_id": 1,
-      "disciplina_id": null,
+      "disciplina_id": 1,
       "status": "APROVADA",
       "aprovado_por": 1,
       "aprovado_em": "2026-07-01T12:00:00Z",

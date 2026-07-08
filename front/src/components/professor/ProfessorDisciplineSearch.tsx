@@ -1,0 +1,251 @@
+"use client";
+
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import {
+  Box,
+  CircularProgress,
+  InputBase,
+  List,
+  ListItemButton,
+  Paper,
+  Typography,
+  alpha,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import MenuBookOutlined from "@mui/icons-material/MenuBookOutlined";
+import { useUser } from "@/new-services/auth/AuthContext";
+import { listDisciplines } from "@/new-services/poo/shared/api/catalog";
+import type { DisciplineDTO } from "@/new-services/poo/shared/api/catalog";
+
+const PREVIEW_LIMIT = 6;
+
+function filterDisciplines(disciplines: DisciplineDTO[], query: string) {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return disciplines;
+
+  return disciplines.filter((discipline) =>
+    discipline.name.toLowerCase().includes(normalized),
+  );
+}
+
+export default function ProfessorDisciplineSearch() {
+  const router = useRouter();
+  const { user } = useUser();
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  const [query, setQuery] = React.useState("");
+  const [disciplines, setDisciplines] = React.useState<DisciplineDTO[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
+  const [activeIndex, setActiveIndex] = React.useState(-1);
+
+  React.useEffect(() => {
+    if (!user?.id) {
+      setDisciplines([]);
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    listDisciplines()
+      .then((data) => {
+        if (!cancelled) {
+          setDisciplines(
+            data.filter(
+              (discipline) => discipline.responsibleProfessorId === user.id,
+            ),
+          );
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setDisciplines([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
+  const matches = React.useMemo(
+    () => filterDisciplines(disciplines, query),
+    [disciplines, query],
+  );
+
+  const preview = matches.slice(0, PREVIEW_LIMIT);
+  const hasQuery = query.trim().length > 0;
+  const showDropdown = open && hasQuery;
+
+  function closeDropdown() {
+    setOpen(false);
+    setActiveIndex(-1);
+  }
+
+  function goToDiscipline(discipline: DisciplineDTO) {
+    closeDropdown();
+    router.push(`/professor/disciplinas/${discipline.id}`);
+  }
+
+  React.useEffect(() => {
+    function handlePointerDown(event: MouseEvent) {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        closeDropdown();
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, []);
+
+  return (
+    <Box
+      ref={containerRef}
+      component="form"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (activeIndex >= 0 && preview[activeIndex]) {
+          goToDiscipline(preview[activeIndex]);
+        }
+      }}
+      sx={{ position: "relative", width: "100%" }}
+    >
+      <Box
+        sx={(theme) => ({
+          display: "flex",
+          alignItems: "center",
+          width: "100%",
+          height: 44,
+          borderRadius: "12px",
+          px: 1.5,
+          bgcolor: alpha(theme.palette.common.white, 0.14),
+          border: `1px solid ${alpha(theme.palette.common.white, 0.18)}`,
+          transition: theme.transitions.create([
+            "background-color",
+            "border-color",
+            "box-shadow",
+          ]),
+          "&:hover": {
+            bgcolor: alpha(theme.palette.common.white, 0.2),
+          },
+          "&:focus-within": {
+            bgcolor: alpha(theme.palette.common.white, 0.22),
+            borderColor: alpha(theme.palette.common.white, 0.35),
+            boxShadow: `0 0 0 3px ${alpha(theme.palette.common.white, 0.12)}`,
+          },
+        })}
+      >
+        <SearchIcon sx={{ fontSize: 20, opacity: 0.85, mr: 1 }} />
+        <InputBase
+          placeholder="Buscar disciplina..."
+          value={query}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setOpen(true);
+            setActiveIndex(-1);
+          }}
+          onFocus={() => {
+            if (hasQuery) setOpen(true);
+          }}
+          onKeyDown={(event) => {
+            if (!showDropdown || preview.length === 0) return;
+
+            if (event.key === "ArrowDown") {
+              event.preventDefault();
+              setActiveIndex((current) =>
+                current < preview.length - 1 ? current + 1 : 0,
+              );
+            }
+
+            if (event.key === "ArrowUp") {
+              event.preventDefault();
+              setActiveIndex((current) =>
+                current > 0 ? current - 1 : preview.length - 1,
+              );
+            }
+
+            if (event.key === "Escape") {
+              closeDropdown();
+            }
+          }}
+          inputProps={{
+            "aria-label": "Buscar disciplina",
+            "aria-expanded": showDropdown,
+          }}
+          sx={{
+            flex: 1,
+            color: "inherit",
+            fontSize: "0.95rem",
+            "& input": {
+              py: 0,
+              "&::placeholder": {
+                color: "inherit",
+                opacity: 0.72,
+              },
+            },
+          }}
+        />
+        {loading && (
+          <CircularProgress size={16} color="inherit" sx={{ opacity: 0.8 }} />
+        )}
+      </Box>
+
+      {showDropdown ? (
+        <Paper
+          elevation={8}
+          sx={{
+            position: "absolute",
+            top: "calc(100% + 8px)",
+            left: 0,
+            right: 0,
+            overflow: "hidden",
+            borderRadius: 2,
+            zIndex: (theme) => theme.zIndex.modal,
+          }}
+        >
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+              <CircularProgress size={22} />
+            </Box>
+          ) : matches.length === 0 ? (
+            <Box sx={{ px: 2, py: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                Nenhuma disciplina encontrada.
+              </Typography>
+            </Box>
+          ) : (
+            <List dense disablePadding>
+              {preview.map((discipline, index) => (
+                <ListItemButton
+                  key={discipline.id}
+                  selected={index === activeIndex}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => goToDiscipline(discipline)}
+                  sx={{ alignItems: "flex-start", py: 1.25 }}
+                >
+                  <MenuBookOutlined
+                    fontSize="small"
+                    sx={{ mt: 0.35, mr: 1.5, color: "primary.main" }}
+                  />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
+                      {discipline.name}
+                    </Typography>
+                    {discipline.description ? (
+                      <Typography variant="body2" color="text.secondary" noWrap>
+                        {discipline.description}
+                      </Typography>
+                    ) : null}
+                  </Box>
+                </ListItemButton>
+              ))}
+            </List>
+          )}
+        </Paper>
+      ) : null}
+    </Box>
+  );
+}

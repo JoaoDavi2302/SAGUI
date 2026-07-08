@@ -3,8 +3,8 @@ import "./globals.css";
 
 import ThemeRegistry from "@/theme-provider";
 
-import { AuthProvider } from "@/services/auth/AuthContext";
-import { DataProvider } from "@/services/auth/dataContext";
+import { AuthProvider } from "@/new-services/auth/AuthContext";
+import { DataProvider } from "@/new-services/auth/dataContext";
 
 export const metadata: Metadata = {
   title: "Sagui",

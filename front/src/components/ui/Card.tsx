@@ -18,19 +18,27 @@ export const Card: React.FC<CardProps> = ({
   variant = 'outlined',
   hoverable = false,
   className = '',
+  onClick,
+  sx,
   ...props
 }) => {
+  const isClickable = hoverable || Boolean(onClick);
+
   return (
     <MuiCard
       variant={variant}
+      onClick={onClick}
       className={`bg-white rounded-xl border border-gray-100 transition-all duration-200 ${className}`}
-      sx={{
-        boxShadow: hoverable ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        '&:hover': {
-          transform: hoverable ? 'translateY(-2px)' : 'none',
+      sx={[
+        {
+          boxShadow: hoverable ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+          '&:hover': {
+            transform: hoverable ? 'translateY(-2px)' : 'none',
+          },
+          cursor: isClickable ? 'pointer' : 'default',
         },
-        cursor: hoverable ? 'pointer' : 'default',
-      }}
+        ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
+      ]}
       {...props}
     >
       {children}

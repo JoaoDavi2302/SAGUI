@@ -1,13 +1,8 @@
 // filtro de rotas/validação pós login
 import { NextRequest, NextResponse } from "next/server";
 
-import databaseJson from "@/components/mock.json";
-import { Database } from "@/services/poo/shared/types";
-
-const database = databaseJson as Database;
-
-import { Role } from "@/services/poo/shared/types";
-import { canAccess } from "@/services/auth/router-acess";
+import type { Role } from "@/new-services/poo/shared/types";
+import { canAccess } from "@/new-services/auth/router-acess";
 
 function normalize(path: string) {
   const clean = path.split("?")[0];
@@ -23,27 +18,26 @@ const PUBLIC_ROUTES = new Set([
   "/",
   "/login",
   "/cadastro",
-  "/recuperar-senha",
+  "/register"
 ]);
 
 function isPublic(path: string) {
   return PUBLIC_ROUTES.has(path);
 }
 
-function getUserRole(userId: string): Role |null {
-  const user = database.usuarios.find(
-    (u) => u.id === Number(userId),
-  );
+function getUserRole(req: NextRequest): Role | null {
+  const role = req.cookies.get("role")?.value;
 
-  return user?.perfil ?? null;
+  if (role === "Admin" || role === "Professor" || role === "Aluno") {
+    return role;
+  }
+
+  return null;
 }
 
 export function proxy(req: NextRequest) {
   const path = normalize(req.nextUrl.pathname);
 
-  console.log("[PROXY]", path);
-
-  // rotas públicas
   if (isPublic(path)) {
     return NextResponse.next();
   }
@@ -51,32 +45,18 @@ export function proxy(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
 
   if (!token) {
-    console.log("[PROXY] sem token");
-
-    return NextResponse.redirect(
-      new URL("/login", req.url),
-    );
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  const role = getUserRole(token);
+  const role = getUserRole(req);
 
   if (!role) {
-    console.log("[PROXY] usuário inválido");
-
-    return NextResponse.redirect(
-      new URL("/login", req.url),
-    );
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
   if (!canAccess(path, role)) {
-    console.log("[PROXY] acesso negado");
-
-    return NextResponse.redirect(
-      new URL("/not-found", req.url),
-    );
+    return NextResponse.redirect(new URL("/not-found", req.url));
   }
-
-  console.log("[PROXY] acesso permitido");
 
   return NextResponse.next();
 }

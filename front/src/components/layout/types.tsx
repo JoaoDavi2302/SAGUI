@@ -5,6 +5,7 @@ export type SidebarItem =
       label: string;
       href: string;
       icon?: React.ReactNode;
+      exact?: boolean;
     }
   | {
       label: string;
@@ -21,3 +22,10 @@ export type HeaderItem =
       label: string;
       action: "logout";
     };
+
+export type HeaderSearchType =
+  | "courses"
+  | "disciplines"
+  | "activities"
+  | "users"
+  | "professor-disciplines";
