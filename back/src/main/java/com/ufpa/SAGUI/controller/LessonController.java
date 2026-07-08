@@ -47,6 +47,12 @@ public class LessonController {
         return ResponseEntity.ok(lessonService.findByModule(moduleId, status, pageable));
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<LessonResponse> getLesson(@PathVariable UUID id) {
+        return ResponseEntity.ok(lessonService.findByIdForCurrentUser(id));
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('Professor')")
     public ResponseEntity<LessonResponse> createLesson(@RequestBody @Valid LessonRequest request) {

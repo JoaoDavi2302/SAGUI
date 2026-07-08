@@ -6,17 +6,20 @@ import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.web.PageableDefault;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ufpa.SAGUI.dto.user.CreateUserRequest;
 import com.ufpa.SAGUI.dto.user.UpdateProfileRequest;
 import com.ufpa.SAGUI.dto.user.UserPageResponse;
 import com.ufpa.SAGUI.dto.user.UserProfileResponse;
@@ -45,6 +48,13 @@ public class UserController {
         @RequestParam(required = false) String search,
         @PageableDefault(size = 20, sort = "name") Pageable pageable) {
         return ResponseEntity.ok(userService.listUsers(role, status, search, pageable));
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('Admin')")
+    public ResponseEntity<UserProfileResponse> createUser(
+            @RequestBody @Valid CreateUserRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(request));
     }
 
     @GetMapping("/me")

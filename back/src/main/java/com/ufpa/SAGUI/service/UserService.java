@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.ufpa.SAGUI.dto.user.CreateUserRequest;
 import com.ufpa.SAGUI.dto.user.UpdateProfileRequest;
 import com.ufpa.SAGUI.dto.user.UserPageResponse;
 import com.ufpa.SAGUI.dto.user.UserProfileResponse;
@@ -49,6 +50,26 @@ public class UserService implements UserDetailsService {
             pageable
         );
         return UserPageResponse.from(page);
+    }
+
+    @Transactional
+    public UserProfileResponse createUser(CreateUserRequest request) {
+        userRepository.findByEmail(request.email())
+            .ifPresent(existing -> {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email já está em uso");
+            });
+
+        User user = User.builder()
+            .name(request.name())
+            .email(request.email())
+            .passwordHash(passwordEncoder.encode(request.password()))
+            .role(request.role())
+            .birthDate(request.birthDate())
+            .address(request.address())
+            .build();
+        user.setStatus(EntityStatus.Active);
+
+        return UserProfileResponse.from(userRepository.save(user));
     }
 
     @Transactional(readOnly = true)
