@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { getEnrollmentProgress, type DisciplineProgressDTO } from "@/new-services/poo/shared/api/progress";
+import { getEnrollmentProgress, type DisciplineProgressResponse } from "@/new-services/poo/shared/api/progress";
 import { ApiError } from "@/new-services/poo/shared/api/client";
 
 interface StudentProgressDialogProps {
@@ -32,7 +32,7 @@ export function StudentProgressDialog({
 }: StudentProgressDialogProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [progress, setProgress] = useState<DisciplineProgressDTO | null>(null);
+  const [progress, setProgress] = useState<DisciplineProgressResponse | null>(null);
 
   useEffect(() => {
     if (!open || !enrollmentId) return;

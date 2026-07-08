@@ -9,7 +9,7 @@ import {
 } from "react";
 
 import databaseJson from "@/components/mock.json";
-import type { Database } from "@/new-services/poo/shared/types";
+import type { Database } from "@/services/poo/shared/types";
 
 const database = databaseJson as Database;
 
@@ -23,7 +23,7 @@ import {
   ModuleEntity,
   ActivityEntity,
   UserEntity,
-} from "@/new-services/poo/shared/types";
+} from "@/services/poo/shared/types";
 
 interface DataContextType {
   loading: boolean;

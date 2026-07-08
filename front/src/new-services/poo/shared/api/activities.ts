@@ -194,3 +194,113 @@ export async function updateActivity(id: string, data: ActivityRequestDTO) {
 export async function deleteActivity(id: string) {
   return apiFetch<void>(`/activities/${id}`, { method: "DELETE" });
 }
+
+// --- Aluno ---
+
+export interface AlternativeTakeResponse {
+  id: string;
+  text: string;
+}
+
+export interface QuestionTakeResponse {
+  id: string;
+  statement: string;
+  questionType: QuestionType;
+  score: number;
+  alternatives: AlternativeTakeResponse[];
+}
+
+export interface ActivityStudentSummaryResponse {
+  id: string;
+  moduleId: string;
+  title: string;
+  description: string | null;
+  attemptLimit: number;
+  minimumScore: number;
+  status: EntityStatus;
+  attemptsUsed: number;
+  attemptsRemaining: number;
+  bestScore: number | null;
+  hasApprovedAttempt: boolean;
+}
+
+export interface ActivityTakeResponse {
+  id: string;
+  moduleId: string;
+  title: string;
+  description: string | null;
+  attemptLimit: number;
+  minimumScore: number;
+  attemptsUsed: number;
+  attemptsRemaining: number;
+  bestScore: number | null;
+  hasApprovedAttempt: boolean;
+  questions: QuestionTakeResponse[];
+}
+
+export type ActivityResponse = ActivityTakeResponse;
+
+export interface StudentOwnAttemptResponse {
+  attemptId: string;
+  attemptNumber: number;
+  score: number | null;
+  approved: boolean;
+  status: AttemptStatus;
+  submittedAt: string | null;
+}
+
+export type ActivityAttemptSummaryResponse = StudentOwnAttemptResponse;
+
+export interface MyActivityAttemptsResponse {
+  activityId: string;
+  activityTitle: string;
+  attemptLimit: number;
+  minimumScore: number;
+  attemptsUsed: number;
+  attemptsRemaining: number;
+  bestScore: number | null;
+  hasApprovedAttempt: boolean;
+  attempts: StudentOwnAttemptResponse[];
+}
+
+export interface ActivityAttemptResultResponse {
+  attemptId: string;
+  attemptNumber: number;
+  score: number;
+  approved: boolean;
+  message: string;
+}
+
+export interface StudentAnswerRequest {
+  questionId: string;
+  selectedAlternativeIds: string[];
+}
+
+export async function listStudentActivities(moduleId: string) {
+  const params = new URLSearchParams({ moduleId });
+  return apiFetch<ActivityStudentSummaryResponse[]>(`/activities?${params}`);
+}
+
+export async function getActivityForTake(id: string) {
+  return apiFetch<ActivityTakeResponse>(`/activities/${id}/take`);
+}
+
+export async function listMyActivityAttempts(id: string) {
+  const response = await apiFetch<MyActivityAttemptsResponse>(
+    `/activities/${id}/my-attempts`,
+  );
+  return response.attempts;
+}
+
+export async function submitActivity(
+  id: string,
+  answers: StudentAnswerRequest[],
+) {
+  return apiFetch<ActivityAttemptResultResponse>(
+    `/activities/${id}/submissions`,
+    {
+      method: "POST",
+      body: JSON.stringify({ answers }),
+    },
+  );
+}

@@ -7,24 +7,30 @@ import {
   Typography,
   Box,
   Chip,
+  Stack,
 } from '@mui/material';
-import { CheckCircle, Cancel } from '@mui/icons-material';
+import { CheckCircle, Cancel, Replay } from '@mui/icons-material';
 
 interface ActivityResultDialogProps {
   open: boolean;
   onClose: () => void;
+  onRetry?: () => void;
+  canRetry?: boolean;
   result: {
     score: number;
     approved: boolean;
     message: string;
     minimumScore: number;
     attemptNumber: number;
+    attemptsRemaining?: number;
   };
 }
 
 export function ActivityResultDialog({
   open,
   onClose,
+  onRetry,
+  canRetry = false,
   result,
 }: ActivityResultDialogProps) {
   return (
@@ -49,7 +55,7 @@ export function ActivityResultDialog({
             pontos (nota mínima: {result.minimumScore})
           </Typography>
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 2 }}>
+          <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
             <Chip
               label={`Tentativa ${result.attemptNumber}`}
               color="info"
@@ -60,7 +66,14 @@ export function ActivityResultDialog({
               color={result.approved ? 'success' : 'error'}
               size="small"
             />
-          </Box>
+            {result.attemptsRemaining !== undefined && (
+              <Chip
+                label={`${result.attemptsRemaining} tentativa(s) restante(s)`}
+                variant="outlined"
+                size="small"
+              />
+            )}
+          </Stack>
 
           <Typography variant="body2" align="center" sx={{ mt: 2 }}>
             {result.message}
@@ -68,9 +81,21 @@ export function ActivityResultDialog({
         </Box>
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+        {canRetry && onRetry && (
+          <Button
+            onClick={() => {
+              onRetry();
+              onClose();
+            }}
+            variant="outlined"
+            startIcon={<Replay />}
+          >
+            Tentar novamente
+          </Button>
+        )}
         <Button onClick={onClose} variant="contained">
-          Continuar
+          {result.approved ? 'Continuar' : 'Fechar'}
         </Button>
       </DialogActions>
     </Dialog>

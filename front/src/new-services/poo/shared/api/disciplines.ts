@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { EntityStatus } from "./types";
+import type { EntityStatus } from "../types";
 
 export interface DisciplineResponse {
   id: string;

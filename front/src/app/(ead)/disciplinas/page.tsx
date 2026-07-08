@@ -17,7 +17,7 @@ export default function DisciplinasPage() {
   const { user, effectiveRole } = useUser();
 
   const provider = useMemo(() => {
-    if (!user) return null;
+    if (!user || effectiveRole === "Aluno") return null;
 
     return DisciplineProvider.create(
       effectiveRole,
@@ -38,16 +38,11 @@ export default function DisciplinasPage() {
     return provider.getPageData();
   }, [provider]);
 
-  if (!provider) return null;
-
   if (effectiveRole === "Aluno") {
-    return (
-      <StudentDisciplinesPage
-        user={user}
-        data={data}
-      />
-    );
+    return <StudentDisciplinesPage />;
   }
+
+  if (!provider) return null;
 
   if (effectiveRole === "Professor") {
     return (

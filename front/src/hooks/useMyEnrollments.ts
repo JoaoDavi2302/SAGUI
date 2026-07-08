@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { ApiError } from '@/new-services/poo/shared/api/client';
 import {
   listMyEnrollmentsPage,
@@ -69,8 +69,14 @@ export function useMyEnrollments(): UseMyEnrollmentsReturn {
     }
   }, [load]);
 
-  const approvedEnrollments = enrollments.filter((e) => e.status === 'APPROVED');
-  const pendingEnrollments = enrollments.filter((e) => e.status === 'PENDING');
+  const approvedEnrollments = useMemo(
+    () => enrollments.filter((e) => e.status === 'APPROVED'),
+    [enrollments],
+  );
+  const pendingEnrollments = useMemo(
+    () => enrollments.filter((e) => e.status === 'PENDING'),
+    [enrollments],
+  );
 
   return {
     enrollments,

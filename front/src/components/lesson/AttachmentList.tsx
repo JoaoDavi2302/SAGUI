@@ -21,6 +21,7 @@ interface AttachmentListProps {
   attachments: AttachmentDTO[];
   loading?: boolean;
   error?: string | null;
+  compact?: boolean;
 }
 
 function typeIcon(type: AttachmentDTO["attachmentType"]) {
@@ -38,6 +39,7 @@ export function AttachmentList({
   attachments,
   loading,
   error,
+  compact = false,
 }: AttachmentListProps) {
   if (loading) {
     return (
@@ -53,29 +55,50 @@ export function AttachmentList({
 
   if (attachments.length === 0) {
     return (
-      <Box
-        sx={{
-          py: 4,
-          textAlign: "center",
-          color: "text.secondary",
-        }}
-      >
+      <Box sx={{ py: compact ? 2 : 4, textAlign: "center", color: "text.secondary" }}>
         Nenhum material disponível.
       </Box>
     );
   }
 
   return (
-    <Stack spacing={2}>
-      {attachments.map((attachment) => (
-        <Card key={attachment.id} variant="outlined" sx={{ borderRadius: 3 }}>
-          <CardContent>
+    <Stack spacing={compact ? 1.5 : 2}>
+      {attachments.map((attachment) => {
+        const isVideo = attachment.attachmentType === "VIDEO";
+
+        if (compact && isVideo) {
+          return (
+            <Box
+              key={attachment.id}
+              sx={{
+                width: "100%",
+                maxHeight: { xs: "none", md: 400 },
+                overflow: "hidden",
+                borderRadius: 2,
+              }}
+            >
+              <YouTubeAttachmentPlayer
+                fileUrl={attachment.fileUrl}
+                videoId={attachment.videoId}
+                title={attachment.name}
+              />
+            </Box>
+          );
+        }
+
+        return (
+        <Card
+          key={attachment.id}
+          variant="outlined"
+          sx={{ borderRadius: compact ? 2 : 3, boxShadow: "none" }}
+        >
+          <CardContent sx={{ p: compact ? 1.5 : undefined, "&:last-child": { pb: compact ? 1.5 : undefined } }}>
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
                 gap: 1.5,
-                mb: attachment.attachmentType === "VIDEO" ? 2 : 0,
+                mb: isVideo ? (compact ? 1 : 2) : 0,
               }}
             >
               <Box
@@ -129,9 +152,9 @@ export function AttachmentList({
                 src={attachment.fileUrl}
                 alt={attachment.name}
                 sx={{
-                  mt: 2,
+                  mt: compact ? 1 : 2,
                   width: "100%",
-                  maxHeight: 360,
+                  maxHeight: compact ? 280 : 360,
                   objectFit: "contain",
                   borderRadius: 2,
                   bgcolor: "#f8fafc",
@@ -140,7 +163,8 @@ export function AttachmentList({
             )}
           </CardContent>
         </Card>
-      ))}
+        );
+      })}
     </Stack>
   );
 }
