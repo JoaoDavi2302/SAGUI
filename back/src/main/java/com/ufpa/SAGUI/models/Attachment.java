@@ -1,7 +1,11 @@
 package com.ufpa.SAGUI.models;
 
+import com.ufpa.SAGUI.enums.AttachmentType;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -26,7 +30,9 @@ public class Attachment extends BaseEntity {
     @Column(nullable = false)
     private String fileUrl;
 
-    private String fileType;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AttachmentType attachmentType;
 
     private Long fileSize;
 

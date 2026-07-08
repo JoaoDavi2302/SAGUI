@@ -92,7 +92,7 @@ public class AuthService {
 
                 return new RefreshTokenResponse(newAccessToken, newRefreshToken.getToken());
             }).orElseThrow(
-                () -> new RuntimeException("Refresh token não encontrado no banco")
+                () -> new BadCredentialsException("Credenciais inválidas")
             );
     }
 

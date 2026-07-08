@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.ufpa.SAGUI.dto.module.ModuleRequest;
 import com.ufpa.SAGUI.dto.module.ModuleResponse;
 import com.ufpa.SAGUI.enums.EntityStatus;
+import com.ufpa.SAGUI.enums.UserRole;
 import com.ufpa.SAGUI.models.Discipline;
 import com.ufpa.SAGUI.models.Module;
 import com.ufpa.SAGUI.models.User;
@@ -72,24 +73,23 @@ public class ModuleService {
 
     @Transactional(readOnly = true)
     public Page<ModuleResponse> findAll(UUID disciplineId, EntityStatus status, Pageable pageable) {
+        User user = findAuthenticatedUser();
+        if (user.getRole() == UserRole.Aluno && disciplineId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "disciplineId é obrigatório");
+        }
+
         if (disciplineId != null) {
             enrollmentService.validateContentAccessForCurrentUser(disciplineId);
         }
 
-        if (disciplineId != null && status != null) {
-            return moduleRepository.findAllByDiscipline_IdAndStatus(disciplineId, status, pageable)
+        EntityStatus filterStatus = status != null ? status : EntityStatus.Active;
+
+        if (disciplineId != null) {
+            return moduleRepository.findAllByDiscipline_IdAndStatus(disciplineId, filterStatus, pageable)
                     .map(ModuleResponse::from);
         }
 
-        if (disciplineId != null) {
-            return moduleRepository.findAllByDiscipline_Id(disciplineId, pageable).map(ModuleResponse::from);
-        }
-
-        if (status != null) {
-            return moduleRepository.findAllByStatus(status, pageable).map(ModuleResponse::from);
-        }
-
-        return moduleRepository.findAll(pageable).map(ModuleResponse::from);
+        return moduleRepository.findAllByStatus(filterStatus, pageable).map(ModuleResponse::from);
     }
 
     @Transactional(readOnly = true)

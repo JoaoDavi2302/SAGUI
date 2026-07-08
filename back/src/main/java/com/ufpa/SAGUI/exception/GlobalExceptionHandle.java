@@ -3,6 +3,7 @@ package com.ufpa.SAGUI.exception;
 import java.lang.module.ResolutionException;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -109,6 +110,20 @@ public class GlobalExceptionHandle {
                 ex.getReason(), 
                 request.getRequestURI()
             ));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrity(
+            DataIntegrityViolationException ex,
+            HttpServletRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.of(
+                        HttpStatus.CONFLICT.value(),
+                        "Conflict",
+                        "Operação não permitida: existem registros vinculados a este recurso.",
+                        request.getRequestURI()
+                ));
     }
 
 
