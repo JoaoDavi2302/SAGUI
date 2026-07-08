@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import type { Role } from "@/new-services/poo/shared/types";
-import { canAccess } from "@/new-services/auth/router-acess";
+import { canAccess, getMatchedRoute } from "@/new-services/auth/router-acess";
 
 function normalize(path: string) {
   const clean = path.split("?")[0];
@@ -17,7 +17,8 @@ function normalize(path: string) {
 const PUBLIC_ROUTES = new Set([
   "/login",
   "/cadastro",
-  "/register"
+  "/register",
+  "/not-found",
 ]);
 
 function isPublic(path: string) {
@@ -53,7 +54,9 @@ export function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  if (!canAccess(path, role)) {
+  const matchedRoute = getMatchedRoute(path);
+
+  if (matchedRoute && !canAccess(path, role)) {
     return NextResponse.redirect(new URL("/not-found", req.url));
   }
 

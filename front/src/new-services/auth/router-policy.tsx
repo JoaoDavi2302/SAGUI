@@ -4,6 +4,7 @@ import type { Role } from "@/new-services/poo/shared/types";
 export type { Role };
 
 export const routerPolicy: Record<string, Role[]> = {
+  "/": ["Admin", "Professor", "Aluno"],
   "/dashboard": ["Admin"],
   "/dashboard/usuarios": ["Admin"],
   "/dashboard/matriculas": ["Admin"],

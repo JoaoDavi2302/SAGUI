@@ -9,14 +9,20 @@ function normalizePath(path: string) {
   return clean === "/" ? "/" : clean.replace(/\/+$/, "");
 }
 
+export function getMatchedRoute(pathname: string): string | null {
+  const path = normalizePath(pathname);
+
+  return (
+    Object.keys(routerPolicy)
+      .sort((a, b) => b.length - a.length)
+      .find((route) => path === route || path.startsWith(route + "/")) ?? null
+  );
+}
+
 export function canAccess(pathname: string, role: Role | null) {
   if (!role) return false;
 
-  const path = normalizePath(pathname);
-
-  const matchedRoute = Object.keys(routerPolicy)
-    .sort((a, b) => b.length - a.length)
-    .find((route) => path === route || path.startsWith(route + "/"));
+  const matchedRoute = getMatchedRoute(pathname);
 
   if (!matchedRoute) return false;
 
