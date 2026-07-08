@@ -6,12 +6,20 @@ export interface AdminHeaderConfig {
 }
 
 export function getAdminHeaderConfig(pathname: string): AdminHeaderConfig | null {
-  if (pathname === "/dashboard") {
-    return { title: "Painel", searchType: "courses" };
+  if (pathname.startsWith("/dashboard/cursos/")) {
+    return { title: "Curso", searchType: "disciplines" };
   }
 
   if (pathname.startsWith("/dashboard/cursos")) {
     return { title: "Cursos", searchType: "courses" };
+  }
+
+  if (pathname.startsWith("/dashboard/disciplinas/")) {
+    return { title: "Disciplina" };
+  }
+
+  if (pathname.startsWith("/dashboard/disciplinas")) {
+    return { title: "Disciplinas", searchType: "disciplines" };
   }
 
   if (pathname.startsWith("/dashboard/usuarios")) {
@@ -22,16 +30,28 @@ export function getAdminHeaderConfig(pathname: string): AdminHeaderConfig | null
     return { title: "Matrículas" };
   }
 
+  if (pathname === "/dashboard") {
+    return { title: "Painel", searchType: "courses" };
+  }
+
   if (pathname.startsWith("/perfil")) {
     return { title: "Perfil" };
   }
 
-  if (pathname.startsWith("/disciplinas")) {
-    return { title: "Disciplinas", searchType: "disciplines" };
+  if (pathname.startsWith("/cursos/gerenciar/")) {
+    return { title: "Curso", searchType: "disciplines" };
   }
 
-  if (pathname.startsWith("/avaliacoes")) {
-    return { title: "Avaliações", searchType: "activities" };
+  if (pathname.startsWith("/cursos")) {
+    return { title: "Cursos", searchType: "courses" };
+  }
+
+  if (pathname.startsWith("/disciplinas/gerenciar/")) {
+    return { title: "Disciplina" };
+  }
+
+  if (pathname.startsWith("/disciplinas")) {
+    return { title: "Disciplinas", searchType: "disciplines" };
   }
 
   return null;

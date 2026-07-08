@@ -18,8 +18,8 @@ export default function Home() {
     // }
 
   useEffect(() => {
-    if (!loading  && effectiveRole === "Admin") {
-      router.replace("/cursos");
+    if (!loading && effectiveRole === "Admin") {
+      router.replace("/dashboard");
     }
   }, [loading, effectiveRole, router]);
 
