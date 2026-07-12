@@ -57,7 +57,7 @@ Para evitar que as páginas React concentrassem responsabilidades que não lhes 
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.7\textwidth]{imagem1.png}
+    \includegraphics[width=0.7\textwidth]{Projeto/imagem1.png}
     \caption{Arquitetura em camadas do Front-End}
     \label{fig:exemplo}
 \end{figure}
@@ -156,6 +156,60 @@ A Figura 4 apresenta a interface inicial desenvolvida especificamente para o per
 
 \subsection{Painel do Professor}
 O painel do professor concentrou o desenvolvimento das ferramentas de gestão educacional voltadas à docência, compondo toda a área administrativa utilizada por esse perfil. Essa frente incluiu a construção de fluxos dinâmicos para a edição de conteúdo programático, o gerenciamento de módulos das disciplinas sob responsabilidade do professor e uma interface para anexação de vídeos, documentos e atividades didáticas, permitindo que o corpo docente organizasse o material de suas disciplinas de forma autônoma e direta pela plataforma.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Projeto/prof1.png}
+    \caption{Tela inicial do professor}
+    \label{fig:exemplo}
+\end{figure}
+
+A Figura 5 apresenta o painel inicial dedicado ao perfil Professor, focado na gestão pedagógica e operacional das turmas. A interface centraliza as informações mais rotineiras para o docente, destacando à esquerda o quadro de “Pendências de avaliação”. Esse recurso permite o monitoramento rápido e eficiente de alunos que, eventualmente, aguardem correção ou aprovação em atividades submetidas na plataforma. À direita, a seção “Minhas Disciplinas” lista exclusivamente os componentes curriculares sob a responsabilidade direta daquele professor, respeitando o isolamento de privilégios do sistema.
+
+\subsection{Módulo Administrativo: Entidades Governantes e Operação Pedagógica}
+O módulo administrativo foi dividido em duas frentes complementares: a primeira concentrou-se na infraestrutura de gestão macro do sistema, responsável pelas visões utilizadas pelos administradores gerais do SAGUI, incluindo painéis completos com tabelas de listagem e formulários de gestão para cursos, disciplinas e usuários, integrados ao mecanismo de exclusão lógica que permite alternar o status de cada registro entre ativo e inativo sem removê-lo definitivamente da base de dados. A segunda frente atuou como ponte entre essa administração macro e a operação pedagógica do dia a dia, permitindo que administradores exercessem controle de revisão sobre os materiais criados pelos professores. Sua principal entrega foi um dashboard estratégico de gerenciamento de matrículas, com uma interface dedicada à análise, à aprovação ou à recusa das solicitações enviadas pelos alunos.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Projeto/adm4.png}
+    \caption{Gerenciamento de matrículas}
+    \label{fig:exemplo}
+\end{figure}
+
+A Figura 6 ilustra o dashboard de gerenciamento de matrículas, uma ferramenta essencial para a operação pedagógica e administrativa da plataforma. A interface lista as solicitações de acesso realizadas pelos estudantes, organizando os dados em uma tabela que exibe o nome do aluno, a disciplina requisitada, o curso de vínculo e o status atual do pedido. Por meio desse painel, o administrador exerce seu privilégio de controle para realizar a análise, aprovação ou recusa das requisições de matrícula.
+
+\newpage
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Projeto/adm3.png}
+    \caption{Painel de usuários cadastrados}
+    \label{fig:exemplo}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{Projeto/adm2.png}
+    \caption{Informações Complementares exibidas no painel do administrador do sistema}
+    \label{fig:exemplo}
+\end{figure}
+
+\newpage
+
+A Figura 7 detalha a interface de gerenciamento de usuários, um painel de governança acessível exclusivamente ao perfil Administrador. Essa tela centraliza a administração de contas do sistema, apresentando uma tabela estruturada e paginada com a listagem de todos os cadastros. Para cada registro, a interface permite a visualização e edição de propriedades críticas de acesso, incluindo a alteração do perfil do usuário, podendo designá-lo como Aluno, Professor ou Administrador. 
+
+A Figura 8 ilustra módulos complementares do painel administrativo, projetados para facilitar o acesso rápido às principais entidades do sistema. A seção de “Gerenciamento de cursos” exibe cards resumidos que indicam o status atual e a quantidade de disciplinas vinculadas a cada curso. Logo abaixo, a listagem de “Últimos usuários” permite a rápida identificação dos membros ativos na plataforma, detalhando credenciais de contato, perfil de acesso e o status de exclusão lógica. Por fim, o painel integra indicadores de “Status da plataforma”, monitorando a integridade operacional do sistema e a proporção do catálogo de cursos atualmente disponível.
+
+\subsection{Integração de Métricas de Desempenho}
+A última frente de trabalho foi responsável pela integração de métricas de desempenho ao sistema, substituindo dados fictícios utilizados durante a fase inicial de desenvolvimento por informações reais provenientes da API. Esse trabalho permitiu que administradores e professores passassem a acompanhar o progresso dos alunos de forma transparente, por meio de um dashboard voltado ao administrador, com indicadores como a média de progresso e a taxa de aprovação geral, e de uma página de relatórios voltada ao professor, apresentando o desempenho individual de cada aluno, incluindo progresso, taxa de acerto nas atividades e situação atual na disciplina.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Projeto/adm1.png}
+    \caption{Estatísticas gerais que podem ser visualizadas pelo administrador}
+    \label{fig:exemplo}
+\end{figure}
+A Figura 9 apresenta essa interface, projetada para fornecer uma visão panorâmica e em tempo real sobre o estado da plataforma. A tela é dividida em blocos estratégicos que consolidam dados cruciais para a governança institucional. Na seção superior, o administrador tem acesso imediato a métricas quantitativas gerais, incluindo o total de usuários cadastrados, cursos, disciplinas, administradores ativos e o número de solicitações de matrículas pendentes, facilitando a gestão operacional diária.
 
 \nocite{*}
 
