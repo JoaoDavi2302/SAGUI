@@ -103,6 +103,60 @@ A Tabela 1 sintetiza a responsabilidade de cada camada da aplicação front-end.
 \subsection{Camada de Autenticação}
 A pasta auth concentra tudo o que está relacionado ao usuário logado, incluindo login, cadastro, logout, recuperação do usuário autenticado, armazenamento de token e controle de permissões. A comunicação HTTP de autenticação fica isolada em um cliente dedicado, enquanto o contexto de autenticação mantém o estado global do usuário, transformando dados provenientes de localStorage, cookies e da própria API em informações prontamente utilizáveis pelas páginas, como o papel (role) do usuário logado. Complementarmente, um módulo de política de rotas define quais perfis podem acessar cada rota do sistema, e um módulo de validação de acesso executa essa checagem em tempo de navegação, bloqueando o carregamento de páginas para perfis não autorizados.
 
+\subsection{Camada de Domínio}
+A camada de domínio representa as entidades do sistema (cursos, disciplinas, aulas, entre outras), cada uma organizada em sua própria pasta, contendo modelo, regras, operações e permissões específicas. Para o domínio de cursos, por exemplo, foi definida uma classe abstrata que funciona como um contrato obrigatório: toda implementação de serviço de curso precisa saber listar, buscar, listar disciplinas, criar e atualizar cursos, ainda que a forma de implementação varie conforme o perfil do usuário. Assim, um aluno pode listar cursos, obter detalhes e visualizar disciplinas, mas não pode criar ou atualizar cursos, enquanto um administrador possui acesso a todas essas operações. Essa modelagem permite que uma página solicite apenas o serviço adequado ao perfil do usuário logado, sem precisar conhecer os detalhes internos de cada implementação.
+
+\subsection{Camada Compartilhada e de Comunicação com API}
+A camada compartilhada reúne os elementos utilizados por todos os módulos do sistema: os modelos internos de dados, os objetos enviados ao backend em operações de criação e atualização, os dados recebidos da API em suas respostas e os modelos já preparados especificamente para exibição em tela, que combinam informações de diferentes origens em um formato pronto para o consumo pelos componentes visuais. A comunicação HTTP propriamente dita é isolada em uma camada de API organizada por domínio, com módulos dedicados à autenticação, ao catálogo de cursos e disciplinas, às aulas, às atividades avaliativas, aos anexos de arquivos e vídeos, às matrículas, ao progresso dos alunos e ao cadastro de usuários. Um cliente HTTP central concentra responsabilidades como a inclusão do token de autenticação, a configuração de cabeçalhos, o tratamento padronizado de erros e a execução das requisições, evitando a duplicação dessa lógica entre os diferentes módulos.
+
+\section{Frentes de Desenvolvimento do Front-End}
+O desenvolvimento da camada de front-end foi organizado em frentes de trabalho complementares, cada uma responsável por um conjunto coeso de entregas. Essa divisão permitiu que aspectos transversais, como arquitetura, design system e qualidade visual, evoluíssem em paralelo às interfaces específicas de cada perfil de usuário do sistema.
+
+\subsection{Arquitetura de Repositório e Estratégia de Integração}
+Uma das frentes concentrou-se na definição da arquitetura base do front-end e na estruturação do repositório do projeto, estabelecendo as convenções que seriam seguidas pelas demais frentes. Essa frente liderou também a implantação do fluxo de trabalho Git Flow, garantindo a integridade da ramificação principal por meio de Pull Requests e de revisões de código rigorosas antes da integração de novas funcionalidades. Complementarmente, foi estruturado um plano de integração entre front-end e back-end baseado no uso de funções assíncronas, o que permitiu que o restante da equipe avançasse no desenvolvimento das telas mesmo com a API ainda em construção, destravando o ritmo de entrega do projeto como um todo.
+
+\subsection{Design System e Consistência Visual}
+Outra frente de trabalho foi responsável por toda a estruturação visual e pela concepção do design system do SAGUI. Foi adotada como regra arquitetural central o princípio de que nenhum botão ou campo de entrada deveria ser criado do zero em cada tela, o que motivou a criação de uma biblioteca de componentes globais configurada a partir de tokens visuais e do Material UI. Essa biblioteca centralizada assegurou acessibilidade, consistência visual entre as diferentes áreas do sistema e maior velocidade de desenvolvimento para as demais frentes, que passaram a reutilizar componentes já validados em vez de construir novas soluções de interface a cada funcionalidade.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Projeto/logo1.png}
+    \caption{Logotipo}
+    \label{fig:exemplo}
+\end{figure}
+
+A Figura 2 apresenta a identidade visual do SAGUI. A escolha do nome e do logotipo opera como uma metáfora visual alinhada aos propósitos do projeto: o sagui, um primata caracterizado por sua agilidade, inteligência e comportamento altamente sociável, representa a fluidez e a natureza colaborativa que a plataforma visa introduzir no ambiente educacional. Esteticamente, o design integra a silhueta estilizada do animal à tipografia da marca por meio de linhas contínuas e curvas dinâmicas, transmitindo a ideia de um ecossistema de aprendizado integrado e sem interrupções. A paleta de cores, composta por variações de azul e ciano, foi selecionada para reforçar os pilares de inovação tecnológica, confiança e serenidade institucional, características essenciais para um software responsável pela governança de dados acadêmicos e pedagógicos.
+
+\subsection{Qualidade Visual e Prototipagem}
+Uma frente dedicada à qualidade atuou na transição entre o design de protótipos e a implementação em código, liderando o controle de Qualidade Visual (QA) contínuo do projeto. Esse trabalho envolveu a verificação sistemática de que as telas implementadas correspondiam fielmente aos protótipos definidos e que as regras do design system eram respeitadas em todas as funcionalidades. Essa frente também prestou suporte técnico cruzado às demais equipes, auxiliando na implementação prática de fluxos de interface mais complexos e atuando como ponto de referência para dúvidas de estilização ao longo do desenvolvimento.
+
+\subsection{Autenticação e Proteção de Rotas}
+Uma frente específica foi responsável pela infraestrutura de roteamento e segurança do Next.js, desenvolvendo as lógicas críticas de middleware e proxy que gerenciam rotas públicas e privadas do sistema, de modo a prevenir falhas de acesso e a garantir que apenas usuários autorizados alcançassem determinadas páginas. Essa frente implementou o gerenciamento de estado global de autenticação e construiu as bases das páginas de login, perfil do usuário e recuperação de senha, funcionalidades que sustentam a experiência de acesso de todos os demais perfis do sistema.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Projeto/login1..png}
+    \caption{Tela inicial para login}
+    \label{fig:exemplo}
+\end{figure}
+
+A Figura 3 ilustra a interface de autenticação, que atua como o ponto de acesso inicial e seguro para todos os atores da plataforma. A tela exibe um design minimalista contendo os campos essenciais para a inserção de credenciais, além de um atalho de redirecionamento para o registro de novos usuários. Do ponto de vista estrutural, essa interface se comunica diretamente com a camada de autenticação, responsável por gerenciar a submissão dos dados. As informações inseridas no formulário são enviadas ao Back-End por meio do cliente HTTP dedicado e, após a validação bem-sucedida, o token de acesso é armazenado no estado global da aplicação (AuthContext). Esse processo garante que o usuário seja autenticado e devidamente redirecionado para as rotas permitidas ao seu nível de privilégio pelas políticas de segurança do sistema.
+
+\subsection{Interface do Aluno}
+A interface voltada ao aluno, consumidor final do sistema, reuniu a criação da vitrine de cursos disponíveis, o detalhamento de disciplinas e o fluxo de solicitação de matrículas. Foram também implementadas as interfaces de avaliação, responsáveis por apresentar atividades ao aluno e capturar suas respostas, bem como as telas que refletem as regras de progressão de módulo às quais os alunos são submetidos, de modo que o avanço no curso respeite o desempenho obtido em cada etapa.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Projeto/aluno1.png}
+    \caption{Interface inicial vista por um Aluno}
+    \label{fig:exemplo}
+\end{figure}
+
+A Figura 4 apresenta a interface inicial desenvolvida especificamente para o perfil do Aluno. Na seção “Minhas Disciplinas”, o sistema lista os conteúdos nos quais o aluno possui matrícula ativa por meio de cards individuais. Cada card detalha a quantidade de módulos disponíveis e conta com uma barra de progresso percentual, oferecendo um acompanhamento visual e intuitivo do status de conclusão de cada disciplina. Adicionalmente, o menu lateral garante navegação fluida para o catálogo de cursos, disciplinas e histórico de avaliações.
+
+\subsection{Painel do Professor}
+O painel do professor concentrou o desenvolvimento das ferramentas de gestão educacional voltadas à docência, compondo toda a área administrativa utilizada por esse perfil. Essa frente incluiu a construção de fluxos dinâmicos para a edição de conteúdo programático, o gerenciamento de módulos das disciplinas sob responsabilidade do professor e uma interface para anexação de vídeos, documentos e atividades didáticas, permitindo que o corpo docente organizasse o material de suas disciplinas de forma autônoma e direta pela plataforma.
+
 \nocite{*}
 
 \bibliographystyle{sbc}
