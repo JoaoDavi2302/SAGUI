@@ -39,13 +39,19 @@ import {
   type DisciplineDTO,
 } from "@/new-services/poo/shared/api/catalog";
 
+const ALL_COURSES = "all";
+
 export default function GerenciarDisciplinasPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const searchQuery = (searchParams.get("q") ?? "").trim();
+  const courseFromUrl = (searchParams.get("course") ?? "").trim();
 
   const [disciplines, setDisciplines] = useState<AdminDisciplineItem[]>([]);
   const [courses, setCourses] = useState<CourseDTO[]>([]);
+  const [filterCourseId, setFilterCourseId] = useState(
+    courseFromUrl || ALL_COURSES,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
@@ -64,23 +70,77 @@ export default function GerenciarDisciplinasPage() {
       ]);
       setDisciplines(disciplineList);
       setCourses(courseList);
-      setCreateCourseId((current) => current || courseList[0]?.id || "");
+
+      setCreateCourseId((current) => {
+        if (current && courseList.some((course) => course.id === current)) {
+          return current;
+        }
+        if (
+          courseFromUrl &&
+          courseList.some((course) => course.id === courseFromUrl)
+        ) {
+          return courseFromUrl;
+        }
+        return courseList[0]?.id || "";
+      });
+
+      setFilterCourseId((current) => {
+        if (current === ALL_COURSES) return ALL_COURSES;
+        if (courseList.some((course) => course.id === current)) return current;
+        if (
+          courseFromUrl &&
+          courseList.some((course) => course.id === courseFromUrl)
+        ) {
+          return courseFromUrl;
+        }
+        return ALL_COURSES;
+      });
     } catch {
       setError("Não foi possível carregar as disciplinas.");
       setDisciplines([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [courseFromUrl]);
 
   useEffect(() => {
     void loadDisciplines();
   }, [loadDisciplines]);
 
+  useEffect(() => {
+    if (courseFromUrl) {
+      setFilterCourseId(courseFromUrl);
+      setCreateCourseId(courseFromUrl);
+    }
+  }, [courseFromUrl]);
+
   const filteredDisciplines = useMemo(
-    () => filterAdminDisciplines(disciplines, searchQuery),
-    [disciplines, searchQuery],
+    () =>
+      filterAdminDisciplines(
+        disciplines,
+        searchQuery,
+        filterCourseId === ALL_COURSES ? null : filterCourseId,
+      ),
+    [disciplines, searchQuery, filterCourseId],
   );
+
+  function handleCourseFilterChange(courseId: string) {
+    setFilterCourseId(courseId);
+    if (courseId !== ALL_COURSES) {
+      setCreateCourseId(courseId);
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    if (courseId === ALL_COURSES) {
+      params.delete("course");
+    } else {
+      params.set("course", courseId);
+    }
+    const query = params.toString();
+    router.replace(
+      query ? `/dashboard/disciplinas?${query}` : "/dashboard/disciplinas",
+    );
+  }
 
   if (loading) {
     return (
@@ -89,6 +149,11 @@ export default function GerenciarDisciplinasPage() {
       </Box>
     );
   }
+
+  const selectedCourseName =
+    filterCourseId === ALL_COURSES
+      ? null
+      : courses.find((course) => course.id === filterCourseId)?.name;
 
   return (
     <Box sx={{ p: 3 }}>
@@ -107,9 +172,11 @@ export default function GerenciarDisciplinasPage() {
             Disciplinas
           </Typography>
           <Typography color="text.secondary">
-            {searchQuery
-              ? `Exibindo ${filteredDisciplines.length} resultado(s) para "${searchQuery}".`
-              : "Gerencie as disciplinas e o conteúdo de cada uma."}
+            {searchQuery || selectedCourseName
+              ? `Exibindo ${filteredDisciplines.length} disciplina(s)${
+                  selectedCourseName ? ` de "${selectedCourseName}"` : ""
+                }${searchQuery ? ` para "${searchQuery}"` : ""}.`
+              : `Gerencie as disciplinas e o conteúdo de cada uma (${disciplines.length}).`}
           </Typography>
         </Box>
 
@@ -118,11 +185,12 @@ export default function GerenciarDisciplinasPage() {
             <TextField
               select
               size="small"
-              label="Curso"
-              value={createCourseId}
-              onChange={(event) => setCreateCourseId(event.target.value)}
-              sx={{ minWidth: 180 }}
+              label="Filtrar por curso"
+              value={filterCourseId}
+              onChange={(event) => handleCourseFilterChange(event.target.value)}
+              sx={{ minWidth: 220 }}
             >
+              <MenuItem value={ALL_COURSES}>Todos os cursos</MenuItem>
               {courses.map((course) => (
                 <MenuItem key={course.id} value={course.id}>
                   {course.name}
@@ -146,18 +214,6 @@ export default function GerenciarDisciplinasPage() {
         <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
           {error}
         </Alert>
-      ) : null}
-
-      {searchQuery ? (
-        <Box sx={{ mb: 3 }}>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => router.push("/dashboard/disciplinas")}
-          >
-            Limpar busca
-          </Button>
-        </Box>
       ) : null}
 
       <Grid container spacing={3}>
@@ -257,8 +313,8 @@ export default function GerenciarDisciplinasPage() {
         {filteredDisciplines.length === 0 && (
           <Grid size={12}>
             <Typography align="center" color="text.secondary">
-              {searchQuery
-                ? "Nenhuma disciplina encontrada para essa busca."
+              {searchQuery || filterCourseId !== ALL_COURSES
+                ? "Nenhuma disciplina encontrada para esses filtros."
                 : "Nenhuma disciplina cadastrada."}
             </Typography>
           </Grid>

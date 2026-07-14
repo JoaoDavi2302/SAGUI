@@ -36,6 +36,7 @@ import type { CourseDTO, UserProfileDTO } from "@/new-services/poo/shared/api/ca
 import { listUsersPage } from "@/new-services/poo/shared/api/users";
 import { listPendingEnrollmentsPage } from "@/new-services/poo/shared/api/enrollment";
 import { listDisciplines as listDisciplinesPage } from "@/new-services/poo/shared/api/disciplines";
+import { resolveTotalElements } from "@/new-services/poo/shared/api/pagination";
 import { getRoleOption } from "@/components/admin/RoleSelect";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -49,7 +50,8 @@ const ROLE_CHIP_COLOR: Record<string, "primary" | "secondary" | "default"> = {
 
 interface PageResponse<T> {
   content: T[];
-  totalElements: number;
+  totalElements?: number;
+  page?: { totalElements?: number };
 }
 
 interface DashboardCounts {
@@ -123,15 +125,15 @@ export default function DashboardPage() {
     }
 
     if (coursesCountResult.status === "fulfilled") {
-      nextCounts.courses = coursesCountResult.value.totalElements;
+      nextCounts.courses = resolveTotalElements(coursesCountResult.value);
     }
 
     if (activeCoursesResult.status === "fulfilled") {
-      nextCounts.activeCourses = activeCoursesResult.value.totalElements;
+      nextCounts.activeCourses = resolveTotalElements(activeCoursesResult.value);
     }
 
     if (disciplinesCountResult.status === "fulfilled") {
-      nextCounts.disciplines = disciplinesCountResult.value.totalElements;
+      nextCounts.disciplines = resolveTotalElements(disciplinesCountResult.value);
     }
 
     if (recentUsersResult.status === "fulfilled") {
@@ -139,15 +141,17 @@ export default function DashboardPage() {
     }
 
     if (usersCountResult.status === "fulfilled") {
-      nextCounts.users = usersCountResult.value.totalElements;
+      nextCounts.users = resolveTotalElements(usersCountResult.value);
     }
 
     if (adminsCountResult.status === "fulfilled") {
-      nextCounts.admins = adminsCountResult.value.totalElements;
+      nextCounts.admins = resolveTotalElements(adminsCountResult.value);
     }
 
     if (enrollmentsResult.status === "fulfilled") {
-      nextCounts.pendingEnrollments = enrollmentsResult.value.totalElements;
+      nextCounts.pendingEnrollments = resolveTotalElements(
+        enrollmentsResult.value,
+      );
     }
 
     setCounts(nextCounts);
@@ -157,7 +161,7 @@ export default function DashboardPage() {
         courses.map(async (course) => {
           try {
             const page = await listDisciplinesPage(course.id, 0, 1);
-            return [course.id, page.totalElements] as const;
+            return [course.id, resolveTotalElements(page)] as const;
           } catch {
             return [course.id, 0] as const;
           }

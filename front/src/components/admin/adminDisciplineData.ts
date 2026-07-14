@@ -46,11 +46,18 @@ export async function fetchAdminDisciplines(): Promise<AdminDisciplineItem[]> {
 export function filterAdminDisciplines(
   disciplines: AdminDisciplineItem[],
   query: string,
+  courseId?: string | null,
 ) {
   const normalized = query.trim().toLowerCase();
-  if (!normalized) return disciplines;
+  const courseFilter = courseId?.trim() || "";
 
   return disciplines.filter((discipline) => {
+    if (courseFilter && discipline.courseId !== courseFilter) {
+      return false;
+    }
+
+    if (!normalized) return true;
+
     const name = (discipline.name ?? "").toLowerCase();
     const description = (discipline.description ?? "").toLowerCase();
     const courseName = discipline.courseName.toLowerCase();

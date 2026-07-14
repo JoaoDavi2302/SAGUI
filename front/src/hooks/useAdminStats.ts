@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { listUsersPage } from '@/new-services/poo/shared/api/users';
 import { listDisciplines } from '@/new-services/poo/shared/api/disciplines';
 import { listDisciplineStudentsProgress } from '@/new-services/poo/shared/api/progress';
+import { resolveTotalElements } from '@/new-services/poo/shared/api/pagination';
 import { getApiErrorMessage } from '@/utils/apiErrorMessage';
 
 interface DisciplineStats {
@@ -137,8 +138,8 @@ export function useAdminStats() {
           : 0;
 
       setStats({
-        totalStudents: studentsPage.totalElements,
-        totalProfessors: professorsPage.totalElements,
+        totalStudents: resolveTotalElements(studentsPage),
+        totalProfessors: resolveTotalElements(professorsPage),
         averageStudentProgress: avgStudentProgress,
         overallApprovalRate,
         topStudents: [],
