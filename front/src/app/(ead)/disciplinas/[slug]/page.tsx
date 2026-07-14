@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   Accordion,
@@ -32,13 +32,6 @@ import type { LessonDTO } from "@/new-services/poo/shared/api/lessons";
 import type { ModuleProgressResponse } from "@/new-services/poo/shared/api/progress";
 import { StudentProgressBar } from "@/components/student/StudentProgressBar";
 import { getApiErrorMessage } from "@/utils/apiErrorMessage";
-
-import { DatabaseProvider } from "@/services/poo/databaseProvider";
-import { DisciplineProvider } from "@/services/poo/discipline/disciplineProvider";
-import ProfessorDisciplineDetailsPage from "./professorDisciplineDetailsPage";
-import AdminDisciplineDetailsPage from "./adminDisciplineDetailsPage";
-
-const database = DatabaseProvider.getDatabase();
 
 interface ModuleWithLessons extends ModuleProgressResponse {
   lessons: LessonDTO[];
@@ -209,21 +202,19 @@ function StudentDisciplineDetailsContent({ disciplineId }: { disciplineId: strin
 }
 
 function DisciplinePageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const disciplineId = searchParams.get("id") ?? "";
-  const { user, effectiveRole } = useUser();
+  const { effectiveRole } = useUser();
 
-  const provider = useMemo(() => {
-    if (!user || effectiveRole === "Aluno") return null;
-    return DisciplineProvider.create(effectiveRole, database, user);
-  }, [user, effectiveRole]);
-
-  const data = useMemo(() => {
-    if (!provider || !disciplineId || effectiveRole === "Aluno") return null;
-    const numericId = Number(disciplineId);
-    if (!Number.isFinite(numericId)) return null;
-    return provider.getDetails(numericId);
-  }, [provider, disciplineId, effectiveRole]);
+  useEffect(() => {
+    if (!disciplineId) return;
+    if (effectiveRole === "Professor") {
+      router.replace(`/professor/disciplinas/${disciplineId}`);
+    } else if (effectiveRole === "Admin") {
+      router.replace(`/disciplinas/gerenciar/${disciplineId}`);
+    }
+  }, [disciplineId, effectiveRole, router]);
 
   if (effectiveRole === "Aluno") {
     if (!disciplineId) {
@@ -236,13 +227,11 @@ function DisciplinePageContent() {
     return <StudentDisciplineDetailsContent disciplineId={disciplineId} />;
   }
 
-  if (!data || !provider) return null;
-
-  if (effectiveRole === "Professor") {
-    return <ProfessorDisciplineDetailsPage data={data} user={user} />;
-  }
-
-  return <AdminDisciplineDetailsPage data={data} user={user} />;
+  return (
+    <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+      <CircularProgress />
+    </Box>
+  );
 }
 
 export default function DisciplinePage() {

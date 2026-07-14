@@ -1,4 +1,3 @@
-import { RoleBase } from "../shared/roles";
 import type {
   DisciplineDTO,
   DisciplineRequestDTO,

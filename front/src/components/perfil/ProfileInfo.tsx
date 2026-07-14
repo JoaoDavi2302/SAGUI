@@ -1,8 +1,8 @@
 "use client";
 
 import { Box, Paper, Typography, Avatar, Divider, Stack } from "@mui/material";
-import { LoggedUser } from "@/services/poo/shared/types";
-import { Role } from "@/services/poo/shared/types";
+import { LoggedUser } from "@/new-services/poo/shared/types";
+import { Role } from "@/new-services/poo/shared/types";
 
 interface ProfileInfoProps {
   user: LoggedUser;

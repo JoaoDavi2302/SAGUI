@@ -23,7 +23,6 @@ import type { HeaderItem, HeaderSearchType } from "./layout/types";
 import { useUser } from "@/new-services/auth/AuthContext";
 import AdminCourseSearch from "./admin/AdminCourseSearch";
 import AdminDisciplineSearch from "./admin/AdminDisciplineSearch";
-import AdminActivitySearch from "./admin/AdminActivitySearch";
 import { AdminUserSearch } from "./admin/AdminUserSearch";
 import ProfessorDisciplineSearch from "./professor/ProfessorDisciplineSearch";
 
@@ -43,8 +42,6 @@ function HeaderSearch({ searchType }: { searchType: HeaderSearchType }) {
       return <AdminCourseSearch />;
     case "disciplines":
       return <AdminDisciplineSearch />;
-    case "activities":
-      return <AdminActivitySearch />;
     case "users":
       return <AdminUserSearch variant="header" />;
     case "professor-disciplines":

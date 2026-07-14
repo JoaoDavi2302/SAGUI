@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -27,10 +27,6 @@ import { listDisciplines } from "@/new-services/poo/shared/api/disciplines";
 import { EnrollmentStatusChip } from "@/components/student/EnrollmentStatusChip";
 import { slugify } from "@/components/layout/headerConfig";
 import { getApiErrorMessage } from "@/utils/apiErrorMessage";
-import { CourseProvider } from "@/services/poo/course/CourseProvider";
-import { DatabaseProvider } from "@/services/poo/databaseProvider";
-
-const database = DatabaseProvider.getDatabase();
 
 interface DisciplineItem {
   id: string;
@@ -207,65 +203,19 @@ function StudentCourseDetailContent({ courseId }: { courseId: string }) {
   );
 }
 
-function LegacyCourseDetailContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const id = Number(searchParams.get("id"));
-  const { user, effectiveRole } = useUser();
-  const isStudent = effectiveRole === "Aluno";
-
-  const provider = useMemo(() => {
-    if (!user) return null;
-    return CourseProvider.create(effectiveRole, database, user);
-  }, [user, effectiveRole]);
-
-  const course = useMemo(() => {
-    if (!provider || !id) return null;
-    return provider.getCourse(id);
-  }, [provider, id]);
-
-  const disciplines = useMemo(() => {
-    if (!provider || !id) return [];
-    return provider.getDisciplines(id);
-  }, [provider, id]);
-
-  if (!course) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Typography>Curso não encontrado</Typography>
-      </Box>
-    );
-  }
-
-  const goDiscipline = (d: { id: number; nome: string }) => {
-    router.push(`/disciplinas/${slugify(d.nome)}?id=${d.id}`);
-  };
-
-  return (
-    <Box sx={{ p: 3 }}>
-      <Typography sx={{ fontSize: 24, fontWeight: 800 }}>{course.nome}</Typography>
-      <Typography variant="body2" color="text.secondary">{course.descricao}</Typography>
-
-      <Grid container spacing={2} sx={{ mt: 2 }}>
-        {disciplines.map((d: { id: number; nome: string; description?: string }) => (
-          <Grid key={d.id} size={{ xs: 12, md: 6 }}>
-            <Card sx={{ cursor: "pointer" }} onClick={() => goDiscipline(d)}>
-              <CardContent>
-                <Typography sx={{ fontWeight: 700 }}>{d.nome}</Typography>
-                <Typography variant="body2" color="text.secondary">{d.description}</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
-  );
-}
-
 function CourseDetailPageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const courseId = searchParams.get("id") ?? "";
   const { effectiveRole } = useUser();
+
+  useEffect(() => {
+    if (effectiveRole === "Admin" && courseId) {
+      router.replace(`/cursos/gerenciar/${courseId}`);
+    } else if (effectiveRole === "Professor") {
+      router.replace("/professor/disciplinas");
+    }
+  }, [courseId, effectiveRole, router]);
 
   if (effectiveRole === "Aluno") {
     if (!courseId) {
@@ -278,7 +228,11 @@ function CourseDetailPageContent() {
     return <StudentCourseDetailContent courseId={courseId} />;
   }
 
-  return <LegacyCourseDetailContent />;
+  return (
+    <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+      <CircularProgress />
+    </Box>
+  );
 }
 
 export default function CourseDetailPage() {

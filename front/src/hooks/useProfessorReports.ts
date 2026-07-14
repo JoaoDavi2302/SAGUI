@@ -7,7 +7,6 @@ import {
   listDisciplineStudentsProgress,
 } from '@/new-services/poo/shared/api/progress';
 import {
-  getActivity,
   listActivities,
   listActivityAttempts,
   type ActivityAttemptSummaryDTO,
@@ -122,7 +121,9 @@ function computeStudentActivityStats(
   const accuracyRate =
     totalPossibleScore > 0
       ? Math.round((totalEarnedScore / totalPossibleScore) * 100)
-      : 0;
+      : attemptedActivities > 0
+        ? Math.round((completedActivities / attemptedActivities) * 100)
+        : 0;
 
   return {
     totalActivities: attemptedActivities,
@@ -154,7 +155,11 @@ function buildActivityDetails(
     const accuracyRate =
       activity.maxScore > 0
         ? Math.round((bestAttempt.score / activity.maxScore) * 100)
-        : 0;
+        : bestAttempt.approved
+          ? 100
+          : Math.round(
+              (bestAttempt.score / Math.max(activity.minimumScore, 1)) * 100,
+            );
 
     return [
       {
@@ -186,26 +191,17 @@ async function loadDisciplineActivities(
     modules.map(async (module) => {
       const moduleActivities = await listActivities(module.id);
 
-      return Promise.all(
-        moduleActivities
-          .filter((activity) => activity.status === 'Active')
-          .map(async (activity) => {
-            const detail = await getActivity(activity.id);
-            const maxScore = detail.questions.reduce(
-              (sum, question) => sum + question.score,
-              0,
-            );
-
-            return {
-              id: activity.id,
-              title: activity.title,
-              moduleName: module.name,
-              attemptLimit: activity.attemptLimit,
-              minimumScore: activity.minimumScore,
-              maxScore,
-            };
-          }),
-      );
+      return moduleActivities
+        .filter((activity) => activity.status === 'Active')
+        .map((activity) => ({
+          id: activity.id,
+          title: activity.title,
+          moduleName: module.name,
+          attemptLimit: activity.attemptLimit,
+          minimumScore: activity.minimumScore,
+          // Listagem não precisa do detalhe com questões; maxScore é resolvido nas tentativas.
+          maxScore: 0,
+        }));
     }),
   );
 
@@ -238,108 +234,148 @@ export function useProfessorReports() {
   const [selectedDiscipline, setSelectedDiscipline] = useState<string | null>(null);
   const [disciplines, setDisciplines] = useState<{ id: string; name: string }[]>([]);
 
-  const loadDisciplines = useCallback(async () => {
-    if (!user?.id) {
-      setDisciplines([]);
-      return;
-    }
+  useEffect(() => {
+    let cancelled = false;
 
-    try {
-      const all = await listDisciplines();
-      const disciplineList = all
-        .filter(
-          (discipline) =>
-            discipline.status === 'Active' &&
-            discipline.responsibleProfessorId === user.id,
-        )
-        .map((discipline) => ({
-          id: discipline.id,
-          name: discipline.name,
-        }));
+    async function loadDisciplines() {
+      if (!user?.id) {
+        if (!cancelled) {
+          setDisciplines([]);
+          setSelectedDiscipline(null);
+          setStudents([]);
+          setLoading(false);
+        }
+        return;
+      }
 
-      setDisciplines(disciplineList);
+      setLoading(true);
+      setError(null);
 
-      if (disciplineList.length > 0) {
+      try {
+        const all = await listDisciplines();
+        if (cancelled) return;
+
+        const disciplineList = all
+          .filter(
+            (discipline) =>
+              discipline.status === 'Active' &&
+              discipline.responsibleProfessorId === user.id,
+          )
+          .map((discipline) => ({
+            id: discipline.id,
+            name: discipline.name,
+          }));
+
+        setDisciplines(disciplineList);
+
+        if (disciplineList.length === 0) {
+          setSelectedDiscipline(null);
+          setStudents([]);
+          setLoading(false);
+          return;
+        }
+
         setSelectedDiscipline((current) =>
           current && disciplineList.some((d) => d.id === current)
             ? current
             : disciplineList[0].id,
         );
-      } else {
-        setSelectedDiscipline(null);
+      } catch {
+        if (!cancelled) {
+          setError('Não foi possível carregar as disciplinas.');
+          setDisciplines([]);
+          setSelectedDiscipline(null);
+          setStudents([]);
+          setLoading(false);
+        }
       }
-    } catch {
-      setError('Não foi possível carregar as disciplinas.');
-      setDisciplines([]);
-      setSelectedDiscipline(null);
     }
+
+    void loadDisciplines();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user?.id]);
 
-  const loadStudents = useCallback(async () => {
-    if (!selectedDiscipline) {
-      setStudents([]);
-      setLoading(false);
-      return;
+  useEffect(() => {
+    if (!selectedDiscipline) return;
+
+    let cancelled = false;
+    const disciplineId = selectedDiscipline;
+    const disciplineName =
+      disciplines.find((d) => d.id === disciplineId)?.name ?? '';
+
+    async function loadStudents() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const [enrollmentsPage, progressPage, activities] = await Promise.all([
+          listEnrollmentsByDiscipline(disciplineId, { page: 0, size: 100 }),
+          listDisciplineStudentsProgress(disciplineId, 0, 100),
+          loadDisciplineActivities(disciplineId),
+        ]);
+
+        if (cancelled) return;
+
+        const attemptsByActivity = await loadAttemptsByActivity(activities);
+        if (cancelled) return;
+
+        const progressByStudent = new Map(
+          (progressPage.content ?? []).map((item) => [item.studentId, item]),
+        );
+
+        const studentsData = (enrollmentsPage.content ?? [])
+          .filter((enrollment) => enrollment.status === 'APPROVED')
+          .map((enrollment) => {
+            const progress = progressByStudent.get(enrollment.studentId);
+            const overallPercentage = progress?.overallPercentage ?? 0;
+            const activityStats = computeStudentActivityStats(
+              enrollment.studentId,
+              activities,
+              attemptsByActivity,
+            );
+
+            return {
+              enrollmentId: enrollment.id,
+              studentId: enrollment.studentId,
+              studentName: enrollment.studentName,
+              studentEmail: enrollment.studentEmail ?? '',
+              disciplineId,
+              disciplineName,
+              overallPercentage,
+              totalModules: progress?.totalModules ?? 0,
+              completedModules: progress?.completedModules ?? 0,
+              ...activityStats,
+              status:
+                overallPercentage >= 70
+                  ? ('APROVADO' as const)
+                  : activityStats.totalActivities > 0 &&
+                      activityStats.accuracyRate < 70
+                    ? ('REPROVADO' as const)
+                    : ('EM_ANDAMENTO' as const),
+            };
+          });
+
+        setStudents(studentsData);
+      } catch (err) {
+        if (!cancelled) {
+          setStudents([]);
+          setError(getApiErrorMessage(err));
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
     }
 
-    setLoading(true);
-    setError(null);
+    void loadStudents();
 
-    try {
-      const disciplineName =
-        disciplines.find((d) => d.id === selectedDiscipline)?.name ?? '';
-
-      const [enrollmentsPage, progressPage, activities] = await Promise.all([
-        listEnrollmentsByDiscipline(selectedDiscipline, { page: 0, size: 100 }),
-        listDisciplineStudentsProgress(selectedDiscipline, 0, 100),
-        loadDisciplineActivities(selectedDiscipline),
-      ]);
-
-      const attemptsByActivity = await loadAttemptsByActivity(activities);
-
-      const progressByStudent = new Map(
-        (progressPage.content ?? []).map((item) => [item.studentId, item]),
-      );
-
-      const studentsData = (enrollmentsPage.content ?? [])
-        .filter((enrollment) => enrollment.status === 'APPROVED')
-        .map((enrollment) => {
-          const progress = progressByStudent.get(enrollment.studentId);
-          const overallPercentage = progress?.overallPercentage ?? 0;
-          const activityStats = computeStudentActivityStats(
-            enrollment.studentId,
-            activities,
-            attemptsByActivity,
-          );
-
-          return {
-            enrollmentId: enrollment.id,
-            studentId: enrollment.studentId,
-            studentName: enrollment.studentName,
-            studentEmail: enrollment.studentEmail ?? '',
-            disciplineId: selectedDiscipline,
-            disciplineName,
-            overallPercentage,
-            totalModules: progress?.totalModules ?? 0,
-            completedModules: progress?.completedModules ?? 0,
-            ...activityStats,
-            status:
-              overallPercentage >= 70
-                ? ('APROVADO' as const)
-                : activityStats.totalActivities > 0 &&
-                    activityStats.accuracyRate < 70
-                  ? ('REPROVADO' as const)
-                  : ('EM_ANDAMENTO' as const),
-          };
-        });
-
-      setStudents(studentsData);
-    } catch (err) {
-      setStudents([]);
-      setError(getApiErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
+    return () => {
+      cancelled = true;
+    };
   }, [selectedDiscipline, disciplines]);
 
   const loadStudentDetail = useCallback(
@@ -388,16 +424,6 @@ export function useProfessorReports() {
     [selectedDiscipline, students],
   );
 
-  useEffect(() => {
-    void loadDisciplines();
-  }, [loadDisciplines]);
-
-  useEffect(() => {
-    if (selectedDiscipline) {
-      void loadStudents();
-    }
-  }, [selectedDiscipline, loadStudents]);
-
   return {
     students,
     loading,
@@ -410,6 +436,5 @@ export function useProfessorReports() {
     selectedStudent,
     loadStudentDetail,
     setSelectedStudent,
-    refresh: loadStudents,
   };
 }

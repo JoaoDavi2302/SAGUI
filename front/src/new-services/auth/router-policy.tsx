@@ -14,7 +14,6 @@ export const routerPolicy: Record<string, Role[]> = {
   "/cursos/gerenciar": ["Admin"],
   "/disciplinas": ["Admin", "Professor", "Aluno"],
   "/disciplinas/gerenciar": ["Admin"],
-  "/materiais": ["Admin", "Professor", "Aluno"],
   "/avaliacoes": ["Admin", "Professor", "Aluno"],
   "/perfil": ["Admin", "Professor", "Aluno"],
   "/professor/relatorios": ["Professor"],

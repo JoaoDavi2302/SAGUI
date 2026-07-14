@@ -1,55 +1,33 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useEffect } from "react";
 import { CircularProgress, Box } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 import { useUser } from "@/new-services/auth/AuthContext";
-import { DatabaseProvider } from "@/services/poo/databaseProvider";
-import { DisciplineProvider } from "@/services/poo/discipline/disciplineProvider";
 
 import StudentDisciplinesPage from "./studentDisciplinesPage";
-import ProfessorDisciplinesPage from "./professorDisciplinesPage";
 import AdminDisciplinesPage from "./adminDisciplinesPage";
 
-const database = DatabaseProvider.getDatabase();
-
 export default function DisciplinasPage() {
-  const { user, effectiveRole } = useUser();
+  const router = useRouter();
+  const { effectiveRole } = useUser();
 
-  const provider = useMemo(() => {
-    if (!user || effectiveRole === "Aluno") return null;
-
-    return DisciplineProvider.create(
-      effectiveRole,
-      database,
-      user
-    );
-  }, [effectiveRole, user]);
-
-  const data = useMemo(() => {
-    if (!provider)
-      return {
-        grouped: [],
-        modules: [],
-        lessons: [],
-        moduleProgress: [],
-      };
-
-    return provider.getPageData();
-  }, [provider]);
+  useEffect(() => {
+    if (effectiveRole === "Professor") {
+      router.replace("/professor/disciplinas");
+    }
+  }, [effectiveRole, router]);
 
   if (effectiveRole === "Aluno") {
     return <StudentDisciplinesPage />;
   }
 
-  if (!provider) return null;
-
   if (effectiveRole === "Professor") {
     return (
-      <ProfessorDisciplinesPage
-        user={user}
-        data={data}
-      />
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress />
+      </Box>
     );
   }
 

@@ -26,6 +26,5 @@ export type HeaderItem =
 export type HeaderSearchType =
   | "courses"
   | "disciplines"
-  | "activities"
   | "users"
   | "professor-disciplines";

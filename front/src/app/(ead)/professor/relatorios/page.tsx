@@ -92,22 +92,24 @@ export default function RelatoriosProfessorPage() {
       </Typography>
 
       {/* Filtro de disciplina */}
-      <Box sx={{ mb: 4, maxWidth: 400 }}>
-        <FormControl fullWidth size="small">
-          <InputLabel>Selecionar disciplina</InputLabel>
-          <Select
-            value={selectedDiscipline || ''}
-            onChange={(e) => setSelectedDiscipline(e.target.value)}
-            label="Selecionar disciplina"
-          >
-            {disciplines.map((d) => (
-              <MenuItem key={d.id} value={d.id}>
-                {d.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
+      {disciplines.length > 0 && (
+        <Box sx={{ mb: 4, maxWidth: 400 }}>
+          <FormControl fullWidth size="small">
+            <InputLabel>Selecionar disciplina</InputLabel>
+            <Select
+              value={selectedDiscipline || ''}
+              onChange={(e) => setSelectedDiscipline(e.target.value)}
+              label="Selecionar disciplina"
+            >
+              {disciplines.map((d) => (
+                <MenuItem key={d.id} value={d.id}>
+                  {d.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+      )}
 
       {/* Tabela de alunos */}
       <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
@@ -117,6 +119,12 @@ export default function RelatoriosProfessorPage() {
           </Box>
         ) : error ? (
           <Alert severity="error" sx={{ m: 3 }}>{error}</Alert>
+        ) : disciplines.length === 0 ? (
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            <Typography color="text.secondary">
+              Nenhuma disciplina ativa vinculada ao seu perfil.
+            </Typography>
+          </Box>
         ) : students.length === 0 ? (
           <Box sx={{ p: 4, textAlign: 'center' }}>
             <Typography color="text.secondary">

@@ -4,7 +4,6 @@ import "./globals.css";
 import ThemeRegistry from "@/theme-provider";
 
 import { AuthProvider } from "@/new-services/auth/AuthContext";
-import { DataProvider } from "@/new-services/auth/dataContext";
 
 export const metadata: Metadata = {
   title: "Sagui",
@@ -23,9 +22,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body>
         <ThemeRegistry>
-          <AuthProvider>
-            <DataProvider>{children}</DataProvider>
-          </AuthProvider>
+          <AuthProvider>{children}</AuthProvider>
         </ThemeRegistry>
       </body>
     </html>
