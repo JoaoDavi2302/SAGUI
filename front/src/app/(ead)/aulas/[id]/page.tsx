@@ -52,7 +52,7 @@ import {
   listLessons,
   type LessonDTO,
 } from "@/new-services/poo/shared/api/lessons";
-import { getModule, listModules } from "@/new-services/poo/shared/api/modules";
+import { getModule } from "@/new-services/poo/shared/api/modules";
 import { getDiscipline } from "@/new-services/poo/shared/api/disciplines";
 import { getDisciplineProgress } from "@/new-services/poo/shared/api/progress";
 import { slugify } from "@/components/layout/headerConfig";

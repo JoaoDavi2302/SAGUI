@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.enums.UserRole;
-import com.ufpa.SAGUI.models.User;
-import com.ufpa.SAGUI.repository.UserRepository;
+import com.ufpa.SAGUI.models.user.User;
+import com.ufpa.SAGUI.repository.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

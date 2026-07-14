@@ -3,7 +3,7 @@ package com.ufpa.SAGUI.dto.module;
 import java.util.UUID;
 
 import com.ufpa.SAGUI.enums.EntityStatus;
-import com.ufpa.SAGUI.models.Module;
+import com.ufpa.SAGUI.models.module.Module;
 
 public record ModuleResponse(
     UUID id,

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-import com.ufpa.SAGUI.models.User;
+import com.ufpa.SAGUI.models.user.User;
 
 public record UserPageResponse(
     List<UserProfileResponse> content,

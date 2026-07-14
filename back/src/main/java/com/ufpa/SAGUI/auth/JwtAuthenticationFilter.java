@@ -2,7 +2,7 @@ package com.ufpa.SAGUI.auth;
 
 import java.io.IOException;
 
-import com.ufpa.SAGUI.service.UserService;
+import com.ufpa.SAGUI.service.user.UserService;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

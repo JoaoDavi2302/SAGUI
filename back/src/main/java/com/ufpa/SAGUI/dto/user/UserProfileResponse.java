@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.ufpa.SAGUI.enums.EntityStatus;
 import com.ufpa.SAGUI.enums.UserRole;
-import com.ufpa.SAGUI.models.User;
+import com.ufpa.SAGUI.models.user.User;
 
 public record UserProfileResponse(
     UUID id,

@@ -2,7 +2,7 @@ package com.ufpa.SAGUI.dto.course;
 
 import java.util.UUID;
 import com.ufpa.SAGUI.enums.EntityStatus;
-import com.ufpa.SAGUI.models.Course;
+import com.ufpa.SAGUI.models.course.Course;
 
 public record CourseResponse(
     UUID id,

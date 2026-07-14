@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-import com.ufpa.SAGUI.models.Enrollment;
+import com.ufpa.SAGUI.models.enrollment.Enrollment;
 
 public record EnrollmentPageResponse(
         List<EnrollmentDetailResponse> content,

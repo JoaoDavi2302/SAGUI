@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.ufpa.SAGUI.enums.AttachmentType;
 import com.ufpa.SAGUI.enums.EntityStatus;
-import com.ufpa.SAGUI.models.Attachment;
+import com.ufpa.SAGUI.models.attachment.Attachment;
 import com.ufpa.SAGUI.util.YouTubeUrlValidator;
 
 public record AttachmentResponse(

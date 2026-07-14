@@ -3,7 +3,7 @@ package com.ufpa.SAGUI.dto.lesson;
 import java.util.UUID;
 
 import com.ufpa.SAGUI.enums.EntityStatus;
-import com.ufpa.SAGUI.models.Lesson;
+import com.ufpa.SAGUI.models.lesson.Lesson;
 
 public record LessonResponse(
     UUID id,

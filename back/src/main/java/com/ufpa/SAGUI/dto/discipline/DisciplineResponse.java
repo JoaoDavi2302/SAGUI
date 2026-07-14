@@ -2,7 +2,7 @@ package com.ufpa.SAGUI.dto.discipline;
 
 import java.util.UUID;
 import com.ufpa.SAGUI.enums.EntityStatus;
-import com.ufpa.SAGUI.models.Discipline;
+import com.ufpa.SAGUI.models.discipline.Discipline;
 
 public record DisciplineResponse(
     UUID id,

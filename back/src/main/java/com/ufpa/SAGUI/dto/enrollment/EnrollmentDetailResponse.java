@@ -3,7 +3,7 @@ package com.ufpa.SAGUI.dto.enrollment;
 import java.util.UUID;
 
 import com.ufpa.SAGUI.enums.EnrollmentStatus;
-import com.ufpa.SAGUI.models.Enrollment;
+import com.ufpa.SAGUI.models.enrollment.Enrollment;
 
 import lombok.Builder;
 import lombok.Data;

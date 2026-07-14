@@ -3,8 +3,8 @@ package com.ufpa.SAGUI.dto.activity;
 import java.util.List;
 import java.util.UUID;
 
-import com.ufpa.SAGUI.models.Alternative;
-import com.ufpa.SAGUI.models.StudentAnswer;
+import com.ufpa.SAGUI.models.activity.Alternative;
+import com.ufpa.SAGUI.models.activity.StudentAnswer;
 
 public record StudentAnswerDetailResponse(
         UUID questionId,

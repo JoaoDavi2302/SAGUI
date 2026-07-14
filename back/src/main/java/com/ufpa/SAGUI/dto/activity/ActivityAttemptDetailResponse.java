@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.ufpa.SAGUI.enums.AttemptStatus;
-import com.ufpa.SAGUI.models.ActivityAttempt;
+import com.ufpa.SAGUI.models.activity.ActivityAttempt;
 
 public record ActivityAttemptDetailResponse(
         UUID attemptId,
