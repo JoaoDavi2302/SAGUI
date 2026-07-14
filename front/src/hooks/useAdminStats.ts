@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { apiFetch } from '@/new-services/poo/shared/api/client';
+import { listUsersPage } from '@/new-services/poo/shared/api/users';
+import { listDisciplines } from '@/new-services/poo/shared/api/disciplines';
+import { listDisciplineStudentsProgress } from '@/new-services/poo/shared/api/progress';
 import { getApiErrorMessage } from '@/utils/apiErrorMessage';
 
 interface DisciplineStats {
@@ -21,13 +23,42 @@ interface StudentPerformance {
   approvalRate: number;
 }
 
-interface AdminStats {
+export interface AdminStats {
   totalStudents: number;
   totalProfessors: number;
   averageStudentProgress: number;
   overallApprovalRate: number;
   topStudents: StudentPerformance[];
   disciplineStats: DisciplineStats[];
+}
+
+const PROGRESS_CONCURRENCY = 5;
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  mapper: (item: T) => Promise<R | null>,
+): Promise<R[]> {
+  const results: R[] = [];
+  let index = 0;
+
+  async function worker() {
+    while (index < items.length) {
+      const current = index;
+      index += 1;
+      const result = await mapper(items[current]);
+      if (result !== null) {
+        results.push(result);
+      }
+    }
+  }
+
+  const workers = Array.from(
+    { length: Math.min(limit, items.length) },
+    () => worker(),
+  );
+  await Promise.all(workers);
+  return results;
 }
 
 export function useAdminStats() {
@@ -40,68 +71,78 @@ export function useAdminStats() {
     setError(null);
 
     try {
-      // Buscar todos os usuários (alunos e professores)
-      const usersResponse = await apiFetch<{ content: any[] }>('/users?size=100');
-      const allUsers = usersResponse.content || [];
+      const [studentsPage, professorsPage, disciplinesPage] = await Promise.all([
+        listUsersPage({ page: 0, size: 1, role: 'Aluno' }),
+        listUsersPage({ page: 0, size: 1, role: 'Professor' }),
+        listDisciplines(undefined, 0, 100),
+      ]);
 
-      const students = allUsers.filter((u) => u.role === 'Aluno');
-      const professors = allUsers.filter((u) => u.role === 'Professor');
+      const disciplines = disciplinesPage.content ?? [];
 
-      // Buscar estatísticas por disciplina (se o endpoint existir)
-      // Ou calcular a partir dos dados disponíveis
-      let disciplineStats: DisciplineStats[] = [];
-      let studentPerformances: StudentPerformance[] = [];
-
-      // Tentar buscar progresso dos alunos por disciplina
-      try {
-        const disciplinesResponse = await apiFetch<{ content: any[] }>('/disciplines?size=100');
-        const disciplines = disciplinesResponse.content || [];
-
-        for (const discipline of disciplines) {
+      const disciplineStats = await mapWithConcurrency(
+        disciplines,
+        PROGRESS_CONCURRENCY,
+        async (discipline) => {
           try {
-            const progressResponse = await apiFetch<{ content: any[] }>(
-              `/disciplines/${discipline.id}/students/progress?size=100`
+            const progressResponse = await listDisciplineStudentsProgress(
+              discipline.id,
+              0,
+              100,
             );
-            const progressData = progressResponse.content || [];
+            const progressData = progressResponse.content ?? [];
 
-            const avgProgress = progressData.length > 0
-              ? progressData.reduce((acc, p) => acc + (p.overallPercentage || 0), 0) / progressData.length
-              : 0;
+            const avgProgress =
+              progressData.length > 0
+                ? progressData.reduce(
+                    (acc, p) => acc + (p.overallPercentage || 0),
+                    0,
+                  ) / progressData.length
+                : 0;
 
-            const approved = progressData.filter((p) => p.overallPercentage >= 70).length;
+            const approved = progressData.filter(
+              (p) => p.overallPercentage >= 70,
+            ).length;
 
-            disciplineStats.push({
+            return {
               disciplineId: discipline.id,
               disciplineName: discipline.name,
               totalStudents: progressData.length,
               averageProgress: Math.round(avgProgress),
               approvedCount: approved,
-              approvalRate: progressData.length > 0 ? Math.round((approved / progressData.length) * 100) : 0,
-            });
+              approvalRate:
+                progressData.length > 0
+                  ? Math.round((approved / progressData.length) * 100)
+                  : 0,
+            } satisfies DisciplineStats;
           } catch {
-            // Disciplina sem progresso
+            return null;
           }
-        }
-      } catch {
-        // Erro ao buscar disciplinas
-      }
+        },
+      );
 
-      // Calcular estatísticas gerais
-      const avgStudentProgress = disciplineStats.length > 0
-        ? Math.round(disciplineStats.reduce((acc, d) => acc + d.averageProgress, 0) / disciplineStats.length)
-        : 0;
+      const avgStudentProgress =
+        disciplineStats.length > 0
+          ? Math.round(
+              disciplineStats.reduce((acc, d) => acc + d.averageProgress, 0) /
+                disciplineStats.length,
+            )
+          : 0;
 
-      const overallApprovalRate = disciplineStats.length > 0
-        ? Math.round(disciplineStats.reduce((acc, d) => acc + d.approvalRate, 0) / disciplineStats.length)
-        : 0;
+      const overallApprovalRate =
+        disciplineStats.length > 0
+          ? Math.round(
+              disciplineStats.reduce((acc, d) => acc + d.approvalRate, 0) /
+                disciplineStats.length,
+            )
+          : 0;
 
       setStats({
-        totalStudents: students.length,
-        totalProfessors: professors.length,
+        totalStudents: studentsPage.totalElements,
+        totalProfessors: professorsPage.totalElements,
         averageStudentProgress: avgStudentProgress,
-        overallApprovalRate: overallApprovalRate,
-        topStudents: studentPerformances,
-        disciplineStats: disciplineStats,
+        overallApprovalRate,
+        topStudents: [],
+        disciplineStats,
       });
     } catch (err) {
       setError(getApiErrorMessage(err));
@@ -111,7 +152,7 @@ export function useAdminStats() {
   }, []);
 
   useEffect(() => {
-    loadStats();
+    void loadStats();
   }, [loadStats]);
 
   return { stats, loading, error, refresh: loadStats };

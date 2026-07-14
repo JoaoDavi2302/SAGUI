@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -29,16 +29,13 @@ import {
   TimelineOutlined,
   AssessmentOutlined,
   TrendingUpOutlined,
-  TrendingDownOutlined,
 } from "@mui/icons-material";
 import { useUser } from "@/new-services/auth/AuthContext";
-import {
-  listCourses,
-  listDisciplines,
-  UserProfileDTO,
-} from "@/new-services/poo/shared/api/catalog";
-import { listUsers } from "@/new-services/poo/shared/api/users";
+import { apiFetch } from "@/new-services/poo/shared/api/client";
+import type { CourseDTO, UserProfileDTO } from "@/new-services/poo/shared/api/catalog";
+import { listUsersPage } from "@/new-services/poo/shared/api/users";
 import { listPendingEnrollmentsPage } from "@/new-services/poo/shared/api/enrollment";
+import { listDisciplines as listDisciplinesPage } from "@/new-services/poo/shared/api/disciplines";
 import { getRoleOption } from "@/components/admin/RoleSelect";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -50,15 +47,38 @@ const ROLE_CHIP_COLOR: Record<string, "primary" | "secondary" | "default"> = {
   Aluno: "default",
 };
 
+interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+}
+
+interface DashboardCounts {
+  users: number;
+  courses: number;
+  activeCourses: number;
+  disciplines: number;
+  admins: number;
+  pendingEnrollments: number;
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useUser();
   const { stats, loading: statsLoading, error: statsError } = useAdminStats();
 
-  const [courses, setCourses] = useState<Awaited<ReturnType<typeof listCourses>>>([]);
-  const [disciplines, setDisciplines] = useState<Awaited<ReturnType<typeof listDisciplines>>>([]);
-  const [users, setUsers] = useState<UserProfileDTO[]>([]);
-  const [pendingEnrollments, setPendingEnrollments] = useState(0);
+  const [recentCourses, setRecentCourses] = useState<CourseDTO[]>([]);
+  const [disciplinesByCourse, setDisciplinesByCourse] = useState<Map<string, number>>(
+    () => new Map(),
+  );
+  const [recentUsers, setRecentUsers] = useState<UserProfileDTO[]>([]);
+  const [counts, setCounts] = useState<DashboardCounts>({
+    users: 0,
+    courses: 0,
+    activeCourses: 0,
+    disciplines: 0,
+    admins: 0,
+    pendingEnrollments: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -66,38 +86,92 @@ export default function DashboardPage() {
     setLoading(true);
     setError("");
 
-    const [coursesResult, disciplinesResult, usersResult, enrollmentsResult] =
-      await Promise.allSettled([
-        listCourses(),
-        listDisciplines(),
-        listUsers(),
-        listPendingEnrollmentsPage({ page: 0, size: 1 }),
-      ]);
+    const [
+      recentCoursesResult,
+      coursesCountResult,
+      activeCoursesResult,
+      disciplinesCountResult,
+      recentUsersResult,
+      usersCountResult,
+      adminsCountResult,
+      enrollmentsResult,
+    ] = await Promise.allSettled([
+      apiFetch<PageResponse<CourseDTO>>("/courses?page=0&size=3"),
+      apiFetch<PageResponse<CourseDTO>>("/courses?page=0&size=1"),
+      apiFetch<PageResponse<CourseDTO>>("/courses?status=Active&page=0&size=1"),
+      listDisciplinesPage(undefined, 0, 1),
+      listUsersPage({ page: 0, size: 5 }),
+      listUsersPage({ page: 0, size: 1 }),
+      listUsersPage({ page: 0, size: 1, role: "Admin" }),
+      listPendingEnrollmentsPage({ page: 0, size: 1 }),
+    ]);
 
-    if (coursesResult.status === "fulfilled") {
-      setCourses(coursesResult.value);
+    const nextCounts: DashboardCounts = {
+      users: 0,
+      courses: 0,
+      activeCourses: 0,
+      disciplines: 0,
+      admins: 0,
+      pendingEnrollments: 0,
+    };
+
+    let courses: CourseDTO[] = [];
+
+    if (recentCoursesResult.status === "fulfilled") {
+      courses = recentCoursesResult.value.content ?? [];
+      setRecentCourses(courses);
     }
 
-    if (disciplinesResult.status === "fulfilled") {
-      setDisciplines(disciplinesResult.value);
+    if (coursesCountResult.status === "fulfilled") {
+      nextCounts.courses = coursesCountResult.value.totalElements;
     }
 
-    if (usersResult.status === "fulfilled") {
-      setUsers(
-        usersResult.value.sort((a, b) =>
-          (a.name ?? "").localeCompare(b.name ?? "", "pt-BR"),
-        ),
-      );
+    if (activeCoursesResult.status === "fulfilled") {
+      nextCounts.activeCourses = activeCoursesResult.value.totalElements;
+    }
+
+    if (disciplinesCountResult.status === "fulfilled") {
+      nextCounts.disciplines = disciplinesCountResult.value.totalElements;
+    }
+
+    if (recentUsersResult.status === "fulfilled") {
+      setRecentUsers(recentUsersResult.value.content ?? []);
+    }
+
+    if (usersCountResult.status === "fulfilled") {
+      nextCounts.users = usersCountResult.value.totalElements;
+    }
+
+    if (adminsCountResult.status === "fulfilled") {
+      nextCounts.admins = adminsCountResult.value.totalElements;
     }
 
     if (enrollmentsResult.status === "fulfilled") {
-      setPendingEnrollments(enrollmentsResult.value.totalElements);
+      nextCounts.pendingEnrollments = enrollmentsResult.value.totalElements;
+    }
+
+    setCounts(nextCounts);
+
+    if (courses.length > 0) {
+      const disciplineCounts = await Promise.all(
+        courses.map(async (course) => {
+          try {
+            const page = await listDisciplinesPage(course.id, 0, 1);
+            return [course.id, page.totalElements] as const;
+          } catch {
+            return [course.id, 0] as const;
+          }
+        }),
+      );
+      setDisciplinesByCourse(new Map(disciplineCounts));
+    } else {
+      setDisciplinesByCourse(new Map());
     }
 
     if (
-      coursesResult.status === "rejected" &&
-      disciplinesResult.status === "rejected" &&
-      usersResult.status === "rejected"
+      recentCoursesResult.status === "rejected" &&
+      usersCountResult.status === "rejected" &&
+      disciplinesCountResult.status === "rejected"
     ) {
       setError("Não foi possível carregar os dados do painel.");
     }
@@ -106,26 +180,10 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    loadData();
+    void loadData();
   }, [loadData]);
 
-  const activeCourses = courses.filter((course) => course.status !== "Inactive");
-  const adminCount = users.filter((item) => item.role === "Admin").length;
-  const recentUsers = users.slice(0, 5);
-  const recentCourses = useMemo(() => courses.slice(0, 3), [courses]);
-
-  const disciplinesByCourse = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const discipline of disciplines) {
-      counts.set(
-        discipline.courseId,
-        (counts.get(discipline.courseId) ?? 0) + 1,
-      );
-    }
-    return counts;
-  }, [disciplines]);
-
-  if (loading || statsLoading) {
+  if (loading) {
     return (
       <Box sx={{ p: 3 }}>
         <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
@@ -141,8 +199,6 @@ export default function DashboardPage() {
     );
   }
 
-  const displayError = error || statsError;
-
   return (
     <Box sx={{ p: 3 }}>
       <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
@@ -157,38 +213,37 @@ export default function DashboardPage() {
         Acompanhe os indicadores e acesse a gestão da plataforma.
       </Typography>
 
-      {displayError && (
+      {error && (
         <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
-          {displayError}
+          {error}
         </Alert>
       )}
 
-      {/* Cards de indicadores gerais */}
       <Grid container spacing={3} sx={{ mb: 5 }}>
         {[
           {
             label: "Usuários",
-            value: users.length,
+            value: counts.users,
             icon: <PeopleOutlined />,
           },
           {
             label: "Cursos",
-            value: courses.length,
+            value: counts.courses,
             icon: <SchoolOutlined />,
           },
           {
             label: "Disciplinas",
-            value: disciplines.length,
+            value: counts.disciplines,
             icon: <TimelineOutlined />,
           },
           {
             label: "Administradores",
-            value: adminCount,
+            value: counts.admins,
             icon: <AdminPanelSettingsOutlined />,
           },
           {
             label: "Matrículas pendentes",
-            value: pendingEnrollments,
+            value: counts.pendingEnrollments,
             icon: <HowToRegOutlined />,
             href: "/dashboard/matriculas",
           },
@@ -228,13 +283,22 @@ export default function DashboardPage() {
         ))}
       </Grid>
 
-      {/* Cards de desempenho dos alunos */}
-      {stats && (
-        <>
-          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-            📊 Desempenho dos Alunos
-          </Typography>
+      <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+        Desempenho dos Alunos
+      </Typography>
 
+      {statsError && (
+        <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+          {statsError}
+        </Alert>
+      )}
+
+      {statsLoading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 4, mb: 5 }}>
+          <CircularProgress size={32} />
+        </Box>
+      ) : stats ? (
+        <>
           <Grid container spacing={3} sx={{ mb: 5 }}>
             <Grid size={{ xs: 12, md: 4 }}>
               <MuiCard sx={{ borderRadius: 3 }}>
@@ -307,11 +371,10 @@ export default function DashboardPage() {
             </Grid>
           </Grid>
 
-          {/* Desempenho por disciplina */}
           {stats.disciplineStats.length > 0 && (
             <>
               <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-                📈 Desempenho por Disciplina
+                Desempenho por Disciplina
               </Typography>
 
               <Grid container spacing={3} sx={{ mb: 5 }}>
@@ -358,9 +421,8 @@ export default function DashboardPage() {
             </>
           )}
         </>
-      )}
+      ) : null}
 
-      {/* Gerenciamento de cursos */}
       <Box
         sx={{
           display: "flex",
@@ -458,7 +520,6 @@ export default function DashboardPage() {
         )}
       </MuiCard>
 
-      {/* Últimos usuários */}
       <Box
         sx={{
           display: "flex",
@@ -523,7 +584,6 @@ export default function DashboardPage() {
         </List>
       </MuiCard>
 
-      {/* Status da plataforma */}
       <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
         Status da plataforma
       </Typography>
@@ -544,7 +604,7 @@ export default function DashboardPage() {
             <MuiCardContent>
               <Typography sx={{ fontWeight: 700 }}>Cursos ativos</Typography>
               <Typography color="text.secondary" sx={{ mt: 1 }}>
-                {activeCourses.length} de {courses.length} cursos disponíveis
+                {counts.activeCourses} de {counts.courses} cursos disponíveis
               </Typography>
             </MuiCardContent>
           </MuiCard>
